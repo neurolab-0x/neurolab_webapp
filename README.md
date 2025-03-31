@@ -2,7 +2,7 @@
 
 ## Project Information
 
-**URL**: [Project Repository](https://github.com/asimwe1/neural-nexus-analyzer)
+**URL**: [Project Repository](https://github.com/asimwe1/NeurAi)
 
 ## How to Edit This Code
 
@@ -14,10 +14,10 @@ For local development, follow these steps:
 
 ```sh
 # Step 1: Clone the repository
- git clone https://github.com/asimwe1/neural-nexus-analyzer
+ git clone https://github.com/asimwe1/NeurAi
 
 # Step 2: Navigate to the project directory
- cd neural-nexus-analyzer
+ cd NeurAi
 
 # Step 3: Install dependencies
  npm install
