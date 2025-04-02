@@ -57,8 +57,8 @@ export const sampleAnalysisResult: AnalysisResult = {
   ],
   processingMetadata: {
     processingTime: 1.25,
-    model: "NeuralNexus v1.0",
-    version: "1.0.0"
+    model: "NeurAi v1.0",
+    version: "nlPT 1-Preview"
   }
 };
 

@@ -54,9 +54,8 @@ This project is built with:
 
 To deploy this project, use a hosting platform such as Netlify or Vercel.
 
-For detailed instructions, refer to the official documentation: [Deployment Guide](https://yourdeploymentdocs.com)
+For detailed instructions, refer to the official documentation: [Deployment Guide](https://neurolac.cc)
 
 ## Custom Domains
 
-For hosting on a custom domain, follow the guidelines provided by your preferred hosting provider. Additional details can be found in the [Custom Domains Guide](https://yourcustomdomaindocs.com).
-
+For hosting on a custom domain, follow the guidelines provided by your preferred hosting provider. Additional details can be found in the [Custom Domains Guide](https://neurolab.cc).

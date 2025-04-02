@@ -14,7 +14,7 @@ const Private = () => {
   
   const handleAuthenticate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "neuraitest") { // Simple password for demo
+    if (password === "neuraitest") {
       setAuthenticated(true);
     } else {
       alert("Incorrect password");
@@ -60,7 +60,7 @@ const Private = () => {
                 </div>
               </form>
               <div className="mt-4 text-center text-sm text-muted-foreground">
-                <p>This area is password protected. Use "neuraitest" for this demo.</p>
+                {/* <p>This area is password protected. Use "neuraitest" for this demo.</p> */}
               </div>
             </CardContent>
           </Card>
@@ -103,7 +103,7 @@ const Private = () => {
                         </div>
                         <div>
                           <CardTitle className="text-base">Confidential Report #{item}</CardTitle>
-                          <CardDescription>Last updated: November {item + 10}, 2023</CardDescription>
+                          <CardDescription>Last updated: April {item + 10}, 2025</CardDescription>
                         </div>
                       </div>
                     </CardHeader>
@@ -135,7 +135,7 @@ const Private = () => {
                           <div className="flex items-center">
                             <h4 className="text-sm font-medium">Dr. Smith</h4>
                             <span className="text-xs text-muted-foreground ml-2">
-                              November {item + 15}, 2023
+                              April {item + 15}, 2025
                             </span>
                           </div>
                           <p className="text-sm mt-1">

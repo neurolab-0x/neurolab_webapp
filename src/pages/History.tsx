@@ -8,11 +8,11 @@ import { Calendar, Download, Eye } from "lucide-react";
 const History = () => {
   // Sample history data
   const historyItems = [
-    { id: 1, date: "2023-11-15", type: "EEG Analysis", status: "Complete", result: "Focused" },
-    { id: 2, date: "2023-11-10", type: "EEG Analysis", status: "Complete", result: "Relaxed" },
-    { id: 3, date: "2023-11-05", type: "Brain Mapping", status: "Complete", result: "Neutral" },
-    { id: 4, date: "2023-10-28", type: "EEG Analysis", status: "Complete", result: "Focused" },
-    { id: 5, date: "2023-10-20", type: "Brain Mapping", status: "Complete", result: "Distracted" },
+    { id: 1, date: "2025-04-15", type: "EEG Analysis", status: "Complete", result: "Focused" },
+    { id: 2, date: "2025-04-10", type: "EEG Analysis", status: "Complete", result: "Relaxed" },
+    { id: 3, date: "2025-04-05", type: "Brain Mapping", status: "Complete", result: "Neutral" },
+    { id: 4, date: "2025-03-28", type: "EEG Analysis", status: "Complete", result: "Focused" },
+    { id: 5, date: "2025-03-20", type: "Brain Mapping", status: "Complete", result: "Distracted" },
   ];
 
   return (
