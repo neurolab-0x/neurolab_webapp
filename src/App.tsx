@@ -11,6 +11,7 @@ import History from "./pages/History";
 import Settings from "./pages/Settings";
 import Private from "./pages/Private";
 import NotFound from "./pages/NotFound";
+import LiveAnalysis from "./components/LiveAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/history" element={<History />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/private" element={<Private />} />
+          <Route path="/live-analysis" element={<LiveAnalysis />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
