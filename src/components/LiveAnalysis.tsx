@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import GaugeChart from "react-gauge-chart";
 import { sampleAnalysisResult } from "../data/sampleData";
+import { Header } from "./Header";
 
 // Register ChartJS components
 ChartJS.register(
@@ -107,7 +108,9 @@ const LiveAnalysis = () => {
   };
 
   return (
-<div className="min-h-screen flex flex-col items-center bg-background text-white p-6">
+<div className="min-h-screen flex-col items-center bg-background text-white">
+    <Header />
+    <main className="flex flex-col items-center justify-center w-full flex-1 p-6">
   <div className="w-full bg-background max-w-4xl">
     <h1 className="text-3xl font-bold mb-6 text-center">Live EEG Analysis</h1>
 
@@ -183,7 +186,7 @@ const LiveAnalysis = () => {
           arcWidth={0.3}
           textColor="#FFFFFF"
           needleColor="#FFFFFF"
-        />
+          />
         <p>{latestValues.relaxation}%</p>
       </div>
     </div>
@@ -193,7 +196,7 @@ const LiveAnalysis = () => {
     </div>
 
     {analysisResult && !isCapturing && (
-      <div className="bg-gray-800 p-6 rounded-lg">
+        <div className="bg-gray-800 p-6 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Analysis Summary</h2>
         <p><strong>Analysis ID:</strong> {analysisResult.id}</p>
         <p><strong>Timestamp:</strong> {new Date(analysisResult.timestamp).toLocaleString()}</p>
@@ -225,7 +228,10 @@ const LiveAnalysis = () => {
         <p><strong>Version:</strong> {analysisResult.processingMetadata.version}</p>
       </div>
     )}
+
+    <Button onClick={() => navigate("/analysis")} className="bg-primary hover:bg-primary-dark">Visualize Data</Button>
   </div>
+          </main>
 </div>
   );
 };
