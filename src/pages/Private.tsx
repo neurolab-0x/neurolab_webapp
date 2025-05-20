@@ -1,6 +1,5 @@
-
+import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,7 @@ const Private = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
-  
+
   const handleAuthenticate = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === "neuraitest") {
@@ -20,13 +19,11 @@ const Private = () => {
       alert("Incorrect password");
     }
   };
-  
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
-        
-        <main className="flex-1 section-padding flex items-center justify-center">
+
+  return (
+    <DashboardLayout>
+      {!authenticated ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
@@ -59,39 +56,22 @@ const Private = () => {
                   <Button type="submit" className="w-full">Access Private Area</Button>
                 </div>
               </form>
-              <div className="mt-4 text-center text-sm text-muted-foreground">
-                {/* <p>This area is password protected. Use "neuraitest" for this demo.</p> */}
-              </div>
             </CardContent>
           </Card>
-        </main>
-        
-        <footer className="border-t border-border py-6">
-          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-            <p>NeurAi &copy; {new Date().getFullYear()}. All rights reserved.</p>
-          </div>
-        </footer>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header />
-      
-      <main className="flex-1 section-padding">
-        <div className="container mx-auto">
+        </div>
+      ) : (
+        <div className="space-y-6">
           <div className="mb-8">
-            <h1 className="font-bold">Private Area</h1>
+            <h1 className="text-2xl font-bold">Private Area</h1>
             <p className="text-muted-foreground">Your confidential data and documents.</p>
           </div>
-          
+
           <Tabs defaultValue="documents">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="documents">Private Documents</TabsTrigger>
               <TabsTrigger value="messages">Secure Messages</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="documents">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2, 3, 4].map((item) => (
@@ -117,7 +97,7 @@ const Private = () => {
                 ))}
               </div>
             </TabsContent>
-            
+
             <TabsContent value="messages">
               <Card>
                 <CardHeader>
@@ -139,14 +119,14 @@ const Private = () => {
                             </span>
                           </div>
                           <p className="text-sm mt-1">
-                            Your latest EEG results show significant improvement in the focused state. 
+                            Your latest EEG results show significant improvement in the focused state.
                             Let's discuss this in our next session.
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-6 flex">
                     <Input placeholder="Type a secure message..." className="mr-2" />
                     <Button>Send</Button>
@@ -156,14 +136,8 @@ const Private = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </main>
-      
-      <footer className="border-t border-border py-6">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>NeurAi &copy; {new Date().getFullYear()}. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+      )}
+    </DashboardLayout>
   );
 };
 
