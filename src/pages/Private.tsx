@@ -23,7 +23,7 @@ const Private = () => {
   return (
     <DashboardLayout>
       {!authenticated ? (
-        <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex items-center justify-center min-h-[60vh] w-full">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
@@ -60,8 +60,8 @@ const Private = () => {
           </Card>
         </div>
       ) : (
-        <div className="space-y-6">
-          <div className="mb-8">
+        <div className="space-y-6 w-full">
+          <div className="mb-8 w-full">
             <h1 className="text-2xl font-bold">Private Area</h1>
             <p className="text-muted-foreground">Your confidential data and documents.</p>
           </div>
@@ -73,9 +73,9 @@ const Private = () => {
             </TabsList>
 
             <TabsContent value="documents">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 {[1, 2, 3, 4].map((item) => (
-                  <Card key={item} className="neural-card-hover">
+                  <Card key={item} className="neural-card-hover w-full">
                     <CardHeader className="pb-2">
                       <div className="flex items-start">
                         <div className="mr-3 p-2 bg-primary/10 rounded">
@@ -99,7 +99,7 @@ const Private = () => {
             </TabsContent>
 
             <TabsContent value="messages">
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
                   <CardTitle>Secure Messages</CardTitle>
                   <CardDescription>End-to-end encrypted communications</CardDescription>

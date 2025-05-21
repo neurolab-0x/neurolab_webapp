@@ -79,7 +79,9 @@ export default function Register() {
         title: "Success",
         description: "Your account has been created successfully.",
       });
-    } catch (error: any) {
+      navigate("/login");
+    } catch (error) {
+      console.log(error)
       toast({
         variant: "destructive",
         title: "Error",

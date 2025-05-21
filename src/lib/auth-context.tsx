@@ -72,16 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const response = await axios.post('/auth/register', credentials);
-      const { token, userWithoutPassword } = response.data;
+      const { message, userWithoutPassword } = response.data;
 
-      if (!token || !userWithoutPassword) {
+      if (!message || !userWithoutPassword) {
         throw new Error('Invalid response from server');
       }
-
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(userWithoutPassword);
-      return userWithoutPassword;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
       throw err;

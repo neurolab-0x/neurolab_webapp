@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth-context";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Analysis from "./pages/Analysis";
 import History from "./pages/History";
@@ -15,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import LiveAnalysis from "./components/LiveAnalysis";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Chat from "./pages/Chat";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +74,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <LiveAnalysis />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
                 </ProtectedRoute>
               }
             />
