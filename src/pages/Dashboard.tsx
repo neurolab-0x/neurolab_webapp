@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Brain, Activity, LineChart, Users, Calendar } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AuthContext } from "@/lib/auth/auth-context";
+import { useAuth } from '@/features/auth/hooks/useAuth';
 // Sample data for the chart - EEG data with longer intervals
 const data = [
   { time: '00:00', value: 0.2 },

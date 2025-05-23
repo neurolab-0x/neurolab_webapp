@@ -15,16 +15,9 @@ import NotFound from "./pages/NotFound";
 import LiveAnalysis from "./components/LiveAnalysis";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import Chat from "./pages/Chat";
 import Notifications from "./pages/Notifications";
 import Schedule from "./pages/Schedule";
 import Profile from "./pages/Profile";
-import { DoctorRoute } from './features/doctor/components/DoctorRoute';
-import { DoctorLayout } from './features/doctor/components/DoctorLayout';
-import { DoctorDashboard } from './features/doctor/components/DoctorDashboard';
-import { Appointments } from './features/doctor/components/Appointments';
-import { Patients } from './features/doctor/components/Patients';
-import { Reports } from './features/doctor/components/Reports';
 
 const queryClient = new QueryClient();
 
@@ -104,60 +97,11 @@ const App: React.FC = () => (
               }
             />
             <Route
-              path="/chat"
-              element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/profile"
               element={
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
-              }
-            />
-            {/* Doctor routes with layout and protection */}
-            <Route
-              path="/doctor"
-              element={
-                <DoctorRoute>
-                  <DoctorLayout>
-                    <DoctorDashboard />
-                  </DoctorLayout>
-                </DoctorRoute>
-              }
-            />
-            <Route
-              path="/doctor/appointments"
-              element={
-                <DoctorRoute>
-                  <DoctorLayout>
-                    <Appointments />
-                  </DoctorLayout>
-                </DoctorRoute>
-              }
-            />
-            <Route
-              path="/doctor/patients"
-              element={
-                <DoctorRoute>
-                  <DoctorLayout>
-                    <Patients />
-                  </DoctorLayout>
-                </DoctorRoute>
-              }
-            />
-            <Route
-              path="/doctor/reports"
-              element={
-                <DoctorRoute>
-                  <DoctorLayout>
-                    <Reports />
-                  </DoctorLayout>
-                </DoctorRoute>
               }
             />
             <Route path="*" element={<NotFound />} />

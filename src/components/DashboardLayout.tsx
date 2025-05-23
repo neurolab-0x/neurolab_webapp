@@ -53,12 +53,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       description: 'Schedule your EEG sessions'
     },
     {
-      name: 'Chat',
-      href: '/chat',
-      icon: MessageCircle,
-      description: 'AI-powered insights and support'
-    },
-    {
       name: 'Notifications',
       href: '/notifications',
       icon: Bell,
