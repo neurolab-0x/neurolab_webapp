@@ -547,7 +547,6 @@ const LiveAnalysis = () => {
 
         <Separator className="my-8" />
 
-        <SessionHistory />
       </motion.div>
     </DashboardLayout>
   );

@@ -135,7 +135,7 @@ const History = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl font-bold">Analysis History</h1>
-            <p className="text-muted-foreground">View and analyze your past EEG sessions</p>
+            <p className="text-mu  ted-foreground">View and analyze your past EEG sessions</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="gap-2">
@@ -143,7 +143,7 @@ const History = () => {
               Export All
             </Button>
             <Button variant="outline" size="sm" className="gap-2">
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-4 w  -4" />
               Share
             </Button>
           </div>

@@ -1,16 +1,26 @@
 export interface User {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   username: string;
-  role: 'user' | 'admin';
+  email: string;
+  role: 'user' | 'admin' | 'researcher' | 'doctor';
   avatar?: string;
+  isEmailVerified: boolean;
+  lastLogin: string;
+  createdAt: string;
+  updatedAt: string;
+  specialization?: string;
+  licenseNumber?: string;
+  hospital?: string;
+  department?: string;
+  patients?: string[];
 }
 
 export interface AuthResponse {
+  message: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
-  token: string;
 }
 
 export interface LoginCredentials {
@@ -19,12 +29,23 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials {
-  firstName: string;
-  lastName: string;
+  fullName: string;
   username: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  avatar?: string;
+}
+
+export interface UpdateProfileData {
+  fullName?: string;
+  username?: string;
+  email?: string;
+  avatar?: string;
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AuthContextType {
@@ -32,7 +53,37 @@ export interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
+  login: (credentials: LoginCredentials) => Promise<User>;
+  register: (credentials: RegisterCredentials) => Promise<User>;
+  logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileData) => Promise<User>;
+  changePassword: (data: ChangePasswordData) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
+}
+
+export interface DoctorProfile extends User {
+  specialization: string;
+  licenseNumber: string;
+  hospital: string;
+  department: string;
+  patients: string[];
+  availability: {
+    days: string[];
+    startTime: string;
+    endTime: string;
+  };
+  appointments: Appointment[];
+}
+
+export interface Appointment {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  type: 'consultation' | 'follow-up' | 'emergency';
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 } 

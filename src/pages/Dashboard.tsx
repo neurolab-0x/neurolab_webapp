@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Brain, Activity, LineChart, Users, Calendar } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
+import { AuthContext } from "@/lib/auth/auth-context";
 // Sample data for the chart - EEG data with longer intervals
 const data = [
   { time: '00:00', value: 0.2 },
@@ -21,15 +21,14 @@ const data = [
 ];
 
 const Dashboard = () => {
+  const { user } = useAuth();
   return (
     <DashboardLayout>
       <div className="space-y-6 w-full min-w-0 min-h-0">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome to your Neurolab control center.</p>
+            <h1 className="text-4xl font-bold">Welcome back, <span className="text-primary">@{user?.username}👋</span></h1>
           </div>
-          <Button>Upload New Data</Button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full min-w-0 min-h-0 auto-cols-fr">

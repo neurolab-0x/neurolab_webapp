@@ -56,7 +56,7 @@ const mockAnalysisResult: AnalysisResult = {
     "Maintain regular sleep patterns to improve cognitive performance"
   ],
   processingMetadata: {
-    model: "NeuralLab v2.1",
+    model: "NeurAI v2.1",
     version: "2.1.0",
     processingTime: 3.5
   }
@@ -134,119 +134,6 @@ const Analysis = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full space-y-6"
       >
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Analysis</h1>
-            <p className="text-muted-foreground">Upload and analyze your EEG data for cognitive insights.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {sessionStatus === 'idle' && (
-              <Button
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-colors"
-                onClick={handleStartSession}
-              >
-                <Play className="h-4 w-4" />
-                Start Live Session
-              </Button>
-            )}
-            {sessionStatus === 'active' && (
-              <>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  onClick={handlePauseSession}
-                >
-                  <Pause className="h-4 w-4" />
-                  Pause
-                </Button>
-                <Button
-                  variant="destructive"
-                  className="flex items-center gap-2"
-                  onClick={handleStopSession}
-                >
-                  <StopCircle className="h-4 w-4" />
-                  Stop Session
-                </Button>
-              </>
-            )}
-            {sessionStatus === 'paused' && (
-              <Button
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-colors"
-                onClick={handleResumeSession}
-              >
-                <Play className="h-4 w-4" />
-                Resume Session
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {sessionStatus !== 'idle' && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <Card className="w-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2">
-                        Live Session
-                        <Badge variant={sessionStatus === 'active' ? 'default' : 'secondary'}>
-                          {sessionStatus === 'active' ? 'Active' : sessionStatus === 'paused' ? 'Paused' : 'Connecting...'}
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription>
-                        {sessionStatus === 'active' ? 'Recording and analyzing in real-time' :
-                          sessionStatus === 'paused' ? 'Session paused' : 'Establishing connection...'}
-                      </CardDescription>
-                    </div>
-                    {sessionStatus === 'active' && (
-                      <div className="text-2xl font-mono font-bold">
-                        {formatDuration(sessionDuration)}
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <Progress value={sessionProgress} className="h-2" />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Signal Quality</span>
-                            <Badge variant="outline">Excellent</Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Data Points</span>
-                            <span className="font-mono">{sessionDuration * 128}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Connection</span>
-                            <Badge variant="outline" className="bg-green-500/10 text-green-500">Stable</Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -255,43 +142,10 @@ const Analysis = () => {
           </Alert>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Analyses</CardTitle>
-              <BarChart2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Attention</CardTitle>
-              <Brain className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">78%</div>
-              <p className="text-xs text-muted-foreground">+4% from baseline</p>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">2 live, 1 scheduled</p>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Analysis Tools</CardTitle>
-            <CardDescription>Upload your EEG data or view previous analysis results.</CardDescription>
+            <CardDescription>Upload your EEG data or view previous analysis results. Maximum of 100MB per file.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="upload" className="w-full">

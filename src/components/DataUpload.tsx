@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, X, Check, Loader2 } from "lucide-react";
@@ -10,35 +9,35 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
     }
   };
-  
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
     }
   };
-  
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-  
+
   const handleUpload = () => {
     if (!file) return;
-    
+
     setUploading(true);
-    
+
     // Simulate file upload with progress
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
       setProgress(progress);
-      
+
       if (progress >= 100) {
         clearInterval(interval);
         setTimeout(() => {
@@ -51,22 +50,21 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
       }
     }, 250);
   };
-  
+
   const handleClearFile = () => {
     setFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
-  
+
   return (
     <div className="neural-card p-6">
       <h3 className="text-lg font-semibold mb-3">Upload EEG Data</h3>
-      
-      <div 
-        className={`border-2 border-dashed rounded-lg p-8 text-center ${
-          file ? "border-neural-teal/50" : "border-border hover:border-primary/50"
-        } transition-colors duration-200`}
+
+      <div
+        className={`border-2 border-dashed rounded-lg p-8 text-center ${file ? "border-neural-teal/50" : "border-border hover:border-primary/50"
+          } transition-colors duration-200`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
@@ -83,8 +81,8 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
                 Supports CSV, JSON, and EDF formats
               </p>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => fileInputRef.current?.click()}
               className="mt-2"
             >
@@ -99,7 +97,7 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
             />
           </div>
         )}
-        
+
         {file && !uploading && (
           <div className="space-y-4">
             <div className="mx-auto w-12 h-12 rounded-full bg-neural-teal/10 flex items-center justify-center">
@@ -112,17 +110,17 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
               </p>
             </div>
             <div className="flex justify-center space-x-2">
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleUpload}
                 className="bg-neural-green hover:bg-neural-green/90"
               >
                 <Check className="mr-2 h-4 w-4" />
                 Process
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={handleClearFile}
               >
                 <X className="mr-2 h-4 w-4" />
@@ -131,7 +129,7 @@ export const DataUpload = ({ onDataUploaded }: { onDataUploaded: () => void }) =
             </div>
           </div>
         )}
-        
+
         {uploading && (
           <div className="space-y-4">
             <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
