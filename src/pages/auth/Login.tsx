@@ -53,15 +53,15 @@ export default function Login() {
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20" />
           <div className="relative z-20 flex items-center text-lg font-medium">
-            <Brain className="mr-2 h-6 w-6" />
-            NeuroLab
+          <img src="/logo.png" alt="neurolab's logo" className='size-12' />
+            Neurolab Inc.
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                "Join our community of researchers and healthcare professionals using NeuroLab's cutting-edge neural analysis platform."
+                "Join our community of researchers and healthcare professionals using Neurolab's cutting-edge neural analysis platform."
               </p>
-              <footer className="text-sm">NeuroLab Team</footer>
+              <footer className="text-sm">Neurolab Team</footer>
             </blockquote>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Login() {
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
             <div className="flex flex-col space-y-2 text-center">
               <div className="flex items-center justify-center gap-2">
-                <Brain className="h-6 w-6 text-blue-500" />
+                <img src="/logo.png" alt="neurolab's logo" className='size-16' />
                 <h1 className="text-2xl font-semibold tracking-tight text-white">
                   Welcome Back
                 </h1>
