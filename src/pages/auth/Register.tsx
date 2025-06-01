@@ -74,7 +74,12 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      await register(formData);
+      await register({
+        fullName: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        username: formData.username,
+      });
       toast({
         title: "Success",
         description: "Your account has been created successfully.",
