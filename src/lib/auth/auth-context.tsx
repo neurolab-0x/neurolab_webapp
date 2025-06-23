@@ -86,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRefreshToken(storedRefreshToken);
       }
       setIsLoading(false);
+      
     };
 
     initializeAuth();
@@ -116,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (credentials: RegisterCredentials) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/signup', credentials);
+      const response = await axios.post('/api/auth/register', credentials);
       const { message, accessToken, refreshToken, user } = response.data;
 
       if (!message || !user || !accessToken || !refreshToken) {

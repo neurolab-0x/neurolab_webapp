@@ -4,6 +4,8 @@ import { Brain, Activity, LineChart, Users, Calendar } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useState,useEffect } from "react";
+import { getDashboardCardsData } from "@/api/dashboardData";
 // Sample data for the chart - EEG data with longer intervals
 const data = [
   { time: '00:00', value: 0.2 },
@@ -22,6 +24,29 @@ const data = [
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const token=localStorage.getItem("token")
+  const [dashboardInfo,setDashboardInfo]=useState([])
+  const [loading,setLoading]=useState(true)
+  console.log(user)
+  console.log(token)
+
+  useEffect(()=>{
+      async function fetchDashboardData(){
+        setLoading(true)
+      const data = await getDashboardCardsData();
+      setDashboardInfo(Array.isArray(data) ? data : []);
+      setLoading(false);
+    }
+    fetchDashboardData();
+  
+  },[])
+
+  const totalAnalyses = dashboardInfo.length;
+
+
+
+
+
   return (
     <DashboardLayout>
       <div className="space-y-6 w-full min-w-0 min-h-0">
@@ -38,7 +63,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">128</div>
+                <div className="text-2xl font-bold">{totalAnalyses}</div>
                 <Brain className="h-6 w-6 text-primary" />
               </div>
             </CardContent>
