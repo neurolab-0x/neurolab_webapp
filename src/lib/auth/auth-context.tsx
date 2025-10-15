@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { AuthContextType, LoginCredentials, RegisterCredentials, User, UpdateProfileData, ChangePasswordData } from '@/types/auth';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/';
+const API_URL =import.meta.env.Backend_URL || 'http://13.60.64.187:5000/'; // Default to localhost if not set
 
 // Set up axios defaults
 axios.defaults.baseURL = API_URL;
