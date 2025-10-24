@@ -27,7 +27,7 @@ interface ScheduledSession {
   date: Date;
   time: string;
   duration: number;
-  type: 'eeg' | 'brain-mapping' | 'cognitive-test';
+  type: 'eeg' | 'brain-mapping' | 'cognitive-test' | 'therapy-session';
   status: 'scheduled' | 'completed' | 'cancelled';
 }
 
@@ -51,6 +51,14 @@ const SessionScheduler = () => {
       time: "14:30",
       duration: 45,
       type: "brain-mapping",
+      status: "scheduled",
+    },
+    {
+      id: "3",
+      date: addDays(new Date(), 3),
+      time: "09:00",
+      duration: 60,
+      type: "cognitive-test",
       status: "scheduled",
     },
   ]);
@@ -79,7 +87,7 @@ const SessionScheduler = () => {
       date: selectedDate,
       time: selectedTime,
       duration: selectedDuration,
-      type: selectedType as 'eeg' | 'brain-mapping' | 'cognitive-test',
+      type: selectedType as 'eeg' | 'brain-mapping' | 'cognitive-test' | 'therapy-session',
       status: "scheduled",
     };
 
@@ -103,6 +111,8 @@ const SessionScheduler = () => {
         return "bg-purple-500/10 text-purple-500";
       case "cognitive-test":
         return "bg-green-500/10 text-green-500";
+      case "therapy-session":
+        return "bg-yellow-500/10 text-yellow-500";
       default:
         return "bg-gray-500/10 text-gray-500";
     }
@@ -202,6 +212,7 @@ const SessionScheduler = () => {
                     <SelectItem value="eeg">EEG Analysis</SelectItem>
                     <SelectItem value="brain-mapping">Brain Mapping</SelectItem>
                     <SelectItem value="cognitive-test">Cognitive Test</SelectItem>
+                    <SelectItem value="therapy-session">Therapy Session</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
