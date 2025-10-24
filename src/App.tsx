@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { I18nProvider } from "@/lib/i18n";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Analysis from "./pages/Analysis";
@@ -17,6 +18,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Notifications from "./pages/Notifications";
 import Schedule from "./pages/Schedule";
+import Appointments from "./pages/Appointments";
 import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,7 @@ const queryClient = new QueryClient();
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <I18nProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -53,6 +56,14 @@ const App: React.FC = () => (
               element={
                 <ProtectedRoute>
                   <Schedule />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/appointments"
+              element={
+                <ProtectedRoute>
+                  <Appointments />
                 </ProtectedRoute>
               }
             />
@@ -107,7 +118,8 @@ const App: React.FC = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </I18nProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

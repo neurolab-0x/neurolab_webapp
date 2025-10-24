@@ -5,11 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock, Eye, EyeOff, FileText, MessageCircle } from "lucide-react";
+import { useI18n } from '@/lib/i18n';
 
 const Private = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const { t } = useI18n();
 
   const handleAuthenticate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +33,8 @@ const Private = () => {
                   <Lock className="h-6 w-6 text-primary" />
                 </div>
               </div>
-              <CardTitle>Private Area</CardTitle>
-              <CardDescription>Enter your password to access private content</CardDescription>
+              <CardTitle>{t('private.title')}</CardTitle>
+              <CardDescription>{t('private.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAuthenticate}>
@@ -53,7 +55,7 @@ const Private = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <Button type="submit" className="w-full">Access Private Area</Button>
+                  <Button type="submit" className="w-full">{t('private.accessButton')}</Button>
                 </div>
               </form>
             </CardContent>
@@ -62,14 +64,14 @@ const Private = () => {
       ) : (
         <div className="space-y-6 w-full">
           <div className="mb-8 w-full">
-            <h1 className="text-2xl font-bold">Private Area</h1>
-            <p className="text-muted-foreground">Your confidential data and documents.</p>
+            <h1 className="text-2xl font-bold">{t('private.title')}</h1>
+            <p className="text-muted-foreground">{t('private.description')}</p>
           </div>
 
           <Tabs defaultValue="documents">
             <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="documents">Private Documents</TabsTrigger>
-              <TabsTrigger value="messages">Secure Messages</TabsTrigger>
+              <TabsTrigger value="documents">{t('private.documents')}</TabsTrigger>
+              <TabsTrigger value="messages">{t('private.messages')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="documents">
@@ -82,7 +84,7 @@ const Private = () => {
                           <FileText className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <CardTitle className="text-base">Confidential Report #{item}</CardTitle>
+                          <CardTitle className="text-base">{t('private.confidentialReport')} #{item}</CardTitle>
                           <CardDescription>Last updated: April {item + 10}, 2025</CardDescription>
                         </div>
                       </div>
@@ -91,7 +93,7 @@ const Private = () => {
                       <p className="text-sm text-muted-foreground mb-4">
                         This document contains private EEG analysis data and personal health information.
                       </p>
-                      <Button variant="outline" size="sm">View Document</Button>
+                      <Button variant="outline" size="sm">{t('private.viewDocument')}</Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -101,8 +103,8 @@ const Private = () => {
             <TabsContent value="messages">
               <Card className="w-full">
                 <CardHeader>
-                  <CardTitle>Secure Messages</CardTitle>
-                  <CardDescription>End-to-end encrypted communications</CardDescription>
+                  <CardTitle>{t('private.messages')}</CardTitle>
+                  <CardDescription>{t('private.messagesDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -128,7 +130,7 @@ const Private = () => {
                   </div>
 
                   <div className="mt-6 flex">
-                    <Input placeholder="Type a secure message..." className="mr-2" />
+                    <Input placeholder={t('private.placeholderMessage')} className="mr-2" />
                     <Button>Send</Button>
                   </div>
                 </CardContent>
