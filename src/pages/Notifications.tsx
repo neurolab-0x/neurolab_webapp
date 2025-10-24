@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Bell, Check, Trash2, Filter } from "lucide-react";
 import { useState } from "react";
+import { useI18n } from '@/lib/i18n';
 
 interface Notification {
   id: string;
@@ -88,6 +89,8 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const { t } = useI18n();
+
   const markAsRead = (id: string) => {
     setNotifications(notifications.map(notification =>
       notification.id === id ? { ...notification, read: true } : notification
@@ -129,18 +132,18 @@ const Notifications = () => {
     <DashboardLayout>
       <div className="space-y-6 w-full">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground">Manage your notifications and alerts</p>
+            <div className="space-y-1">
+            <h1 className="text-2xl font-bold">{t('notifications.title')}</h1>
+            <p className="text-muted-foreground">{t('notifications.description')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="gap-2" onClick={markAllAsRead}>
-              <Check className="h-4 w-4" />
-              Mark all as read
+                <Check className="h-4 w-4" />
+              {t('notifications.markAll')}
             </Button>
             <Button variant="outline" size="sm" className="gap-2" onClick={clearAllNotifications}>
               <Trash2 className="h-4 w-4" />
-              Clear all
+              {t('notifications.clearAll')}
             </Button>
           </div>
         </div>
@@ -150,7 +153,7 @@ const Notifications = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                All Notifications
+                {t('notifications.allNotifications')}
                 {unreadCount > 0 && (
                   <Badge variant="secondary" className="ml-2">
                     {unreadCount} unread
@@ -159,8 +162,8 @@ const Notifications = () => {
               </CardTitle>
               <div className="flex items-center gap-4">
                 <Select value={filterType} onValueChange={setFilterType}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Filter by type" />
+                    <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder={t('notifications.filter.type.placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
@@ -172,7 +175,7 @@ const Notifications = () => {
                 </Select>
                 <Select value={filterCategory} onValueChange={setFilterCategory}>
                   <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Filter by category" />
+                    <SelectValue placeholder={t('notifications.filter.category.placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
@@ -190,9 +193,9 @@ const Notifications = () => {
               {filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[400px] text-center">
                   <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">No notifications</h3>
+                  <h3 className="text-lg font-medium">{t('notifications.noNotifications')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    You're all caught up! Check back later for new updates.
+                    {t('notifications.caughtUp')}
                   </p>
                 </div>
               ) : (

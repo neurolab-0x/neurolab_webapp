@@ -65,6 +65,35 @@
     --input: 217 33% 18%;
     --ring: 213 27% 84%;
   }
+
+  /* Sidebar variables (ensure readable colors in both light and dark themes) */
+  :root {
+    --sidebar-background: 0 0% 100%; /* white */
+    --sidebar-foreground: 222 47% 20%; /* darker text for better contrast */
+    --sidebar-muted: 215 16% 47%; /* muted text color */
+    --sidebar-primary: 216 98% 45%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-active-bg: 216 98% 45% / 0.1;
+    --sidebar-hover-bg: 216 98% 45% / 0.05;
+    --sidebar-accent: 216 98% 45%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 85%;
+    --sidebar-ring: 213 27% 84%;
+  }
+
+  .dark {
+    --sidebar-background: 222 47% 11%; /* dark */
+    --sidebar-foreground: 210 40% 98%; /* light text */
+    --sidebar-muted: 215 20% 65%; /* muted text color */
+    --sidebar-primary: 216 98% 52%; 
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-active-bg: 216 98% 52% / 0.2;
+    --sidebar-hover-bg: 216 98% 52% / 0.1;
+    --sidebar-accent: 216 98% 52%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 213 27% 84%;
+  }
 }
 
 @layer base {

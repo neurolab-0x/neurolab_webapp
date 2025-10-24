@@ -6,6 +6,7 @@ import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useState,useEffect } from "react";
 import { getDashboardCardsData } from "@/api/dashboardData";
+import { useI18n } from '@/lib/i18n';
 // Sample data for the chart - EEG data with longer intervals
 const data = [
   { time: '00:00', value: 0.2 },
@@ -24,6 +25,7 @@ const data = [
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { t } = useI18n();
   const token=localStorage.getItem("token")
   const [dashboardInfo,setDashboardInfo]=useState([])
   const [loading,setLoading]=useState(true)
@@ -52,14 +54,14 @@ const Dashboard = () => {
       <div className="space-y-6 w-full min-w-0 min-h-0">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
           <div>
-            <h1 className="text-4xl font-bold">Welcome back, <span className="text-primary">@{user?.username}👋</span></h1>
+            <h1 className="text-4xl font-bold">{t('dashboard.welcome')} <span className="text-primary">@{user?.username}👋</span></h1>
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full min-w-0 min-h-0 auto-cols-fr">
           <Card className="w-full">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Analyses</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.totalAnalyses')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -71,7 +73,7 @@ const Dashboard = () => {
 
           <Card className="w-full">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Activities</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.activities')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -83,7 +85,7 @@ const Dashboard = () => {
 
           <Card className="w-full">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Reports</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.reports')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -95,7 +97,7 @@ const Dashboard = () => {
 
           <Card className="w-full">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Sessions</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.sessions')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -109,8 +111,8 @@ const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 w-full min-w-0 min-h-0 auto-cols-fr">
           <Card className="lg:col-span-4 w-full">
             <CardHeader>
-              <CardTitle>Recent Analysis</CardTitle>
-              <CardDescription>Your latest EEG data processing results</CardDescription>
+              <CardTitle>{t('dashboard.recent.title')}</CardTitle>
+              <CardDescription>{t('dashboard.recent.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-80">
@@ -148,8 +150,8 @@ const Dashboard = () => {
 
           <Card className="lg:col-span-3 w-full">
             <CardHeader>
-              <CardTitle>Upcoming Sessions</CardTitle>
-              <CardDescription>Scheduled data collection</CardDescription>
+              <CardTitle>{t('dashboard.upcoming.title')}</CardTitle>
+              <CardDescription>{t('dashboard.upcoming.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

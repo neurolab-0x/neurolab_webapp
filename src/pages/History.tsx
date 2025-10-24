@@ -21,6 +21,7 @@ import {
   CalendarClock,
   Share2,
 } from "lucide-react";
+import { useI18n } from '@/lib/i18n';
 import { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -129,21 +130,24 @@ const History = () => {
     return matchesStatus && matchesSearch;
   });
 
+  const { t } = useI18n();
+
   return (
     <DashboardLayout>
       <div className="space-y-6 w-full">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold">Analysis History</h1>
-            <p className="text-mu  ted-foreground">View and analyze your past EEG sessions</p>
+            <h1 className="text-3xl font-extrabold">{t('history.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('history.description')}</p>
           </div>
+
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="gap-2">
               <Download className="h-4 w-4" />
-              Export All
+              Export
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Share2 className="h-4 w  -4" />
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Share2 className="h-4 w-4" />
               Share
             </Button>
           </div>
@@ -151,132 +155,149 @@ const History = () => {
 
         <Card>
           <CardHeader>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4 w-full md:w-auto">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
+                    <SelectValue placeholder="Filter status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Sessions</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="interrupted">Interrupted</SelectItem>
                     <SelectItem value="error">Error</SelectItem>
                   </SelectContent>
                 </Select>
+
                 <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[160px]">
                     <SelectValue placeholder="Time range" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="all">All time</SelectItem>
                     <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
+                    <SelectItem value="week">This week</SelectItem>
+                    <SelectItem value="month">This month</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative flex-1 md:flex-none">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search sessions..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 w-[200px]"
+                    className="pl-10 w-full md:w-[280px]"
                   />
                 </div>
-                <Button
-                  variant={selectedView === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedView('list')}
-                >
-                  <BarChart2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={selectedView === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedView('grid')}
-                >
-                  <PieChart className="h-4 w-4" />
-                </Button>
+
+                <div className="hidden md:flex items-center gap-2">
+                  <Button
+                    variant={selectedView === 'list' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedView('list')}
+                  >
+                    <BarChart2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={selectedView === 'grid' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedView('grid')}
+                  >
+                    <PieChart className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
               {filteredSessions.map((session) => (
                 <motion.div
                   key={session.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="group"
                 >
-                  <Card className="hover:shadow-lg transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div className="space-y-1">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 rounded-lg border hover:shadow-md transition">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="text-lg font-semibold truncate">Session {session.id}</div>
+                          <Badge variant="outline" className={getStatusColor(session.status)}>
+                            {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                          </Badge>
+                        </div>
+
+                        <div className="hidden sm:flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">Session {session.id}</h3>
-                            <Badge variant="outline" className={getStatusColor(session.status)}>
-                              {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
-                            </Badge>
+                            <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                            <div>{formatDate(session.date)}</div>
                           </div>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <CalendarClock className="mr-2 h-4 w-4" />
-                            {formatDate(session.date)}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <div className="text-sm text-muted-foreground">Duration</div>
-                            <div className="font-mono">{formatDuration(session.duration)}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-muted-foreground">Data Points</div>
-                            <div className="font-mono">{session.dataPoints.toLocaleString()}</div>
-                          </div>
-                          <Button variant="ghost" size="sm" className="gap-2">
-                            View Details
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
                         </div>
                       </div>
 
-                      <Separator className="my-4" />
+                      {session.reason && (
+                        <div className="mt-2 text-sm text-muted-foreground truncate">{session.result} — {session.type}</div>
+                      )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Attention</span>
-                            <span className="font-medium">{session.metrics.attention}%</span>
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="space-y-1">
+                          <div className="text-xs text-muted-foreground">Attention</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium w-8">{session.metrics.attention}%</div>
+                            <Progress value={session.metrics.attention} className="h-2 flex-1" />
                           </div>
-                          <Progress value={session.metrics.attention} className="h-2" />
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Cognitive Load</span>
-                            <span className="font-medium">{session.metrics.cognitiveLoad}%</span>
+
+                        <div className="space-y-1">
+                          <div className="text-xs text-muted-foreground">Cognitive</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium w-8">{session.metrics.cognitiveLoad}%</div>
+                            <Progress value={session.metrics.cognitiveLoad} className="h-2 flex-1" />
                           </div>
-                          <Progress value={session.metrics.cognitiveLoad} className="h-2" />
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Mental Fatigue</span>
-                            <span className="font-medium">{session.metrics.mentalFatigue}%</span>
+
+                        <div className="space-y-1">
+                          <div className="text-xs text-muted-foreground">Fatigue</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium w-8">{session.metrics.mentalFatigue}%</div>
+                            <Progress value={session.metrics.mentalFatigue} className="h-2 flex-1" />
                           </div>
-                          <Progress value={session.metrics.mentalFatigue} className="h-2" />
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Relaxation</span>
-                            <span className="font-medium">{session.metrics.relaxation}%</span>
+
+                        <div className="space-y-1">
+                          <div className="text-xs text-muted-foreground">Relax</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium w-8">{session.metrics.relaxation}%</div>
+                            <Progress value={session.metrics.relaxation} className="h-2 flex-1" />
                           </div>
-                          <Progress value={session.metrics.relaxation} className="h-2" />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">Duration</div>
+                        <div className="font-mono">{formatDuration(session.duration)}</div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">Data points</div>
+                        <div className="font-mono">{session.dataPoints.toLocaleString()}</div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                          View
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
