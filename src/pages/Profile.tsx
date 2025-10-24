@@ -11,11 +11,13 @@ import { Separator } from "@/components/ui/separator";
 import { User, Mail, Calendar, Shield, Loader2, Upload, X, Lock, AlertTriangle, Key, Trash2 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useI18n } from '@/lib/i18n';
 
 export default function Profile() {
   const { user, updateProfile, changePassword, deleteAccount } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useI18n();
 
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -180,31 +182,31 @@ export default function Profile() {
       <div className="flex h-full">
         <div className="flex-1 space-y-6 p-6">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold">Profile</h1>
-            <p className="text-muted-foreground">Manage your profile information and preferences.</p>
+        <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
+        <p className="text-muted-foreground">{t('profile.description')}</p>
           </div>
 
           <Tabs defaultValue="personal" className="space-y-4">
             <TabsList>
               <TabsTrigger value="personal">
                 <User className="h-4 w-4 mr-2" />
-                Personal Info
+                {t('profile.personal')}
               </TabsTrigger>
               <TabsTrigger value="security">
                 <Lock className="h-4 w-4 mr-2" />
-                Security
+                {t('profile.security')}
               </TabsTrigger>
               <TabsTrigger value="account">
                 <Shield className="h-4 w-4 mr-2" />
-                Account
+                {t('profile.account')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal">
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Update your personal details and profile picture</CardDescription>
+                  <CardTitle>{t('profile.personalInfoTitle')}</CardTitle>
+                  <CardDescription>{t('profile.personalInfoDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleProfileSubmit} className="space-y-6">
@@ -280,7 +282,7 @@ export default function Profile() {
 
                     <Button type="submit" disabled={isLoading}>
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save Changes
+                      {t('profile.saveChanges')}
                     </Button>
                   </form>
                 </CardContent>
@@ -290,8 +292,8 @@ export default function Profile() {
             <TabsContent value="security">
               <Card>
                 <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>Manage your password and security preferences</CardDescription>
+                  <CardTitle>{t('profile.security')}</CardTitle>
+                  <CardDescription>{t('profile.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <form onSubmit={handlePasswordSubmit} className="space-y-4">
@@ -327,7 +329,7 @@ export default function Profile() {
                     </div>
                     <Button type="submit" disabled={isLoading}>
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Change Password
+                      {t('profile.changePassword')}
                     </Button>
                   </form>
 
@@ -336,7 +338,7 @@ export default function Profile() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Key className="h-4 w-4" />
-                      <span>Last password change: {new Date().toLocaleDateString()}</span>
+                      <span>{t('profile.personalInfoTitle')}: {new Date().toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <AlertTriangle className="h-4 w-4" />
@@ -350,8 +352,8 @@ export default function Profile() {
             <TabsContent value="account">
               <Card>
                 <CardHeader>
-                  <CardTitle>Account Information</CardTitle>
-                  <CardDescription>View your account details and status</CardDescription>
+                  <CardTitle>{t('profile.account')}</CardTitle>
+                  <CardDescription>{t('profile.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
@@ -382,12 +384,12 @@ export default function Profile() {
                   <Separator />
 
                   <div className="space-y-4">
-                    <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>
+                    <h3 className="text-sm font-medium text-destructive">{t('profile.dangerZone')}</h3>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive" className="w-full sm:w-auto">
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Account
+                          {t('profile.deleteAccount')}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -415,7 +417,7 @@ export default function Profile() {
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Delete Account
+                            {t('profile.deleteAccount')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

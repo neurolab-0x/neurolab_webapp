@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Loader2, Bell, Shield, Moon, Globe } from 'lucide-react';
 import DashboardLayout from "@/components/DashboardLayout";
 import { Switch } from "@/components/ui/switch";
+import useTheme from '@/hooks/useTheme';
+import { useI18n } from '@/lib/i18n';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Settings() {
@@ -113,13 +115,146 @@ export default function Settings() {
     setNotificationSettings(prev => ({ ...prev, [key]: checked }));
   };
 
-  const handleAppearanceChange = (key: string, value: string) => {
+  const { theme, toggleTheme, setTheme } = useTheme();
+  const { setLanguage } = useI18n();
+
+  const applyFontSize = (size: string) => {
+    const root = document.documentElement;
+    switch (size) {
+      case 'small':
+        root.style.fontSize = '14px';
+        break;
+      case 'large':
+        root.style.fontSize = '18px';
+        break;
+      case 'medium':
+      default:
+        root.style.fontSize = '16px';
+        break;
+    }
+    localStorage.setItem('appearance:fontSize', size);
+  };
+
+  const applyReducedMotion = (reduced: boolean) => {
+    const root = document.documentElement;
+    if (reduced) {
+      root.setAttribute('data-reduced-motion', 'true');
+    } else {
+      root.removeAttribute('data-reduced-motion');
+    }
+    localStorage.setItem('appearance:reducedMotion', reduced ? 'true' : 'false');
+  };
+
+  const applyThemeValue = (value: string) => {
+    // value: 'light' | 'dark' | 'system'
+    // Use useTheme.setTheme to centralize logic
+    try {
+      (window as any).__setThemeFromSettings?.(value);
+    } catch (e) {
+      // fallback: apply manually
+      if (value === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const newTheme = prefersDark ? 'dark' : 'light';
+        const root = document.documentElement;
+        if (newTheme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+        localStorage.removeItem('neurai-theme');
+      } else {
+        const root = document.documentElement;
+        if (value === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+        localStorage.setItem('neurai-theme', value);
+      }
+    }
+  };
+
+  const handleAppearanceChange = (key: string, value: any) => {
     setAppearanceSettings(prev => ({ ...prev, [key]: value }));
+    if (key === 'theme') {
+      // value can be 'light'|'dark'|'system'
+      setTheme(value);
+    }
+    if (key === 'fontSize') {
+      applyFontSize(value);
+    }
+    if (key === 'reducedMotion') {
+      applyReducedMotion(Boolean(value));
+    }
+    // persist full appearance settings
+    try {
+      localStorage.setItem('appearance:settings', JSON.stringify({ ...appearanceSettings, [key]: value }));
+    } catch (e) {
+      // ignore
+    }
   };
 
   const handleLanguageChange = (key: string, value: string) => {
     setLanguageSettings(prev => ({ ...prev, [key]: value }));
+    try {
+      const next = { ...languageSettings, [key]: value };
+      localStorage.setItem('language:settings', JSON.stringify(next));
+    } catch (e) {
+      // ignore
+    }
+    // Notify global i18n provider when language changes
+    if (key === 'language') {
+      try {
+        setLanguage(value as any)
+      } catch (e) {
+        // ignore if provider missing
+      }
+    }
   };
+
+
+  // Load persisted appearance settings on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('appearance:settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.fontSize) applyFontSize(parsed.fontSize);
+        if (parsed.reducedMotion !== undefined) applyReducedMotion(parsed.reducedMotion === true || parsed.reducedMotion === 'true');
+        if (parsed.theme) applyThemeValue(parsed.theme);
+        setAppearanceSettings(prev => ({ ...prev, ...parsed }));
+        return;
+      }
+
+      const fs = localStorage.getItem('appearance:fontSize');
+      if (fs) {
+        applyFontSize(fs);
+        setAppearanceSettings(prev => ({ ...prev, fontSize: fs }));
+      }
+      const rm = localStorage.getItem('appearance:reducedMotion');
+      if (rm) {
+        const reduced = rm === 'true';
+        applyReducedMotion(reduced);
+        setAppearanceSettings(prev => ({ ...prev, reducedMotion: reduced }));
+      }
+      const th = localStorage.getItem('neurai-theme');
+      if (th) {
+        // if theme wasn't stored as 'system', map it
+        setAppearanceSettings(prev => ({ ...prev, theme: th }));
+        applyThemeValue(th);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Load persisted language settings
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('language:settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setLanguageSettings(prev => ({ ...prev, ...parsed }));
+        if (parsed.language) {
+          try { setLanguage(parsed.language as any) } catch (e) {}
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -257,7 +392,7 @@ export default function Settings() {
                     </div>
                     <Switch
                       checked={appearanceSettings.reducedMotion}
-                      onCheckedChange={(checked) => handleAppearanceChange('reducedMotion', checked.toString())}
+                      onCheckedChange={(checked) => handleAppearanceChange('reducedMotion', checked)}
                     />
                   </div>
                 </CardContent>
@@ -281,10 +416,8 @@ export default function Settings() {
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es">Spanish</SelectItem>
-                        <SelectItem value="fr">French</SelectItem>
-                        <SelectItem value="de">German</SelectItem>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="fr">French</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
