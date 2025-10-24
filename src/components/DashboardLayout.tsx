@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Badge } from '@/components/ui/badge';
+import { useI18n } from '@/lib/i18n';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardLayoutProps {
@@ -28,55 +29,63 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navigation = [
     {
-      name: 'Dashboard',
+      nameKey: 'nav.dashboard',
       href: '/dashboard',
       icon: Home,
-      description: 'Overview of your brain activity'
+      descriptionKey: 'Overview of your brain activity'
     },
     {
-      name: 'Analysis',
+      nameKey: 'nav.analysis',
       href: '/analysis',
       icon: LineChart,
-      description: 'Detailed analysis of your sessions'
+      descriptionKey: 'Detailed analysis of your sessions'
     },
     {
-      name: 'Live Analysis',
+      nameKey: 'nav.liveAnalysis',
       href: '/live-analysis',
       icon: Activity,
-      description: 'Real-time brain activity monitoring',
+      descriptionKey: 'Real-time brain activity monitoring',
       badge: 'New'
     },
     {
-      name: 'Schedule',
+      nameKey: 'nav.schedule',
       href: '/schedule',
       icon: Calendar,
-      description: 'Schedule your EEG sessions'
+      descriptionKey: 'Schedule your EEG sessions'
     },
     {
-      name: 'Notifications',
+      nameKey: 'nav.appointments',
+      href: '/appointments',
+      icon: MessageCircle,
+      descriptionKey: 'Manage appointment requests'
+    },
+    {
+      nameKey: 'nav.notifications',
       href: '/notifications',
       icon: Bell,
-      description: 'View your notifications'
+      descriptionKey: 'View your notifications'
     },
     {
-      name: 'History',
+      nameKey: 'nav.history',
       href: '/history',
       icon: History,
-      description: 'View your past sessions'
+      descriptionKey: 'View your past sessions'
     },
     {
-      name: 'Profile',
+      nameKey: 'nav.profile',
       href: '/profile',
       icon: User2Icon,
-      description: 'Manage your profile'
+      descriptionKey: 'Manage your profile'
     },
     {
-      name: 'Settings',
+      nameKey: 'nav.settings',
       href: '/settings',
       icon: Settings,
-      description: 'Configure your preferences'
+      descriptionKey: 'Configure your preferences'
     }
   ];
+
+  const { t } = useI18n();
 
   const handleLogout = () => {
     logout();
@@ -88,7 +97,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
           <SidebarHeader className="flex flex-row justify-center items-center gap-2 px-6 py-4">
-            <span className="text-2xl font-extrabold tracking-tight text-white">Neurolab</span>
+            <span className="text-2xl font-extrabold tracking-tight text-[hsl(var(--sidebar-foreground))]">Neurolab</span>
           </SidebarHeader>
           <SidebarContent className="flex-1 flex flex-col gap-2 px-2 py-4">
             <SidebarMenu>
@@ -97,18 +106,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <SidebarMenuButton
-                          isActive={location.pathname === item.href}
-                          onClick={() => navigate(item.href)}
-                          tooltip={item.name}
-                          className={`relative flex items-center gap-3 border border-border py-6 rounded-lg font-medium text-base transition-all duration-150
+                          <SidebarMenuButton
+                            isActive={location.pathname === item.href}
+                            onClick={() => navigate(item.href)}
+                            tooltip={t(item.nameKey)}
+                          className={`relative flex items-center gap-3 border py-6 rounded-lg font-medium text-base transition-all duration-150
                             ${location.pathname === item.href
-                              ? 'bg-blue-600/10 text-blue-500 font-bold border-l-4 border-blue-500 shadow-md'
-                              : 'text-gray-300 hover:bg-blue-500/10 hover:text-blue-400 border-l-4 border-transparent'}
+                              ? 'bg-[hsl(var(--sidebar-active-bg))] text-[hsl(var(--sidebar-primary))] font-bold border-l-4 border-[hsl(var(--sidebar-primary))] shadow-sm'
+                              : 'text-[hsl(var(--sidebar-muted))] hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-[hsl(var(--sidebar-primary))] border-l-4 border-transparent'}
                           `}
                         >
-                          <item.icon className={`h-5 w-5 transition-colors duration-150 ${location.pathname === item.href ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400'}`} />
-                          <span>{item.name}</span>
+                          <item.icon className={`h-5 w-5 transition-colors duration-150 ${location.pathname === item.href ? 'text-[hsl(var(--sidebar-primary))]' : 'text-[hsl(var(--sidebar-muted))] group-hover:text-[hsl(var(--sidebar-primary))]'}`} />
+                            <span>{t(item.nameKey)}</span>
                           {item.badge && (
                             <Badge variant="secondary" className="ml-auto bg-blue-500/20 text-blue-400">
                               {item.badge}
@@ -117,8 +126,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </SidebarMenuButton>
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-[200px]">
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.description}</p>
+                        <p className="font-medium">{t(item.nameKey)}</p>
+                        <p className="text-xs text-muted-foreground">{item.descriptionKey}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -127,8 +136,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </SidebarMenu>
           </SidebarContent>
           <div className="mt-auto px-4 pb-4 cursor-pointer" onClick={() => handleLogout()}>
-            <div className="flex flex-row justify-center items-center gap-4 py-4 rounded-xl bg-muted shadow border border-border/60 hover:bg-red-900">
-                <LogOut/>
+            <div className="flex flex-row justify-center items-center gap-4 py-4 rounded-xl bg-[hsl(var(--sidebar-hover-bg))] text-[hsl(var(--sidebar-muted))] shadow-sm border border-[hsl(var(--sidebar-border))] hover:bg-red-500/10 hover:text-red-500 transition-colors duration-150">
+                <LogOut className="w-5 h-5"/>
                 <span>Logout</span>
             </div>
           </div>
