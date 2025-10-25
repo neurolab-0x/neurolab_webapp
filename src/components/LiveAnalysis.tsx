@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import AnalysisResults from "@/components/AnalysisResults";
 import SessionHistory from "@/components/SessionHistory";
+import { useI18n } from '@/lib/i18n';
 
 // Register ChartJS components
 ChartJS.register(
@@ -58,6 +59,7 @@ const LiveAnalysis = () => {
   const maxCaptureTime = 1800; // 30 minutes in seconds
   const [reportStatus, setReportStatus] = useState<ReportStatus | null>(null);
   const [reportProgress, setReportProgress] = useState(0);
+  const { t } = useI18n();
 
   // Simulate real-time EEG data for all cognitive metrics
   useEffect(() => {
@@ -222,9 +224,9 @@ const LiveAnalysis = () => {
         className="w-full space-y-6"
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Live EEG Analysis</h1>
-            <p className="text-muted-foreground">Real-time monitoring of cognitive metrics</p>
+            <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">{t('live.title')}</h1>
+            <p className="text-muted-foreground">{t('live.description')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant={sessionStatus === 'active' ? "default" : "secondary"} className="gap-2">
@@ -239,7 +241,7 @@ const LiveAnalysis = () => {
                 className="gap-2"
               >
                 <Play className="h-4 w-4" />
-                Start Session
+                {t('live.startSession')}
               </Button>
             )}
             {sessionStatus === 'active' && (
@@ -250,7 +252,7 @@ const LiveAnalysis = () => {
                   className="gap-2"
                 >
                   <Pause className="h-4 w-4" />
-                  Pause
+                  {t('live.pause')}
                 </Button>
                 <Dialog open={showStopDialog} onOpenChange={setShowStopDialog}>
                   <DialogTrigger asChild>
@@ -259,7 +261,7 @@ const LiveAnalysis = () => {
                       className="gap-2"
                     >
                       <StopCircle className="h-4 w-4" />
-                      Stop Session
+                      {t('live.stopSession')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -288,7 +290,7 @@ const LiveAnalysis = () => {
                 className="gap-2"
               >
                 <Play className="h-4 w-4" />
-                Resume Session
+                {t('live.resume')}
               </Button>
             )}
             <Button
@@ -296,7 +298,7 @@ const LiveAnalysis = () => {
               variant="outline"
               className="gap-2"
             >
-              Back to Home
+              {t('live.back')}
             </Button>
           </div>
         </div>
@@ -315,11 +317,11 @@ const LiveAnalysis = () => {
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
                         <Clock className="h-5 w-5" />
-                        Session Progress
+                        {t('live.sessionProgress')}
                       </CardTitle>
                       <CardDescription>
-                        {sessionStatus === 'active' ? 'Recording and analyzing in real-time' :
-                          sessionStatus === 'paused' ? 'Session paused' : 'Establishing connection...'}
+                        {sessionStatus === 'active' ? t('live.recording') :
+                          sessionStatus === 'paused' ? t('live.pause') : 'Establishing connection...'}
                       </CardDescription>
                     </div>
                     <span className="text-2xl font-bold">{formatTime(elapsedTime)} / 30:00</span>
@@ -489,7 +491,7 @@ const LiveAnalysis = () => {
 
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle>Live Metrics Timeline</CardTitle>
+                  <CardTitle>{t('live.metricsTimeline')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Line data={chartData} options={chartOptions} />
@@ -511,10 +513,10 @@ const LiveAnalysis = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    Generating Analysis Report
+                    {t('live.generatingReport')}
                   </CardTitle>
                   <CardDescription>
-                    Please wait while we process your session data and generate insights
+                    {t('live.processing')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

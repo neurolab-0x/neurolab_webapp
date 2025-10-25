@@ -10,6 +10,7 @@ import { AnalysisResult } from "@/types";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from '@/lib/i18n';
 
 // Mock data for demonstration
 const mockAnalysisResult: AnalysisResult = {
@@ -71,6 +72,7 @@ const Analysis = () => {
   const [sessionProgress, setSessionProgress] = useState(0);
   const [sessionDuration, setSessionDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   // Simulate live session progress
   useEffect(() => {
@@ -144,15 +146,15 @@ const Analysis = () => {
 
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Analysis Tools</CardTitle>
-            <CardDescription>Upload your EEG data or view previous analysis results. Maximum of 100MB per file.</CardDescription>
+            <CardTitle>{t('analysis.title')}</CardTitle>
+            <CardDescription>{t('analysis.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="upload" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upload" className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
-                  Upload
+                  {t('analysis.upload')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="results"
@@ -160,14 +162,14 @@ const Analysis = () => {
                   disabled={!analysisResult}
                 >
                   <FileText className="h-4 w-4" />
-                  Results
+                  {t('analysis.results')}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="upload" className="mt-6">
                 <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                   <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Upload your EEG data</h3>
-                  <p className="text-muted-foreground mb-4">Drag and drop your files here, or click to browse</p>
+                  <h3 className="text-lg font-medium mb-2">{t('analysis.uploadHeader')}</h3>
+                  <p className="text-muted-foreground mb-4">{t('analysis.uploadDesc')}</p>
                   <Button
                     variant="outline"
                     onClick={handleFileUpload}
@@ -176,10 +178,10 @@ const Analysis = () => {
                     {isAnalyzing ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing...
+                        {t('analysis.analyzing')}
                       </>
                     ) : (
-                      "Select Files"
+                      t('analysis.selectFiles')
                     )}
                   </Button>
                 </div>
@@ -196,7 +198,7 @@ const Analysis = () => {
                     </motion.div>
                   ) : (
                     <div className="space-y-4">
-                      <p className="text-muted-foreground">Your analysis results will appear here.</p>
+                      <p className="text-muted-foreground">{t('analysis.resultsPlaceholder')}</p>
                     </div>
                   )}
                 </AnimatePresence>
