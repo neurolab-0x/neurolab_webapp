@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Brain } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ export default function Login() {
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -48,20 +50,27 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030329]">
+  <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#030329]">
       <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-          <div className="absolute inset-0 bg-blue-800" />
+        <div className="relative hidden h-full flex-col p-10 text-white lg:flex">
+          <div className="absolute inset-0">
+            <img 
+              src="/brain-scan.jpg" 
+              alt="Brain scan visualization" 
+              className="h-full w-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-900/80 to-blue-800/70" />
+          </div>
           <div className="relative z-20 flex items-center text-lg font-medium">
-          <img src="/logo.png" alt="neurolab's logo" className='size-12' />
-            Neurolab Inc.
+            <img src="/logo.png" alt="neurolab's logo" className='size-12 mr-2' />
+            <span className="text-xl font-bold">Neurolab Inc.</span>
           </div>
           <div className="relative z-20 mt-auto">
-            <blockquote className="space-y-2">
-              <p className="text-lg">
+            <blockquote className="space-y-4">
+              <p className="text-2xl leading-relaxed">
                 "Join our community of researchers and healthcare professionals using Neurolab's cutting-edge neural analysis platform."
               </p>
-              <footer className="text-sm">Neurolab Team</footer>
+              <footer className="text-sm opacity-80">Neurolab Team</footer>
             </blockquote>
           </div>
         </div>
@@ -70,12 +79,12 @@ export default function Login() {
             <div className="flex flex-col space-y-2 text-center">
               <div className="flex items-center justify-center gap-2">
                 <img src="/logo.png" alt="neurolab's logo" className='size-16' />
-                <h1 className="text-2xl font-semibold tracking-tight text-white">
-                  Welcome Back
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
+                  {t('login.welcome')}
                 </h1>
               </div>
               <p className="text-sm text-gray-400">
-                Sign in to your account
+                {t('login.subtitle')}
               </p>
             </div>
 
@@ -83,7 +92,7 @@ export default function Login() {
               <CardContent className="pt-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-300">Email</Label>
+                    <Label htmlFor="email" className="text-foreground dark:text-gray-300">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -91,11 +100,11 @@ export default function Login() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-300">Password</Label>
+                      <Label htmlFor="password" className="text-foreground dark:text-gray-300">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -104,7 +113,7 @@ export default function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                       <Button
                         type="button"
@@ -126,7 +135,7 @@ export default function Login() {
                       to="/forgot-password"
                       className="text-sm text-blue-500 hover:text-blue-400"
                     >
-                      Forgot password?
+                      {t('login.forgot')}
                     </Link>
                   </div>
                   <Button
@@ -134,7 +143,7 @@ export default function Login() {
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign In"}
+                    {isLoading ? "Signing in..." : t('login.signin')}
                   </Button>
                 </form>
               </CardContent>

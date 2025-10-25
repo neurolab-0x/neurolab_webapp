@@ -37,31 +37,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Only attempt refresh if:
+        // 1. It's a 401 error
+        // 2. We haven't tried to refresh for this request yet
+        // 3. The request isn't to the refresh endpoint itself
+        if (
+          error.response?.status === 401 && 
+          !originalRequest._retry &&
+          !originalRequest.url?.includes('/api/auth/refresh')
+        ) {
           originalRequest._retry = true;
 
           try {
             const storedRefreshToken = localStorage.getItem('refreshToken');
             if (!storedRefreshToken) {
+              // Clear auth state if no refresh token is available
+              await logout();
               throw new Error('No refresh token available');
             }
 
-            const response = await axios.post('/api/auth/refresh', {
-              refreshToken: storedRefreshToken
-            });
+            // Create a new axios instance for refresh token request to avoid interceptors
+            const refreshResponse = await axios.create().post(
+              `${API_URL}/api/auth/refresh`,
+              { refreshToken: storedRefreshToken }
+            );
 
-            const { accessToken, refreshToken: newRefreshToken } = response.data;
+            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
+            
+            if (!accessToken || !newRefreshToken) {
+              throw new Error('Invalid refresh token response');
+            }
+
+            // Update tokens in storage and state
             localStorage.setItem('token', accessToken);
             localStorage.setItem('refreshToken', newRefreshToken);
             setToken(accessToken);
             setRefreshToken(newRefreshToken);
 
+            // Retry original request with new token
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return axios(originalRequest);
           } catch (refreshError) {
-            logout();
+            // If refresh fails, clear auth state and redirect to login
+            await logout();
+            window.location.href = '/login';
             return Promise.reject(refreshError);
           }
+        }
+
+        // If it's a 401 error on the refresh endpoint, clear auth state
+        if (error.response?.status === 401 && originalRequest.url?.includes('/api/auth/refresh')) {
+          await logout();
+          window.location.href = '/login';
         }
 
         return Promise.reject(error);
@@ -77,16 +104,80 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth state
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      const storedRefreshToken = localStorage.getItem('refreshToken');
-      if (storedToken) {
+      try {
+        const storedToken = localStorage.getItem('token');
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        
+        if (!storedToken || !storedRefreshToken) {
+          throw new Error('No stored tokens');
+        }
+
+        // Set initial tokens
         setToken(storedToken);
-      }
-      if (storedRefreshToken) {
         setRefreshToken(storedRefreshToken);
+
+        try {
+          // Try to fetch user data with stored token
+          const response = await axios.create().get(
+            `${API_URL}/api/users/me`,
+            {
+              headers: { Authorization: `Bearer ${storedToken}` }
+            }
+          );
+          
+          if (response.data.user) {
+            setUser(response.data.user);
+          } else {
+            throw new Error('Invalid user data response');
+          }
+        } catch (userError) {
+          // If user fetch fails, try to refresh the token
+          try {
+            const refreshResponse = await axios.create().post(
+              `${API_URL}/api/auth/refresh`,
+              { refreshToken: storedRefreshToken }
+            );
+
+            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
+            
+            if (!accessToken || !newRefreshToken) {
+              throw new Error('Invalid refresh response');
+            }
+
+            // Update tokens
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            setToken(accessToken);
+            setRefreshToken(newRefreshToken);
+
+            // Try to fetch user data again with new token
+            const newResponse = await axios.create().get(
+              `${API_URL}/api/users/me`,
+              {
+                headers: { Authorization: `Bearer ${accessToken}` }
+              }
+            );
+
+            if (newResponse.data.user) {
+              setUser(newResponse.data.user);
+            } else {
+              throw new Error('Invalid user data response after refresh');
+            }
+          } catch (refreshError) {
+            // If refresh fails, clear everything
+            throw new Error('Token refresh failed');
+          }
+        }
+      } catch (error) {
+        // Clear all auth state if anything fails
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        setToken(null);
+        setRefreshToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-      
     };
 
     initializeAuth();
@@ -109,6 +200,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user);
       return user;
     } catch (err: any) {
+      // Handle rate limiting explicitly
+      if (err?.response?.status === 429) {
+        const retryAfter = err.response.headers?.['retry-after'];
+        const msg = `Too many requests. Please wait${retryAfter ? ` ${retryAfter} seconds` : ''} and try again.`;
+        setError(msg);
+        const e = new Error(msg);
+        // Attach original axios error for debugging
+        (e as any).original = err;
+        throw e;
+      }
+
       setError(err.response?.data?.message || 'Login failed');
       throw err;
     }

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Brain } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function Register() {
   const { register, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -98,10 +100,10 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030329]">
+    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#030329]">
       <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-          <div className="absolute inset-0 bg-blue-800" />
+        <div className="relative hidden h-full flex-col bg-muted p-10 text-foreground dark:text-white lg:flex dark:border-r">
+          <div className="absolute inset-0 dark:bg-blue-800" />
           <div className="relative z-20 flex items-center text-lg font-medium">
             <Brain className="mr-2 h-6 w-6" />
             NeuroLab
@@ -119,12 +121,12 @@ export default function Register() {
           <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:w-[400px]">
             <div className="flex flex-col space-y-1 text-center">
               <div className="flex items-center justify-center gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-white">
-                  Create Account
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
+                  {t('register.title')}
                 </h1>
               </div>
               <p className="text-sm text-gray-400">
-                Join the world of neuroscience with Artificial Intelligence
+                {t('register.subtitle')}
               </p>
             </div>
 
@@ -132,8 +134,8 @@ export default function Register() {
               <CardContent className="pt-4">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="firstName" className="text-gray-300 text-sm">First Name</Label>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="firstName" className="text-foreground dark:text-gray-300 text-sm">First Name</Label>
                       <Input
                         id="firstName"
                         name="firstName"
@@ -141,11 +143,11 @@ export default function Register() {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="lastName" className="text-gray-300 text-sm">Last Name</Label>
+                      <Label htmlFor="lastName" className="text-foreground dark:text-gray-300 text-sm">Last Name</Label>
                       <Input
                         id="lastName"
                         name="lastName"
@@ -153,12 +155,12 @@ export default function Register() {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="username" className="text-gray-300 text-sm">Username</Label>
+                    <Label htmlFor="username" className="text-foreground dark:text-gray-300 text-sm">Username</Label>
                     <Input
                       id="username"
                       name="username"
@@ -166,11 +168,11 @@ export default function Register() {
                       value={formData.username}
                       onChange={handleChange}
                       required
-                      className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="email" className="text-gray-300 text-sm">Email</Label>
+                    <Label htmlFor="email" className="text-foreground dark:text-gray-300 text-sm">Email</Label>
                     <Input
                       id="email"
                       name="email"
@@ -179,11 +181,11 @@ export default function Register() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="password" className="text-gray-300 text-sm">Password</Label>
+                    <Label htmlFor="password" className="text-foreground dark:text-gray-300 text-sm">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -193,7 +195,7 @@ export default function Register() {
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                       <Button
                         type="button"
@@ -211,7 +213,7 @@ export default function Register() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="confirmPassword" className="text-gray-300 text-sm">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword" className="text-foreground dark:text-gray-300 text-sm">Confirm Password</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -221,7 +223,7 @@ export default function Register() {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                       <Button
                         type="button"
