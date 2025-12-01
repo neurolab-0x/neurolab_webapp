@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { Brain, Home, LineChart, History, Settings, LogOut, Upload, Activity, MessageCircle, Bell, HelpCircle, Calendar, User2Icon } from 'lucide-react';
 import {
   Sidebar,
@@ -26,6 +27,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
 
   const navigation = [
     {
@@ -97,7 +99,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
           <SidebarHeader className="flex flex-row justify-center items-center gap-2 px-6 py-4">
-            <span className="text-2xl font-extrabold tracking-tight text-[hsl(var(--sidebar-foreground))]">Neurolab</span>
+            <img 
+              src={theme === 'light' ? '/logo1.png' : '/logo.png'} 
+              alt="Neurolab Logo" 
+              className="h-10 w-auto"
+            />
+            <span className="text-2xl font-extrabold tracking-tight text-[hsl(var(--sidebar-foreground))]">NeuroLab</span>
           </SidebarHeader>
           <SidebarContent className="flex-1 flex flex-col gap-2 px-2 py-4">
             <SidebarMenu>

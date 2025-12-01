@@ -78,7 +78,7 @@ export default function Login() {
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
             <div className="flex flex-col space-y-2 text-center">
               <div className="flex items-center justify-center gap-2">
-                <img src="/logo.png" alt="neurolab's logo" className='size-16' />
+                <img src="/logo1.png" alt="neurolab's logo" className='size-12' />
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
                   {t('login.welcome')}
                 </h1>
