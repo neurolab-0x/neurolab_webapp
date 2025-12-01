@@ -123,7 +123,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                               : 'text-[hsl(var(--sidebar-muted))] hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-[hsl(var(--sidebar-primary))] border-l-4 border-transparent'}
                           `}
                         >
-                          <item.icon className={`h-5 w-5 transition-colors duration-150 ${location.pathname === item.href ? 'text-[hsl(var(--sidebar-primary))]' : 'text-[hsl(var(--sidebar-muted))] group-hover:text-[hsl(var(--sidebar-primary))]'}`} />
+                          <item.icon className={`h-5 w-5 transition-colors duration-150 ${location.pathname === item.href ? 'text-white' : 'text-[hsl(var(--sidebar-muted))] group-hover:text-[hsl(var(--sidebar-primary))]'}`} />
                             <span>{t(item.nameKey)}</span>
                           {item.badge && (
                             <Badge variant="secondary" className="ml-auto bg-blue-500/20 text-blue-400">
