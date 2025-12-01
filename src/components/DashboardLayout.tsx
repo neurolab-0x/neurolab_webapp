@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             tooltip={t(item.nameKey)}
                           className={`relative flex items-center gap-3 border py-6 rounded-lg font-medium text-base transition-all duration-150
                             ${location.pathname === item.href
-                              ? 'bg-[hsl(var(--sidebar-active-bg))] text-[hsl(var(--sidebar-primary))] font-bold border-l-4 border-[hsl(var(--sidebar-primary))] shadow-sm'
+                              ? 'bg-[hsl(var(--sidebar-active-bg))] text-white font-bold border-l-4 border-[hsl(var(--sidebar-primary))] shadow-sm'
                               : 'text-[hsl(var(--sidebar-muted))] hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-[hsl(var(--sidebar-primary))] border-l-4 border-transparent'}
                           `}
                         >
