@@ -89,8 +89,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const { t } = useI18n();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -142,11 +142,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               ))}
             </SidebarMenu>
           </SidebarContent>
-          <div className="mt-auto px-4 pb-4 cursor-pointer" onClick={() => handleLogout()}>
-            <div className="flex flex-row justify-center items-center gap-4 py-4 rounded-xl bg-[hsl(var(--sidebar-hover-bg))] text-[hsl(var(--sidebar-muted))] shadow-sm border border-[hsl(var(--sidebar-border))] hover:bg-red-500/10 hover:text-red-500 transition-colors duration-150">
+          <div className="mt-auto px-4 pb-4 cursor-pointer" onClick={handleLogout}>
+            <button className="w-full flex flex-row justify-center items-center gap-4 py-4 rounded-lg bg-transparent text-[hsl(var(--sidebar-foreground))] shadow-sm border border-[hsl(var(--sidebar-border))] hover:bg-destructive/10 hover:text-destructive transition-colors duration-150">
                 <LogOut className="w-5 h-5"/>
                 <span>Logout</span>
-            </div>
+            </button>
           </div>
         </Sidebar>
 

@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import AnalysisResults from "@/components/AnalysisResults";
 import SessionHistory from "@/components/SessionHistory";
 import { useI18n } from '@/lib/i18n';
+import { useToast } from '@/components/ui/use-toast';
 
 // Register ChartJS components
 ChartJS.register(
@@ -60,6 +61,7 @@ const LiveAnalysis = () => {
   const [reportStatus, setReportStatus] = useState<ReportStatus | null>(null);
   const [reportProgress, setReportProgress] = useState(0);
   const { t } = useI18n();
+  const { toast } = useToast();
 
   // Simulate real-time EEG data for all cognitive metrics
   useEffect(() => {
@@ -193,29 +195,44 @@ const LiveAnalysis = () => {
             }
           }
         };
-        setAnalysisResult(enhancedAnalysisResult);
-        setReportStatus('completed');
-      }
+
+        // Send analysis to backend and use returned analysis object
+        (async () => {
+          try {
+            setReportProgress(0);
+            setReportStatus('generating');
+
+            const payload = {
+              deviceId: '123e4567-e89b-12d3-a456-426614174000', // TODO: replace with real device id if available
+              type: 'EEG',
+              parameters: {
+                samplingRate: 256,
+                duration: elapsedTime,
+                channels: ['Fp1','Fp2','C3','C4']
+              }
+            };
+
+            // Lazy import to avoid circular deps in some setups
+            const { createAnalysis } = await import('@/api/analysis');
+            const backendAnalysis = await createAnalysis(payload);
+
+            // Merge backend analysis fields with our local metadata for display
+            const merged = {
+              ...backendAnalysis,
+              sessionMetadata: enhancedAnalysisResult.sessionMetadata
+            };
+
+            setAnalysisResult(merged);
+            setReportStatus(backendAnalysis?.status === 'processing' ? 'generating' : 'completed');
+            setReportProgress(100);
+            toast({ title: 'Analysis sent', description: 'Analysis was submitted to the backend.' });
+          } catch (err: any) {
+            setError(err.message || 'Failed to submit analysis to backend');
+            setReportStatus('error');
+            toast({ title: 'Analysis failed', description: err.message || 'Failed to submit analysis to backend', variant: 'destructive' });
+          }
+        })();
     };
-
-    processStep();
-  };
-
-  // Format elapsed time as MM:SS
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
-    const secs = (seconds % 60).toString().padStart(2, "0");
-    return `${mins}:${secs}`;
-  };
-
-  // Get the latest value for each gauge
-  const latestValues = {
-    attention: dataPoints.attention[dataPoints.attention.length - 1] || 0,
-    cognitiveLoad: dataPoints.cognitiveLoad[dataPoints.cognitiveLoad.length - 1] || 0,
-    mentalFatigue: dataPoints.mentalFatigue[dataPoints.mentalFatigue.length - 1] || 0,
-    relaxation: dataPoints.relaxation[dataPoints.relaxation.length - 1] || 0,
-  };
-
   return (
     <DashboardLayout>
       <motion.div
@@ -552,6 +569,8 @@ const LiveAnalysis = () => {
       </motion.div>
     </DashboardLayout>
   );
+}
+}
 };
 
 export default LiveAnalysis;

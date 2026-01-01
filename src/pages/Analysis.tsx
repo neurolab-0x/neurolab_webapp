@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
+import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, FileText, BarChart2, Brain, Activity, Play, Pause, StopCircle, AlertCircle, Loader2 } from "lucide-react";
@@ -68,11 +69,13 @@ type SessionStatus = 'idle' | 'connecting' | 'active' | 'paused' | 'completed' |
 const Analysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [activeTab, setActiveTab] = useState<'upload' | 'results'>('upload');
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
   const [sessionProgress, setSessionProgress] = useState(0);
   const [sessionDuration, setSessionDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const { t } = useI18n();
+  const { toast } = useToast();
 
   // Simulate live session progress
   useEffect(() => {
@@ -86,14 +89,51 @@ const Analysis = () => {
     return () => clearInterval(interval);
   }, [sessionStatus]);
 
-  const handleFileUpload = () => {
+  const handleFileUpload = async () => {
     setIsAnalyzing(true);
     setError(null);
-    // Simulate analysis process
-    setTimeout(() => {
-      setAnalysisResult(mockAnalysisResult);
+
+    // For now we simulate an upload and call the backend createAnalysis API
+    try {
+      // Construct payload - in a real flow this would be based on the uploaded file
+      const payload = {
+        deviceId: '123e4567-e89b-12d3-a456-426614174000',
+        type: 'EEG',
+        parameters: {
+          samplingRate: 256,
+          duration: 300,
+          channels: ['Fp1', 'Fp2', 'C3', 'C4']
+        }
+      };
+
+      const { createAnalysis } = await import('@/api/analysis');
+      const backendAnalysis = await createAnalysis(payload as any);
+
+      // Map backend response to AnalysisResult shape if necessary
+      const analysisResultFromBackend: AnalysisResult = {
+        id: backendAnalysis.id || backendAnalysis._id || 'unknown',
+        timestamp: backendAnalysis.createdAt || new Date().toISOString(),
+        dominantState: backendAnalysis.dominantState || 'unknown',
+        confidence: backendAnalysis.confidence ?? 0,
+        stateDistribution: backendAnalysis.stateDistribution || {},
+        cognitiveMetrics: backendAnalysis.cognitiveMetrics || [],
+        clinicalRecommendations: backendAnalysis.clinicalRecommendations || [],
+        processingMetadata: backendAnalysis.processingMetadata || {
+          model: backendAnalysis.model || 'unknown',
+          version: backendAnalysis.version || 'unknown',
+          processingTime: backendAnalysis.processingTime || 0
+        },
+        ...backendAnalysis
+      };
+
+      setAnalysisResult(analysisResultFromBackend);
+      setActiveTab('results');
+      toast({ title: 'Analysis submitted', description: 'Analysis created on the backend and results are available.' });
+    } catch (err: any) {
+      setError(err.message || 'Failed to run analysis');
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
   const handleStartSession = () => {
@@ -150,7 +190,7 @@ const Analysis = () => {
             <CardDescription>{t('analysis.description')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="upload" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upload" className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
