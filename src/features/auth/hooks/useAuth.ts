@@ -1,9 +1,11 @@
 import { useContext } from 'react';
 import { AuthContext } from '@/lib/auth/auth-context';
 import { LoginCredentials, RegisterCredentials, UpdateProfileData, ChangePasswordData } from '@/types/auth';
+import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
+  const navigate = useNavigate();
 
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -36,7 +38,6 @@ export const useAuth = () => {
       throw err;
     }
   };
-
   const handleLogout = async () => {
     try {
       await logout();

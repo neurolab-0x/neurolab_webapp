@@ -1,8 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 import { AuthContextType, LoginCredentials, RegisterCredentials, User, UpdateProfileData, ChangePasswordData } from '@/types/auth';
 import axios from 'axios';
 
-const API_URL =import.meta.env.Backend_URL || 'http://13.60.64.187:5000/'; // Default to localhost if not set
+// Base API URL: prefer VITE_API_URL, fall back to Backend_URL (legacy), then localhost
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.Backend_URL || 'http://localhost:5000/';
 
 // Set up axios defaults
 axios.defaults.baseURL = API_URL;
@@ -58,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Create a new axios instance for refresh token request to avoid interceptors
             const refreshResponse = await axios.create().post(
-              `${API_URL}/api/auth/refresh`,
+              `${API_URL}auth/refresh`,
               { refreshToken: storedRefreshToken }
             );
 
@@ -80,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } catch (refreshError) {
             // If refresh fails, clear auth state and redirect to login
             await logout();
-            window.location.href = '/login';
+            // Let the application handle navigation; avoid forced full-page redirect
             return Promise.reject(refreshError);
           }
         }
@@ -88,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // If it's a 401 error on the refresh endpoint, clear auth state
         if (error.response?.status === 401 && originalRequest.url?.includes('/api/auth/refresh')) {
           await logout();
-          window.location.href = '/login';
+          // Avoid forcing a redirect here; let the app handle navigation
         }
 
         return Promise.reject(error);
@@ -119,13 +121,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           // Try to fetch user data with stored token
           const response = await axios.create().get(
-            `${API_URL}/api/users/me`,
+            `${API_URL}users/me`,
             {
               headers: { Authorization: `Bearer ${storedToken}` }
             }
           );
           
-          if (response.data.user) {
+          if (response.data?.success && response.data?.user) {
             setUser(response.data.user);
           } else {
             throw new Error('Invalid user data response');
@@ -134,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // If user fetch fails, try to refresh the token
           try {
             const refreshResponse = await axios.create().post(
-              `${API_URL}/api/auth/refresh`,
+              `${API_URL}auth/refresh`,
               { refreshToken: storedRefreshToken }
             );
 
@@ -152,13 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Try to fetch user data again with new token
             const newResponse = await axios.create().get(
-              `${API_URL}/api/users/me`,
+              `${API_URL}users/me`,
               {
                 headers: { Authorization: `Bearer ${accessToken}` }
               }
             );
 
-            if (newResponse.data.user) {
+            if (newResponse.data?.success && newResponse.data?.user) {
               setUser(newResponse.data.user);
             } else {
               throw new Error('Invalid user data response after refresh');
@@ -169,7 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        // Clear all auth state if anything fails
+        // Log the error and clear all auth state if anything fails
+        console.warn('[AuthProvider] initializeAuth failed:', (error as any)?.message || error);
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         setToken(null);
@@ -186,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/login', credentials);
+      const response = await axios.post('auth/login', credentials);
       const { message, accessToken, refreshToken, user } = response.data;
 
       if (!message || !accessToken || !refreshToken || !user) {
@@ -198,6 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken);
       setRefreshToken(refreshToken);
       setUser(user);
+      console.debug('[AuthProvider] login successful, token lengths:', accessToken?.length, refreshToken?.length);
       return user;
     } catch (err: any) {
       // Handle rate limiting explicitly
@@ -219,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (credentials: RegisterCredentials) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/register', credentials);
+      const response = await axios.post('auth/register', credentials);
       const { message, accessToken, refreshToken, user } = response.data;
 
       if (!message || !user || !accessToken || !refreshToken) {
@@ -241,7 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       if (token) {
-        await axios.post('/api/auth/logout', {}, {
+        await axios.post('auth/logout', {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -253,13 +257,100 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(null);
       setRefreshToken(null);
       setUser(null);
+      // Don't use window.location.href - let the calling component handle navigation
     }
   };
+
+  // Listen for external logout events (dispatched by axios refresh failures)
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const handleExternalLogout = async (e: Event) => {
+      const detail = (e as CustomEvent)?.detail || {};
+      const reason = detail?.reason || 'unknown';
+      const url = detail?.url || null;
+      const status = detail?.status ?? null;
+      const requestId = detail?.requestId ?? null;
+      const responseBody = detail?.responseBody ?? null;
+
+      console.warn('[AuthProvider] External logout event received:', { reason, url, status, requestId });
+      if (responseBody) {
+        console.debug('[AuthProvider] Response body snippet (truncated):', responseBody);
+      }
+
+      // Before logging out, attempt one silent refresh (wait 1s) in case this was a transient issue
+      try {
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        if (storedRefreshToken) {
+          console.info('[AuthProvider] Attempting silent refresh before logging out (1s delay)');
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          try {
+            const refreshResponse = await axios.create().post(`${API_URL}auth/refresh`, { refreshToken: storedRefreshToken });
+            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
+            if (accessToken && newRefreshToken) {
+              localStorage.setItem('token', accessToken);
+              localStorage.setItem('refreshToken', newRefreshToken);
+              setToken(accessToken);
+              setRefreshToken(newRefreshToken);
+              console.info('[AuthProvider] Silent refresh succeeded; restoring session');
+              // Optionally fetch user data again to restore `user` state
+              try {
+                const me = await axios.create().get(`${API_URL}users/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
+                if (me.data?.success && me.data?.user) {
+                  setUser(me.data.user);
+                }
+              } catch (meErr) {
+                console.warn('[AuthProvider] Failed to fetch user after silent refresh', meErr);
+              }
+
+              // Silent recovery — bail out without logging out
+              return;
+            }
+          } catch (silentErr) {
+            console.warn('[AuthProvider] Silent refresh attempt failed', silentErr?.response?.status || silentErr?.message || silentErr);
+          }
+        }
+      } catch (err) {
+        console.error('[AuthProvider] Error during silent refresh attempt', err);
+      }
+
+      // Show the user a clear message (do this before clearing state)
+      try {
+        const description = requestId
+          ? `Your session expired. Request ID: ${requestId}`
+          : (reason === 'refresh_failed' ? 'We could not refresh your session. Please sign in again.' : `Authentication error: ${reason}`);
+
+        toast({
+          title: 'Session expired',
+          description,
+          variant: 'destructive',
+        });
+      } catch (toastError) {
+        console.warn('[AuthProvider] Failed to show toast on external logout', toastError);
+      }
+
+      // Also expose a more detailed console message for backend correlation
+      console.info('[AuthProvider] Logout details for backend correlation:', { reason, url, status, requestId });
+
+      // Proceed with logout cleanup
+      await logout();
+    };
+
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('auth:logout', handleExternalLogout as EventListener);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('auth:logout', handleExternalLogout as EventListener);
+      }
+    };
+  }, [toast]);
 
   const updateProfile = async (data: UpdateProfileData) => {
     try {
       setError(null);
-      const response = await axios.patch('/api/users/me', data, {
+      const response = await axios.patch('users/me', data, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -279,7 +370,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const changePassword = async (data: ChangePasswordData) => {
     try {
       setError(null);
-      const response = await axios.post('/api/users/me/password', data, {
+      const response = await axios.post('users/me/password', data, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -296,7 +387,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const deleteAccount = async (password: string) => {
     try {
       setError(null);
-      const response = await axios.delete('/api/users/me', {
+      const response = await axios.delete('users/me', {
         headers: { Authorization: `Bearer ${token}` },
         data: { password }
       });
