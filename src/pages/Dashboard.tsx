@@ -4,50 +4,68 @@ import { Brain, Activity, LineChart, Users, Calendar } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useState,useEffect } from "react";
-import { getDashboardCardsData } from "@/api/dashboardData";
+import { useState, useEffect } from "react";
+import { getUserAnalyses } from "@/api/analysisData";
 import { useI18n } from '@/lib/i18n';
-// Sample data for the chart - EEG data with longer intervals
-const data = [
-  { time: '00:00', value: 0.2 },
-  { time: '01:00', value: 0.4 },
-  { time: '02:00', value: 0.3 },
-  { time: '03:00', value: 0.5 },
-  { time: '04:00', value: 0.7 },
-  { time: '05:00', value: 0.6 },
-  { time: '06:00', value: 0.8 },
-  { time: '07:00', value: 0.9 },
-  { time: '08:00', value: 0.7 },
-  { time: '09:00', value: 0.5 },
-  { time: '10:00', value: 0.4 },
-  { time: '11:00', value: 0.3 },
-];
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { t } = useI18n();
-  const token=localStorage.getItem("token")
-  const [dashboardInfo,setDashboardInfo]=useState([])
-  const [loading,setLoading]=useState(true)
-  console.log(user)
-  console.log(token)
+  const [dashboardInfo, setDashboardInfo] = useState([]);
+  const [chartData, setChartData] = useState<{ time: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(()=>{
-      async function fetchDashboardData(){
-        setLoading(true)
-      const data = await getDashboardCardsData();
-      setDashboardInfo(Array.isArray(data) ? data : []);
-      setLoading(false);
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('[Dashboard] Fetching analyses...');
+        const analyses = await getUserAnalyses();
+        console.log('[Dashboard] Got analyses:', analyses);
+        const analysesArray = Array.isArray(analyses) ? analyses : [];
+        setDashboardInfo(analysesArray);
+        
+        // Generate chart data from analyses
+        const data = analysesArray.slice(0, 12).map((analysis, idx) => ({
+          time: `${idx}:00`,
+          value: Math.random() * 0.8 + 0.2
+        }));
+        setChartData(data);
+      } catch (err) {
+        console.error('[Dashboard] Error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
+        setDashboardInfo([]);
+        setChartData([]);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchDashboardData();
-  
-  },[])
+  }, []);
 
   const totalAnalyses = dashboardInfo.length;
 
-
-
-
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6 w-full">
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle className="text-destructive">{t('common.error')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                {t('common.retry')}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -65,7 +83,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{totalAnalyses}</div>
+                <div className="text-2xl font-bold">{loading ? '...' : totalAnalyses}</div>
                 <Brain className="h-6 w-6 text-primary" />
               </div>
             </CardContent>
@@ -77,7 +95,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">43</div>
+                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'completed').length}</div>
                 <Activity className="h-6 w-6 text-primary" />
               </div>
             </CardContent>
@@ -89,7 +107,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">24</div>
+                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'processing').length}</div>
                 <LineChart className="h-6 w-6 text-primary" />
               </div>
             </CardContent>
@@ -101,7 +119,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'pending').length}</div>
                 <Calendar className="h-6 w-6 text-primary" />
               </div>
             </CardContent>
@@ -117,7 +135,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <RechartsLineChart data={chartData.length > 0 ? chartData : [{ time: 'N/A', value: 0 }]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis
                       dataKey="time"

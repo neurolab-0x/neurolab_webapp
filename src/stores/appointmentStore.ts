@@ -1,73 +1,58 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-export interface AppointmentRequest {
+/**
+ * Backend appointment response mapped to frontend format
+ */
+export interface Appointment {
   id: string;
-  requester: string;
-  requestedDate: Date;
-  requestedTime: string;
-  reason?: string;
-  status: "pending" | "accepted" | "rejected" | "suggested";
-  suggestedDate?: Date;
-  suggestedTime?: string;
-  duration: number;
-  calendarEventId?: string;
-  createdAt: Date;
+  doctorName: string;
+  startTime: Date;
+  endTime: Date;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED' | 'COMPLETED';
+  doctorId: string;
+  userId: string;
   email?: string;
   phone?: string;
   notes?: string;
 }
 
 interface AppointmentStore {
-  requests: AppointmentRequest[];
-  addRequest: (request: Omit<AppointmentRequest, 'id' | 'createdAt'>) => void;
-  updateRequest: (id: string, updates: Partial<AppointmentRequest>) => void;
-  deleteRequest: (id: string) => void;
-  getRequest: (id: string) => AppointmentRequest | undefined;
+  appointments: Appointment[];
+  isLoading: boolean;
+  error: string | null;
+  setAppointments: (appointments: Appointment[]) => void;
+  addAppointment: (appointment: Appointment) => void;
+  updateAppointment: (id: string, updates: Partial<Appointment>) => void;
+  deleteAppointment: (id: string) => void;
+  getAppointment: (id: string) => Appointment | undefined;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
 }
 
-export const useAppointmentStore = create<AppointmentStore>()(
-  persist(
-    (set, get) => ({
-      requests: [],
-      addRequest: (request) => set((state) => ({
-        requests: [...state.requests, {
-          ...request,
-          id: Math.random().toString(36).substr(2, 9),
-          createdAt: new Date(),
-        }],
-      })),
-      updateRequest: (id, updates) => set((state) => ({
-        requests: state.requests.map((request) =>
-          request.id === id ? { ...request, ...updates } : request
-        ),
-      })),
-      deleteRequest: (id) => set((state) => ({
-        requests: state.requests.filter((request) => request.id !== id),
-      })),
-      getRequest: (id) => get().requests.find((request) => request.id === id),
-    }),
-    {
-      name: 'appointment-storage',
-      partialize: (state) => ({ 
-        requests: state.requests.map(request => ({
-          ...request,
-          requestedDate: request.requestedDate.toISOString(),
-          suggestedDate: request.suggestedDate ? request.suggestedDate.toISOString() : undefined,
-          createdAt: request.createdAt.toISOString(),
-        }))
-      }),
-      onRehydrateStorage: () => (state) => {
-        // Convert ISO strings back to Date objects
-        if (state && state.requests) {
-          state.requests = state.requests.map(request => ({
-            ...request,
-            requestedDate: new Date(request.requestedDate),
-            suggestedDate: request.suggestedDate ? new Date(request.suggestedDate) : undefined,
-            createdAt: new Date(request.createdAt),
-          }));
-        }
-      },
-    }
-  )
-);
+export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
+  appointments: [],
+  isLoading: false,
+  error: null,
+  
+  setAppointments: (appointments) => set({ appointments, error: null }),
+  
+  addAppointment: (appointment) => set((state) => ({
+    appointments: [...state.appointments, appointment],
+  })),
+  
+  updateAppointment: (id, updates) => set((state) => ({
+    appointments: state.appointments.map((apt) =>
+      apt.id === id ? { ...apt, ...updates } : apt
+    ),
+  })),
+  
+  deleteAppointment: (id) => set((state) => ({
+    appointments: state.appointments.filter((apt) => apt.id !== id),
+  })),
+  
+  getAppointment: (id) => get().appointments.find((apt) => apt.id === id),
+  
+  setLoading: (loading) => set({ isLoading: loading }),
+  
+  setError: (error) => set({ error }),
+}));

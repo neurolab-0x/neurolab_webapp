@@ -15,7 +15,6 @@ import {
   Legend,
 } from "chart.js";
 import GaugeChart from "react-gauge-chart";
-import { sampleAnalysisResult } from "../data/sampleData";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -28,6 +27,8 @@ import AnalysisResults from "@/components/AnalysisResults";
 import SessionHistory from "@/components/SessionHistory";
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/components/ui/use-toast';
+import { createSession, endSession, addSessionResult } from "@/api/sessions";
+import { AnalysisResult } from "@/types";
 
 // Register ChartJS components
 ChartJS.register(
@@ -88,6 +89,21 @@ const LiveAnalysis = () => {
 
   // Use the generateChartData function to get chartData
   const chartData = generateChartData(labels, dataPoints);
+
+  // Helper functions
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Get latest values from dataPoints
+  const latestValues = {
+    attention: dataPoints.attention[dataPoints.attention.length - 1] || 0,
+    cognitiveLoad: dataPoints.cognitiveLoad[dataPoints.cognitiveLoad.length - 1] || 0,
+    mentalFatigue: dataPoints.mentalFatigue[dataPoints.mentalFatigue.length - 1] || 0,
+    relaxation: dataPoints.relaxation[dataPoints.relaxation.length - 1] || 0,
+  };
 
   const chartOptions = {
     responsive: true,
@@ -175,28 +191,7 @@ const LiveAnalysis = () => {
           processStep();
         }, step.delay);
       } else {
-        // Create enhanced analysis result with session metadata
-        const enhancedAnalysisResult = {
-          ...sampleAnalysisResult,
-          sessionMetadata: {
-            duration: elapsedTime,
-            dataPoints: elapsedTime * 128,
-            signalQuality: "Excellent",
-            connectionStatus: "Stable",
-            finalMetrics: {
-              attention: dataPoints.attention[dataPoints.attention.length - 1] || 0,
-              cognitiveLoad: dataPoints.cognitiveLoad[dataPoints.cognitiveLoad.length - 1] || 0,
-              mentalFatigue: dataPoints.mentalFatigue[dataPoints.mentalFatigue.length - 1] || 0,
-              relaxation: dataPoints.relaxation[dataPoints.relaxation.length - 1] || 0
-            },
-            timelineData: {
-              labels,
-              dataPoints
-            }
-          }
-        };
-
-        // Send analysis to backend and use returned analysis object
+        // Send analysis to backend with session metadata
         (async () => {
           try {
             setReportProgress(0);
@@ -216,13 +211,40 @@ const LiveAnalysis = () => {
             const { createAnalysis } = await import('@/api/analysis');
             const backendAnalysis = await createAnalysis(payload);
 
-            // Merge backend analysis fields with our local metadata for display
-            const merged = {
+            // Add session metadata to the analysis result
+            const enhancedAnalysisResult: AnalysisResult = {
               ...backendAnalysis,
-              sessionMetadata: enhancedAnalysisResult.sessionMetadata
+              id: backendAnalysis.id || backendAnalysis._id || 'unknown',
+              timestamp: backendAnalysis.createdAt || new Date().toISOString(),
+              dominantState: backendAnalysis.dominantState || 'unknown',
+              confidence: backendAnalysis.confidence ?? 0,
+              stateDistribution: backendAnalysis.stateDistribution || {},
+              cognitiveMetrics: backendAnalysis.cognitiveMetrics || [],
+              clinicalRecommendations: backendAnalysis.clinicalRecommendations || [],
+              processingMetadata: backendAnalysis.processingMetadata || {
+                model: backendAnalysis.model || 'unknown',
+                version: backendAnalysis.version || 'unknown',
+                processingTime: backendAnalysis.processingTime || 0
+              },
+              sessionMetadata: {
+                duration: elapsedTime,
+                dataPoints: elapsedTime * 128,
+                signalQuality: "Excellent",
+                connectionStatus: "Stable",
+                finalMetrics: {
+                  attention: dataPoints.attention[dataPoints.attention.length - 1] || 0,
+                  cognitiveLoad: dataPoints.cognitiveLoad[dataPoints.cognitiveLoad.length - 1] || 0,
+                  mentalFatigue: dataPoints.mentalFatigue[dataPoints.mentalFatigue.length - 1] || 0,
+                  relaxation: dataPoints.relaxation[dataPoints.relaxation.length - 1] || 0
+                },
+                timelineData: {
+                  labels,
+                  dataPoints
+                }
+              }
             };
 
-            setAnalysisResult(merged);
+            setAnalysisResult(enhancedAnalysisResult);
             setReportStatus(backendAnalysis?.status === 'processing' ? 'generating' : 'completed');
             setReportProgress(100);
             toast({ title: 'Analysis sent', description: 'Analysis was submitted to the backend.' });

@@ -12,57 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from '@/lib/i18n';
-
-// Mock data for demonstration
-const mockAnalysisResult: AnalysisResult = {
-  id: "analysis-123",
-  timestamp: new Date().toISOString(),
-  dominantState: "focused",
-  confidence: 0.89,
-  stateDistribution: {
-    focused: 45,
-    relaxed: 30,
-    distracted: 15,
-    neutral: 10
-  },
-  cognitiveMetrics: [
-    {
-      name: "Attention Level",
-      value: 85,
-      unit: "%",
-      threshold: { min: 0, max: 100 }
-    },
-    {
-      name: "Mental Load",
-      value: 65,
-      unit: "%",
-      threshold: { min: 0, max: 100 }
-    },
-    {
-      name: "Cognitive Performance",
-      value: 78,
-      unit: "%",
-      threshold: { min: 0, max: 100 }
-    },
-    {
-      name: "Stress Level",
-      value: 35,
-      unit: "%",
-      threshold: { min: 0, max: 100 }
-    }
-  ],
-  clinicalRecommendations: [
-    "Consider taking short breaks every 45 minutes to maintain optimal focus",
-    "Your attention levels are highest in the morning - schedule important tasks accordingly",
-    "Practice mindfulness exercises to reduce stress levels during high-intensity periods",
-    "Maintain regular sleep patterns to improve cognitive performance"
-  ],
-  processingMetadata: {
-    model: "NeurAI v2.1",
-    version: "2.1.0",
-    processingTime: 3.5
-  }
-};
+import { getUserAnalyses } from "@/api/analysisData";
 
 type SessionStatus = 'idle' | 'connecting' | 'active' | 'paused' | 'completed' | 'error';
 
@@ -74,8 +24,26 @@ const Analysis = () => {
   const [sessionProgress, setSessionProgress] = useState(0);
   const [sessionDuration, setSessionDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [analyses, setAnalyses] = useState<AnalysisResult[]>([]);
+  const [loading, setLoading] = useState(false);
   const { t } = useI18n();
   const { toast } = useToast();
+
+  // Fetch user's analyses on component mount
+  useEffect(() => {
+    const fetchAnalyses = async () => {
+      try {
+        setLoading(true);
+        const data = await getUserAnalyses();
+        setAnalyses(data as unknown as AnalysisResult[]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch analyses');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalyses();
+  }, []);
 
   // Simulate live session progress
   useEffect(() => {

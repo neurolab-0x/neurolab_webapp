@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,63 +41,48 @@ interface Session {
   signalQuality: string;
 }
 
-// Mock data for demonstration
-const mockSessions: Session[] = [
-  {
-    id: "session-001",
-    timestamp: "2024-03-15T10:30:00Z",
-    duration: 1800,
-    dominantState: "Focused",
-    confidence: 0.89,
-    metrics: {
-      attention: 85,
-      cognitiveLoad: 65,
-      mentalFatigue: 30,
-      relaxation: 45,
-    },
-    status: 'completed',
-    dataPoints: 230400,
-    signalQuality: "Excellent",
-  },
-  {
-    id: "session-002",
-    timestamp: "2024-03-14T15:45:00Z",
-    duration: 1200,
-    dominantState: "Relaxed",
-    confidence: 0.92,
-    metrics: {
-      attention: 70,
-      cognitiveLoad: 45,
-      mentalFatigue: 25,
-      relaxation: 75,
-    },
-    status: 'completed',
-    dataPoints: 153600,
-    signalQuality: "Good",
-  },
-  {
-    id: "session-003",
-    timestamp: "2024-03-13T09:15:00Z",
-    duration: 900,
-    dominantState: "Distracted",
-    confidence: 0.78,
-    metrics: {
-      attention: 45,
-      cognitiveLoad: 85,
-      mentalFatigue: 60,
-      relaxation: 30,
-    },
-    status: 'interrupted',
-    dataPoints: 115200,
-    signalQuality: "Fair",
-  },
-];
-
 const SessionHistory = () => {
   const [selectedView, setSelectedView] = useState<'list' | 'grid'>('list');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('all');
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch sessions from backend on mount
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        setLoading(true);
+        const { getUserAnalyses } = await import('@/api/analysisData');
+        const analyses = await getUserAnalyses();
+        // Map analyses to Session format
+        const mappedSessions: Session[] = analyses.map((analysis: any) => ({
+          id: analysis.id,
+          timestamp: analysis.createdAt || new Date().toISOString(),
+          duration: analysis.sessionMetadata?.duration || 0,
+          dominantState: analysis.dominantState || 'Unknown',
+          confidence: analysis.confidence || 0,
+          metrics: {
+            attention: analysis.cognitiveMetrics?.[0]?.value || 0,
+            cognitiveLoad: analysis.cognitiveMetrics?.[1]?.value || 0,
+            mentalFatigue: analysis.cognitiveMetrics?.[2]?.value || 0,
+            relaxation: analysis.cognitiveMetrics?.[3]?.value || 0,
+          },
+          status: (analysis.status || 'completed') as any,
+          dataPoints: analysis.sessionMetadata?.dataPoints || 0,
+          signalQuality: analysis.sessionMetadata?.signalQuality || 'Good',
+        }));
+        setSessions(mappedSessions);
+      } catch (err) {
+        console.error('Failed to fetch sessions:', err);
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSessions();
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
@@ -122,12 +107,22 @@ const SessionHistory = () => {
     }
   };
 
-  const filteredSessions = mockSessions.filter(session => {
+  const filteredSessions = sessions.filter(session => {
     const matchesStatus = filterStatus === 'all' || session.status === filterStatus;
     const matchesSearch = session.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       session.dominantState.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-center items-center h-40">
+          <p className="text-muted-foreground">Loading session history...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, MessageSquare, Menu, X } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,6 +38,7 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-2">
+          <LanguageSwitcher />
           <ThemeSwitcher />
           <Button variant="outline" size="sm" className="hidden md:flex items-center">
             <MessageSquare className="mr-2 h-4 w-4" />

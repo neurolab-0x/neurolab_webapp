@@ -1,13 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AuthContextType, LoginCredentials, RegisterCredentials, User, UpdateProfileData, ChangePasswordData } from '@/types/auth';
-import axios from 'axios';
-
-// Base API URL: prefer VITE_API_URL, fall back to Backend_URL (legacy), then localhost
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.Backend_URL || 'http://localhost:5000/';
-
-// Set up axios defaults
-axios.defaults.baseURL = API_URL;
+import axios, { API_URL } from '@/lib/axios/config';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -46,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (
           error.response?.status === 401 && 
           !originalRequest._retry &&
-          !originalRequest.url?.includes('/api/auth/refresh')
+          !originalRequest.url?.includes('/auth/refresh')
         ) {
           originalRequest._retry = true;
 
@@ -58,21 +52,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               throw new Error('No refresh token available');
             }
 
-            // Create a new axios instance for refresh token request to avoid interceptors
-            const refreshResponse = await axios.create().post(
-              `${API_URL}auth/refresh`,
-              { refreshToken: storedRefreshToken }
-            );
+            // Create a plain axios instance (no interceptors) using configured base URL
+            const plain = axios.create({ baseURL: API_URL });
+            const refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
 
-            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
-            
-            if (!accessToken || !newRefreshToken) {
+            const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
+            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
+
+            if (!accessToken) {
               throw new Error('Invalid refresh token response');
             }
 
             // Update tokens in storage and state
             localStorage.setItem('token', accessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
             setToken(accessToken);
             setRefreshToken(newRefreshToken);
 
@@ -88,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // If it's a 401 error on the refresh endpoint, clear auth state
-        if (error.response?.status === 401 && originalRequest.url?.includes('/api/auth/refresh')) {
+        if (error.response?.status === 401 && originalRequest.url?.includes('/auth/refresh')) {
           await logout();
           // Avoid forcing a redirect here; let the app handle navigation
         }
@@ -119,14 +112,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRefreshToken(storedRefreshToken);
 
         try {
-          // Try to fetch user data with stored token
-          const response = await axios.create().get(
-            `${API_URL}users/me`,
-            {
-              headers: { Authorization: `Bearer ${storedToken}` }
-            }
-          );
-          
+          // Try to fetch user data with stored token using a plain axios instance
+          const plain = axios.create({ baseURL: API_URL });
+          const response = await plain.get('/users/me', { headers: { Authorization: `Bearer ${storedToken}` } });
+
           if (response.data?.success && response.data?.user) {
             setUser(response.data.user);
           } else {
@@ -135,30 +124,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (userError) {
           // If user fetch fails, try to refresh the token
           try {
-            const refreshResponse = await axios.create().post(
-              `${API_URL}auth/refresh`,
-              { refreshToken: storedRefreshToken }
-            );
+            const plain = axios.create({ baseURL: API_URL });
+            const refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
 
-            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
-            
-            if (!accessToken || !newRefreshToken) {
+            const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
+            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
+
+            if (!accessToken) {
               throw new Error('Invalid refresh response');
             }
 
             // Update tokens
             localStorage.setItem('token', accessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
             setToken(accessToken);
             setRefreshToken(newRefreshToken);
 
             // Try to fetch user data again with new token
-            const newResponse = await axios.create().get(
-              `${API_URL}users/me`,
-              {
-                headers: { Authorization: `Bearer ${accessToken}` }
-              }
-            );
+            const newPlain = axios.create({ baseURL: API_URL });
+            const newResponse = await newPlain.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
 
             if (newResponse.data?.success && newResponse.data?.user) {
               setUser(newResponse.data.user);
@@ -190,19 +174,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const response = await axios.post('auth/login', credentials);
-      const { message, accessToken, refreshToken, user } = response.data;
+      const tokenFromServer = response.data?.accessToken || response.data?.token;
+      const refreshFromServer = response.data?.refreshToken || response.data?.refresh_token || null;
+      const userFromServer = response.data?.user || response.data?.user;
 
-      if (!message || !accessToken || !refreshToken || !user) {
+      if (!tokenFromServer || !userFromServer) {
         throw new Error('Invalid response from server');
       }
 
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      setToken(accessToken);
-      setRefreshToken(refreshToken);
-      setUser(user);
-      console.debug('[AuthProvider] login successful, token lengths:', accessToken?.length, refreshToken?.length);
-      return user;
+      localStorage.setItem('token', tokenFromServer);
+      if (refreshFromServer) localStorage.setItem('refreshToken', refreshFromServer);
+      setToken(tokenFromServer);
+      setRefreshToken(refreshFromServer);
+      setUser(userFromServer);
+      console.debug('[AuthProvider] login successful, token length:', tokenFromServer?.length);
+      return userFromServer;
     } catch (err: any) {
       // Handle rate limiting explicitly
       if (err?.response?.status === 429) {
@@ -224,18 +210,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const response = await axios.post('auth/register', credentials);
-      const { message, accessToken, refreshToken, user } = response.data;
+      const tokenFromServer = response.data?.accessToken || response.data?.token;
+      const refreshFromServer = response.data?.refreshToken || response.data?.refresh_token || null;
+      const userFromServer = response.data?.user || response.data?.user;
 
-      if (!message || !user || !accessToken || !refreshToken) {
+      if (!userFromServer || !tokenFromServer) {
         throw new Error('Invalid response from server');
       }
 
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      setToken(accessToken);
-      setRefreshToken(refreshToken);
-      setUser(user);
-      return user;
+      localStorage.setItem('token', tokenFromServer);
+      if (refreshFromServer) localStorage.setItem('refreshToken', refreshFromServer);
+      setToken(tokenFromServer);
+      setRefreshToken(refreshFromServer);
+      setUser(userFromServer);
+      return userFromServer;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
       throw err;
@@ -285,17 +273,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.info('[AuthProvider] Attempting silent refresh before logging out (1s delay)');
           await new Promise((resolve) => setTimeout(resolve, 1000));
           try {
-            const refreshResponse = await axios.create().post(`${API_URL}auth/refresh`, { refreshToken: storedRefreshToken });
-            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
-            if (accessToken && newRefreshToken) {
+            const plain = axios.create({ baseURL: API_URL });
+            const refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
+            const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
+            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
+            if (accessToken) {
               localStorage.setItem('token', accessToken);
-              localStorage.setItem('refreshToken', newRefreshToken);
+              if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
               setToken(accessToken);
               setRefreshToken(newRefreshToken);
               console.info('[AuthProvider] Silent refresh succeeded; restoring session');
               // Optionally fetch user data again to restore `user` state
               try {
-                const me = await axios.create().get(`${API_URL}users/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
+                const mePlain = axios.create({ baseURL: API_URL });
+                const me = await mePlain.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
                 if (me.data?.success && me.data?.user) {
                   setUser(me.data.user);
                 }
@@ -350,12 +341,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (data: UpdateProfileData) => {
     try {
       setError(null);
-      const response = await axios.patch('users/me', data, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      
+      // Check if avatar is a File object (file upload)
+      const hasFile = data.avatar instanceof File;
+      
+      let requestData: any;
+      let headers: any = { Authorization: `Bearer ${token}` };
+      
+      if (hasFile) {
+        // Use FormData for file uploads
+        const formData = new FormData();
+        if (data.fullName) formData.append('fullName', data.fullName);
+        if (data.username) formData.append('username', data.username);
+        if (data.email) formData.append('email', data.email);
+        if (data.avatar) formData.append('avatar', data.avatar);
+        
+        requestData = formData;
+        // Don't set content-type header, let axios set it automatically with boundary
+      } else {
+        // Use JSON for metadata-only updates
+        requestData = data;
+        headers['Content-Type'] = 'application/json';
+      }
+      
+      const response = await axios.patch('users/me', requestData, { headers });
 
-      const { message, user: updatedUser } = response.data;
-      if (!message || !updatedUser) {
+      const { success, user: updatedUser } = response.data;
+      if (!success || !updatedUser) {
         throw new Error('Invalid response from server');
       }
 
@@ -374,8 +386,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const { message } = response.data;
-      if (!message) {
+      const { success } = response.data;
+      if (!success) {
         throw new Error('Invalid response from server');
       }
     } catch (err: any) {

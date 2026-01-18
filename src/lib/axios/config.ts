@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Use VITE_API_URL (preferred) or Backend_URL (legacy) or fallback to localhost
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.Backend_URL || 'http://localhost:5000/';
+// Ensure the base URL always ends with a trailing slash so concatenation is safe
+const rawApi = import.meta.env.VITE_API_URL || import.meta.env.Backend_URL || 'http://localhost:5000/api/';
+export const API_URL = rawApi.endsWith('/') ? rawApi : `${rawApi}/`;
 
 // Set up axios defaults
 axios.defaults.baseURL = API_URL;
@@ -36,13 +38,20 @@ axios.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post('/auth/refresh', {
-          refreshToken: storedRefreshToken
-        });
+        const response = await axios.post('/auth/refresh', { refreshToken: storedRefreshToken });
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        // Support multiple possible response shapes from backend:
+        // - { accessToken, refreshToken }
+        // - { token }
+        const accessToken = response.data?.accessToken || response.data?.token;
+        const newRefreshToken = response.data?.refreshToken || response.data?.refresh_token || storedRefreshToken;
+
+        if (!accessToken) {
+          throw new Error('Invalid refresh response');
+        }
+
         localStorage.setItem('token', accessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axios(originalRequest);
@@ -72,13 +81,15 @@ axios.interceptors.response.use(
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             try {
-              const retryResp = await axios.create().post(`${API_URL}auth/refresh`, { refreshToken: storedRefreshToken });
-              const { accessToken, refreshToken: newRefreshToken } = retryResp.data;
+              const plain = axios.create({ baseURL: API_URL });
+              const retryResp = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
+              const retryAccess = retryResp.data?.accessToken || retryResp.data?.token;
+              const retryRefresh = retryResp.data?.refreshToken || retryResp.data?.refresh_token || storedRefreshToken;
 
-              if (accessToken && newRefreshToken) {
-                localStorage.setItem('token', accessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+              if (retryAccess) {
+                localStorage.setItem('token', retryAccess);
+                if (retryRefresh) localStorage.setItem('refreshToken', retryRefresh);
+                originalRequest.headers.Authorization = `Bearer ${retryAccess}`;
                 console.info('[axios] Token refresh retry succeeded for', originalRequest?.url);
                 return axios(originalRequest);
               }

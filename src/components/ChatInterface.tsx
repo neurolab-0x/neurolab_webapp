@@ -12,18 +12,6 @@ export const ChatInterface = () => {
   const [messageInput, setMessageInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Add sample data on component mount
-  useEffect(() => {
-    const sampleMessages: Message[] = [
-      { id: '1', content: 'Hello! How can I help you today?', sender: 'Neural Assistant', timestamp: new Date().toISOString(), isUser: false },
-      { id: '2', content: 'I need help with my project.', sender: 'User', timestamp: new Date().toISOString(), isUser: true },
-      { id: '3', content: 'Sure, I can assist you with that. What kind of project are you working on?', sender: 'Neural Assistant', timestamp: new Date().toISOString(), isUser: false },
-    ];
-    // Assuming useWebSocket provides a way to set messages, you might need to adjust this based on your implementation
-    // For demonstration, we'll just log the sample messages
-    console.log('Sample messages:', sampleMessages);
-  }, []);
-
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim() === "") return;

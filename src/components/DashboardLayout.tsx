@@ -31,18 +31,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navigation = [
     {
+      id: 'dashboard',
       nameKey: 'nav.dashboard',
       href: '/dashboard',
       icon: Home,
       descriptionKey: 'Overview of your brain activity'
     },
     {
+      id: 'analysis',
       nameKey: 'nav.analysis',
       href: '/analysis',
       icon: LineChart,
       descriptionKey: 'Detailed analysis of your sessions'
     },
     {
+      id: 'live-analysis',
       nameKey: 'nav.liveAnalysis',
       href: '/live-analysis',
       icon: Activity,
@@ -50,36 +53,42 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       badge: 'New'
     },
     {
+      id: 'schedule',
       nameKey: 'nav.schedule',
       href: '/schedule',
       icon: Calendar,
       descriptionKey: 'Schedule your EEG sessions'
     },
     {
+      id: 'appointments',
       nameKey: 'nav.appointments',
       href: '/appointments',
       icon: MessageCircle,
       descriptionKey: 'Manage appointment requests'
     },
     {
+      id: 'notifications',
       nameKey: 'nav.notifications',
       href: '/notifications',
       icon: Bell,
       descriptionKey: 'View your notifications'
     },
     {
+      id: 'history',
       nameKey: 'nav.history',
       href: '/history',
       icon: History,
       descriptionKey: 'View your past sessions'
     },
     {
+      id: 'profile',
       nameKey: 'nav.profile',
       href: '/profile',
       icon: User2Icon,
       descriptionKey: 'Manage your profile'
     },
     {
+      id: 'settings',
       nameKey: 'nav.settings',
       href: '/settings',
       icon: Settings,
@@ -109,7 +118,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <SidebarContent className="flex-1 flex flex-col gap-2 px-2 py-4">
             <SidebarMenu>
               {navigation.map((item) => (
-                <SidebarMenuItem key={item.name}>
+                <SidebarMenuItem key={item.id}>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

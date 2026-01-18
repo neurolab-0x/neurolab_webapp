@@ -1,13 +1,18 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { WebSocketMessage, Message } from '../types';
-import { sampleMessages } from '../data/sampleData';
 
 // This is a mock WebSocket implementation for the demo
 // In a real app, you'd connect to a real WebSocket server
 export const useWebSocket = () => {
   const [connected, setConnected] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(sampleMessages);
+  const [messages, setMessages] = useState<Message[]>([{
+    id: "msg-init",
+    sender: "NeuralAssistant",
+    content: "Hello! I'm your NeuralAssistant. How can I help you interpret your EEG data today?",
+    timestamp: new Date().toISOString(),
+    isUser: false
+  }]);
   const [error, setError] = useState<string | null>(null);
   
   // In a real implementation, this would be a WebSocket instance

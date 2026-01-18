@@ -90,20 +90,33 @@ export default function Profile() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('fullName', profileData.fullName);
-      formData.append('username', profileData.username);
-      formData.append('email', profileData.email);
+      // Only send changed fields
+      const updates: any = {};
+      
+      if (profileData.fullName !== (user?.fullName || '')) {
+        updates.fullName = profileData.fullName;
+      }
+      if (profileData.username !== (user?.username || '')) {
+        updates.username = profileData.username;
+      }
+      if (profileData.email !== (user?.email || '')) {
+        updates.email = profileData.email;
+      }
       if (selectedImage) {
-        formData.append('avatar', selectedImage);
+        updates.avatar = selectedImage;
       }
 
-      await updateProfile({
-        fullName: profileData.fullName,
-        username: profileData.username,
-        email: profileData.email,
-        avatar: profileData.avatar
-      });
+      // Only send if there are actual changes
+      if (Object.keys(updates).length === 0) {
+        toast({
+          title: "Info",
+          description: "No changes to update.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      await updateProfile(updates);
       toast({
         title: "Success",
         description: "Profile updated successfully.",

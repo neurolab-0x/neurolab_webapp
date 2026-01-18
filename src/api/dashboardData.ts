@@ -1,24 +1,20 @@
-import axios from "axios";
+import axios from '@/lib/axios/config';
 
-// Fetches live analysis data for a user by _id
+// Fetches live analysis data for the current user
 export async function getDashboardCardsData() {
     try {
-        const response = await axios.get('analysis/user');
-        // Optionally, return the latest analysis
-        const analyses = response.data;
-        return analyses;
+        const response = await axios.get('/analysis/user');
+        return response.data;
     } catch (error: any) {
-        return error?.response?.data?.message || "Failed to fetch analysis data.";
+        throw error?.response?.data || new Error('Failed to fetch analysis data.');
     }
-} 
+}
 
 export async function getTotalActivities() {
     try {
-        const response = await axios.get('analysis/user');
-        // Optionally, return the latest analysis
-        const analyses = response.data;
-        return analyses;
+        const response = await axios.get('/analysis/user');
+        return response.data;
     } catch (error: any) {
-        return error?.response?.data?.message || "Failed to fetch analysis data.";
+        throw error?.response?.data || new Error('Failed to fetch analysis data.');
     }
 }
