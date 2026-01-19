@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
-import { Brain, Home, LineChart, History, Settings, LogOut, Upload, Activity, MessageCircle, Bell, HelpCircle, Calendar, User2Icon } from 'lucide-react';
+import { Brain, Home, LineChart, History, Settings, LogOut, Upload, Activity, MessageCircle, Bell, HelpCircle, Calendar, User2Icon, Users, BarChart } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +42,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       nameKey: 'nav.analysis',
       href: '/analysis',
       icon: LineChart,
-      descriptionKey: 'Detailed analysis of your sessions'
+      descriptionKey: 'Detailed analysis of your sessions',
+      roles: ['user', 'doctor']
     },
     {
       id: 'live-analysis',
@@ -50,14 +51,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       href: '/live-analysis',
       icon: Activity,
       descriptionKey: 'Real-time brain activity monitoring',
-      badge: 'New'
+      badge: 'New',
+      roles: ['user', 'doctor']
     },
     {
       id: 'schedule',
       nameKey: 'nav.schedule',
       href: '/schedule',
       icon: Calendar,
-      descriptionKey: 'Schedule your EEG sessions'
+      descriptionKey: 'Schedule your EEG sessions',
+      roles: ['user', 'doctor']
     },
     {
       id: 'appointments',
@@ -87,13 +90,88 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: User2Icon,
       descriptionKey: 'Manage your profile'
     },
+    // Admin-only management links
+    {
+      id: 'admin-users',
+      nameKey: 'users',
+      href: '/admin/users',
+      icon: Users,
+      descriptionKey: 'Manage users',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-requests',
+      nameKey: 'requests',
+      href: '/admin/requests',
+      icon: Bell,
+      descriptionKey: 'Role change requests',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-stats',
+      nameKey: 'stats',
+      href: '/admin/stats',
+      icon: BarChart,
+      descriptionKey: 'System statistics',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-clinics',
+      nameKey: 'clinics',
+      href: '/admin/clinics',
+      icon: Calendar,
+      descriptionKey: 'Clinic and hospital management',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-billing',
+      nameKey: 'billing',
+      href: '/admin/billing',
+      icon: Users,
+      descriptionKey: 'Billing and RSSB adjustments',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-devices',
+      nameKey: 'devices',
+      href: '/admin/devices',
+      icon: Upload,
+      descriptionKey: 'Device management',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-appointments',
+      nameKey: 'appointments',
+      href: '/admin/appointments',
+      icon: MessageCircle,
+      descriptionKey: 'Appointment oversight',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-logs',
+      nameKey: 'logs',
+      href: '/admin/logs',
+      icon: HelpCircle,
+      descriptionKey: 'Audit logs',
+      roles: ['admin']
+    },
+    // Doctor portal link (kept separate)
+    {
+      id: 'doctor-portal',
+      nameKey: 'nav.doctor',
+      href: '/doctor',
+      icon: Brain,
+      descriptionKey: 'Doctor portal',
+      roles: ['doctor']
+    },
+    // Settings
     {
       id: 'settings',
       nameKey: 'nav.settings',
       href: '/settings',
       icon: Settings,
       descriptionKey: 'Configure your preferences'
-    }
+    },
   ];
 
   const { t } = useI18n();
@@ -117,7 +195,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </SidebarHeader>
           <SidebarContent className="flex-1 flex flex-col gap-2 px-2 py-4">
             <SidebarMenu>
-              {navigation.map((item) => (
+              {navigation
+                .filter((item) => {
+                  if (!item.roles || item.roles.length === 0) return true;
+                  const r = (user?.role || '').toString().toLowerCase();
+                  return item.roles.map((x: string) => x.toString().toLowerCase()).includes(r);
+                })
+                .map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <TooltipProvider>
                     <Tooltip>
