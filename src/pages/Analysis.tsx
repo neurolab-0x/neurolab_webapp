@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileText, BarChart2, Brain, Activity, Play, Pause, StopCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, FileText, BarChart2, Brain, Activity, Play, Pause, StopCircle, AlertCircle, Loader2, X, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AnalysisResults from "@/components/AnalysisResults";
 import { AnalysisResult } from "@/types";
 import { Progress } from "@/components/ui/progress";
@@ -17,6 +17,7 @@ import { getUserAnalyses } from "@/api/analysisData";
 type SessionStatus = 'idle' | 'connecting' | 'active' | 'paused' | 'completed' | 'error';
 
 const Analysis = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [activeTab, setActiveTab] = useState<'upload' | 'results'>('upload');
@@ -26,6 +27,7 @@ const Analysis = () => {
   const [error, setError] = useState<string | null>(null);
   const [analyses, setAnalyses] = useState<AnalysisResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useI18n();
   const { toast } = useToast();
 
@@ -57,20 +59,68 @@ const Analysis = () => {
     return () => clearInterval(interval);
   }, [sessionStatus]);
 
-  const handleFileUpload = async () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      
+      // Validate file type
+      if (!['csv', 'edf'].includes(fileExtension || '')) {
+        setError('Invalid file type. Please select a CSV or EDF file.');
+        return;
+      }
+      
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      
+      // Validate file type
+      if (!['csv', 'edf'].includes(fileExtension || '')) {
+        setError('Invalid file type. Please select a CSV or EDF file.');
+        return;
+      }
+      
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleAnalyse = async () => {
+    if (!selectedFile) return;
+
     setIsAnalyzing(true);
     setError(null);
 
-    // For now we simulate an upload and call the backend createAnalysis API
     try {
-      // Construct payload - in a real flow this would be based on the uploaded file
+      // Construct payload based on file type
+      const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
       const payload = {
         deviceId: '123e4567-e89b-12d3-a456-426614174000',
-        type: 'EEG',
+        type: fileExtension?.toUpperCase() === 'EDF' ? 'EEG' : 'EEG',
         parameters: {
           samplingRate: 256,
           duration: 300,
-          channels: ['Fp1', 'Fp2', 'C3', 'C4']
+          channels: ['Fp1', 'Fp2', 'C3', 'C4'],
+          fileName: selectedFile.name,
+          fileSize: selectedFile.size
         }
       };
 
@@ -96,7 +146,8 @@ const Analysis = () => {
 
       setAnalysisResult(analysisResultFromBackend);
       setActiveTab('results');
-      toast({ title: 'Analysis submitted', description: 'Analysis created on the backend and results are available.' });
+      setSelectedFile(null);
+      toast({ title: 'Analysis submitted', description: 'Your file is being analyzed. Results will appear below.' });
     } catch (err: any) {
       setError(err.message || 'Failed to run analysis');
     } finally {
@@ -174,24 +225,83 @@ const Analysis = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="upload" className="mt-6">
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">{t('analysis.uploadHeader')}</h3>
-                  <p className="text-muted-foreground mb-4">{t('analysis.uploadDesc')}</p>
-                  <Button
-                    variant="outline"
-                    onClick={handleFileUpload}
-                    disabled={isAnalyzing}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('analysis.analyzing')}
-                      </>
-                    ) : (
-                      t('analysis.selectFiles')
-                    )}
-                  </Button>
+                <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${selectedFile ? "border-neural-teal/50" : "border-border hover:border-primary/50"}`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                >
+                  {!selectedFile && !isAnalyzing && (
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                        <Upload className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">{t('analysis.uploadHeader')}</h3>
+                        <p className="text-muted-foreground mb-2">{t('analysis.uploadDesc')}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Supported formats: CSV, EDF
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Browse Files
+                      </Button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept=".csv,.edf"
+                      />
+                    </div>
+                  )}
+
+                  {selectedFile && !isAnalyzing && (
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-neural-teal/10 flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-neural-teal" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{selectedFile.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(selectedFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                      <div className="flex justify-center space-x-2">
+                        <Button
+                          size="sm"
+                          onClick={handleAnalyse}
+                          className="bg-neural-green hover:bg-neural-green/90"
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          Analyse
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleClearFile}
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isAnalyzing && (
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Analyzing {selectedFile?.name}</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Processing...
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="results" className="mt-6">

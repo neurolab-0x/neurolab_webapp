@@ -418,6 +418,7 @@ export default function Settings() {
                       <SelectContent>
                           <SelectItem value="en">English</SelectItem>
                           <SelectItem value="fr">French</SelectItem>
+                          <SelectItem value='rw'>Kinyarwanda</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
