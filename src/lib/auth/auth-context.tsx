@@ -46,18 +46,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           try {
             const storedRefreshToken = localStorage.getItem('refreshToken');
-            if (!storedRefreshToken) {
-              // Clear auth state if no refresh token is available
-              await logout();
-              throw new Error('No refresh token available');
+
+            // Prefer body-based refresh when we have a stored refresh token,
+            // otherwise attempt a cookie-based refresh (server-set httpOnly cookie)
+            let refreshResponse;
+            if (storedRefreshToken) {
+              const plain = axios.create({ baseURL: API_URL });
+              refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
+            } else {
+              const plain = axios.create({ baseURL: API_URL, withCredentials: true });
+              refreshResponse = await plain.post('/auth/refresh');
             }
 
-            // Create a plain axios instance (no interceptors) using configured base URL
-            const plain = axios.create({ baseURL: API_URL });
-            const refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
-
             const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
-            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
+            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || localStorage.getItem('refreshToken');
 
             if (!accessToken) {
               throw new Error('Invalid refresh token response');
@@ -102,56 +104,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const storedToken = localStorage.getItem('token');
         const storedRefreshToken = localStorage.getItem('refreshToken');
-        
-        if (!storedToken || !storedRefreshToken) {
-          throw new Error('No stored tokens');
-        }
 
-        // Set initial tokens
-        setToken(storedToken);
-        setRefreshToken(storedRefreshToken);
+        // Restore any tokens we have in storage (may be missing refreshToken if server uses httpOnly cookie)
+        if (storedToken) setToken(storedToken);
+        if (storedRefreshToken) setRefreshToken(storedRefreshToken);
 
-        try {
-          // Try to fetch user data with stored token using a plain axios instance
+        // Helper to fetch /users/me with a token
+        const fetchUserWithToken = async (access: string) => {
           const plain = axios.create({ baseURL: API_URL });
-          const response = await plain.get('/users/me', { headers: { Authorization: `Bearer ${storedToken}` } });
+          return plain.get('/users/me', { headers: { Authorization: `Bearer ${access}` } });
+        };
 
-          if (response.data?.success && response.data?.user) {
-            setUser(response.data.user);
-          } else {
-            throw new Error('Invalid user data response');
-          }
-        } catch (userError) {
-          // If user fetch fails, try to refresh the token
+        // If we have an access token, attempt to fetch the user; if that fails, try refresh (body or cookie)
+        if (storedToken) {
           try {
-            const plain = axios.create({ baseURL: API_URL });
-            const refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
-
-            const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
-            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
-
-            if (!accessToken) {
-              throw new Error('Invalid refresh response');
-            }
-
-            // Update tokens
-            localStorage.setItem('token', accessToken);
-            if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
-            setToken(accessToken);
-            setRefreshToken(newRefreshToken);
-
-            // Try to fetch user data again with new token
-            const newPlain = axios.create({ baseURL: API_URL });
-            const newResponse = await newPlain.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
-
-            if (newResponse.data?.success && newResponse.data?.user) {
-              setUser(newResponse.data.user);
+            const response = await fetchUserWithToken(storedToken);
+            if (response.data?.success && response.data?.user) {
+              const serverUser = response.data.user;
+              const normalizedUser = { ...serverUser, role: serverUser.role ? serverUser.role.toString().toLowerCase() : serverUser.role };
+              setUser(normalizedUser);
             } else {
-              throw new Error('Invalid user data response after refresh');
+              throw new Error('Invalid user data response');
             }
-          } catch (refreshError) {
-            // If refresh fails, clear everything
-            throw new Error('Token refresh failed');
+          } catch (userError) {
+            // Try to refresh tokens: prefer stored refresh token, otherwise try cookie-based refresh
+            try {
+              let refreshResponse;
+              if (storedRefreshToken) {
+                const plain = axios.create({ baseURL: API_URL });
+                refreshResponse = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
+              } else {
+                const plain = axios.create({ baseURL: API_URL, withCredentials: true });
+                refreshResponse = await plain.post('/auth/refresh');
+              }
+
+              const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
+              const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || storedRefreshToken;
+
+              if (!accessToken) throw new Error('Invalid refresh response');
+
+              localStorage.setItem('token', accessToken);
+              if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+              setToken(accessToken);
+              setRefreshToken(newRefreshToken);
+
+              const newResponse = await fetchUserWithToken(accessToken);
+              if (newResponse.data?.success && newResponse.data?.user) {
+                const serverUser = newResponse.data.user;
+                const normalizedUser = { ...serverUser, role: serverUser.role ? serverUser.role.toString().toLowerCase() : serverUser.role };
+                setUser(normalizedUser);
+              } else {
+                throw new Error('Invalid user data response after refresh');
+              }
+            } catch (refreshError) {
+              throw new Error('Token refresh failed');
+            }
+          }
+        } else {
+          // No stored access token; attempt cookie-based refresh (server may have set httpOnly cookie)
+          try {
+            const plain = axios.create({ baseURL: API_URL, withCredentials: true });
+            const refreshResponse = await plain.post('/auth/refresh');
+            const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.token;
+            const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.refresh_token || null;
+
+            if (accessToken) {
+              localStorage.setItem('token', accessToken);
+              if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+              setToken(accessToken);
+              setRefreshToken(newRefreshToken);
+
+              const mePlain = axios.create({ baseURL: API_URL });
+              const me = await mePlain.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
+              if (me.data?.success && me.data?.user) {
+                setUser(me.data.user);
+              } else {
+                throw new Error('Invalid user data after cookie refresh');
+              }
+            } else {
+              throw new Error('Cookie refresh did not return access token');
+            }
+          } catch (err) {
+            // No tokens recovered — will clear below
+            throw new Error('No stored tokens and cookie refresh failed');
           }
         }
       } catch (error) {
@@ -178,6 +213,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const refreshFromServer = response.data?.refreshToken || response.data?.refresh_token || null;
       const userFromServer = response.data?.user || response.data?.user;
 
+      // Normalize role casing
+      const normalizedUserFromServer = userFromServer
+        ? { ...userFromServer, role: userFromServer.role ? userFromServer.role.toString().toLowerCase() : userFromServer.role }
+        : userFromServer;
+
       if (!tokenFromServer || !userFromServer) {
         throw new Error('Invalid response from server');
       }
@@ -186,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (refreshFromServer) localStorage.setItem('refreshToken', refreshFromServer);
       setToken(tokenFromServer);
       setRefreshToken(refreshFromServer);
-      setUser(userFromServer);
+      setUser(normalizedUserFromServer);
       console.debug('[AuthProvider] login successful, token length:', tokenFromServer?.length);
       return userFromServer;
     } catch (err: any) {
@@ -214,6 +254,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const refreshFromServer = response.data?.refreshToken || response.data?.refresh_token || null;
       const userFromServer = response.data?.user || response.data?.user;
 
+      const normalizedUserFromServer = userFromServer
+        ? { ...userFromServer, role: userFromServer.role ? userFromServer.role.toString().toLowerCase() : userFromServer.role }
+        : userFromServer;
+
       if (!userFromServer || !tokenFromServer) {
         throw new Error('Invalid response from server');
       }
@@ -222,7 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (refreshFromServer) localStorage.setItem('refreshToken', refreshFromServer);
       setToken(tokenFromServer);
       setRefreshToken(refreshFromServer);
-      setUser(userFromServer);
+      setUser(normalizedUserFromServer);
       return userFromServer;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');

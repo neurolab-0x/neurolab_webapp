@@ -34,17 +34,23 @@ axios.interceptors.response.use(
 
       try {
         const storedRefreshToken = localStorage.getItem('refreshToken');
-        if (!storedRefreshToken) {
-          throw new Error('No refresh token available');
-        }
 
-        const response = await axios.post('/auth/refresh', { refreshToken: storedRefreshToken });
+        // If we have a stored refresh token, prefer using it in the request body
+        // otherwise attempt a cookie-based refresh (server may set httpOnly cookie)
+        let response;
+        if (storedRefreshToken) {
+          response = await axios.post('/auth/refresh', { refreshToken: storedRefreshToken });
+        } else {
+          const plain = axios.create({ baseURL: API_URL, withCredentials: true });
+          // No body: server is expected to use httpOnly refresh cookie
+          response = await plain.post('/auth/refresh');
+        }
 
         // Support multiple possible response shapes from backend:
         // - { accessToken, refreshToken }
         // - { token }
         const accessToken = response.data?.accessToken || response.data?.token;
-        const newRefreshToken = response.data?.refreshToken || response.data?.refresh_token || storedRefreshToken;
+        const newRefreshToken = response.data?.refreshToken || response.data?.refresh_token || localStorage.getItem('refreshToken');
 
         if (!accessToken) {
           throw new Error('Invalid refresh response');
@@ -76,54 +82,60 @@ axios.interceptors.response.use(
 
           console.warn('[axios] Token refresh failed (first attempt) for', originalRequest?.url, 'status=', status, 'requestId=', requestId, ' — attempting one retry after 1s');
 
-          if (storedRefreshToken) {
-            // Wait briefly before retrying
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+          // Attempt one retry path: if we had a stored refresh token, retry using it.
+          // Otherwise try a cookie-based retry (withCredentials).
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          try {
+            const storedRefreshToken = localStorage.getItem('refreshToken');
+            let retryResp;
+            if (storedRefreshToken) {
+              const plain = axios.create({ baseURL: API_URL });
+              retryResp = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
+            } else {
+              const plain = axios.create({ baseURL: API_URL, withCredentials: true });
+              retryResp = await plain.post('/auth/refresh');
+            }
+
+            const retryAccess = retryResp.data?.accessToken || retryResp.data?.token;
+            const retryRefresh = retryResp.data?.refreshToken || retryResp.data?.refresh_token || localStorage.getItem('refreshToken');
+
+            if (retryAccess) {
+              localStorage.setItem('token', retryAccess);
+              if (retryRefresh) localStorage.setItem('refreshToken', retryRefresh);
+              originalRequest.headers.Authorization = `Bearer ${retryAccess}`;
+              console.info('[axios] Token refresh retry succeeded for', originalRequest?.url);
+              return axios(originalRequest);
+            }
+          } catch (secondErr) {
+            // Retry failed - fall through to dispatch logout
+            const secondResp = secondErr?.response;
+            const secondStatus = secondResp?.status ?? null;
+            const secondRequestId = secondResp?.headers?.['x-render-request-id'] || secondResp?.headers?.['rndr-id'] || secondResp?.headers?.['cf-ray'] || null;
+            let secondResponseBody = null;
+            try {
+              if (secondResp?.data) {
+                secondResponseBody = typeof secondResp.data === 'string' ? secondResp.data.slice(0, 1024) : JSON.stringify(secondResp.data).slice(0, 1024);
+              }
+            } catch (e) {
+              secondResponseBody = String(secondResp?.data).slice(0, 1024);
+            }
+
+            const detail = {
+              reason: secondErr?.message || 'refresh_failed_after_retry',
+              url: originalRequest?.url || null,
+              status: secondStatus,
+              requestId: secondRequestId,
+              responseBody: secondResponseBody,
+            };
 
             try {
-              const plain = axios.create({ baseURL: API_URL });
-              const retryResp = await plain.post('/auth/refresh', { refreshToken: storedRefreshToken });
-              const retryAccess = retryResp.data?.accessToken || retryResp.data?.token;
-              const retryRefresh = retryResp.data?.refreshToken || retryResp.data?.refresh_token || storedRefreshToken;
-
-              if (retryAccess) {
-                localStorage.setItem('token', retryAccess);
-                if (retryRefresh) localStorage.setItem('refreshToken', retryRefresh);
-                originalRequest.headers.Authorization = `Bearer ${retryAccess}`;
-                console.info('[axios] Token refresh retry succeeded for', originalRequest?.url);
-                return axios(originalRequest);
-              }
-            } catch (secondErr) {
-              // Retry failed - fall through to dispatch logout
-              const secondResp = secondErr?.response;
-              const secondStatus = secondResp?.status ?? null;
-              const secondRequestId = secondResp?.headers?.['x-render-request-id'] || secondResp?.headers?.['rndr-id'] || secondResp?.headers?.['cf-ray'] || null;
-              let secondResponseBody = null;
-              try {
-                if (secondResp?.data) {
-                  secondResponseBody = typeof secondResp.data === 'string' ? secondResp.data.slice(0, 1024) : JSON.stringify(secondResp.data).slice(0, 1024);
-                }
-              } catch (e) {
-                secondResponseBody = String(secondResp?.data).slice(0, 1024);
-              }
-
-              const detail = {
-                reason: secondErr?.message || 'refresh_failed_after_retry',
-                url: originalRequest?.url || null,
-                status: secondStatus,
-                requestId: secondRequestId,
-                responseBody: secondResponseBody,
-              };
-
-              try {
-                window.dispatchEvent(new CustomEvent('auth:logout', { detail }));
-              } catch (e) {
-                window.dispatchEvent(new Event('auth:logout'));
-              }
-
-              console.warn('[axios] Token refresh retry failed for', originalRequest?.url, 'status=', secondStatus, 'requestId=', secondRequestId);
-              return Promise.reject(secondErr);
+              window.dispatchEvent(new CustomEvent('auth:logout', { detail }));
+            } catch (e) {
+              window.dispatchEvent(new Event('auth:logout'));
             }
+
+            console.warn('[axios] Token refresh retry failed for', originalRequest?.url, 'status=', secondStatus, 'requestId=', secondRequestId);
+            return Promise.reject(secondErr);
           }
 
           // If we reach here, no stored refresh token or retry didn't succeed - dispatch logout with initial info

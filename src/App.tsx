@@ -8,6 +8,17 @@ import { AuthProvider } from "@/lib/auth/auth-context";
 import { I18nProvider } from "@/lib/i18n";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsersPage from "./pages/admin/Users";
+import AdminRoleRequestsPage from "./pages/admin/RoleRequests";
+import AdminStatsPage from "./pages/admin/Stats";
+import AdminClinicsPage from "./pages/admin/Clinics";
+import AdminBillingPage from "./pages/admin/Billing";
+import AdminDevicesPage from "./pages/admin/Devices";
+import AdminAppointmentsPage from "./pages/admin/AppointmentsAdmin";
+import AdminLogsPage from "./pages/admin/Logs";
+import AdminImpersonatePage from "./pages/admin/Impersonate";
 import Analysis from "./pages/Analysis";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
@@ -40,6 +51,94 @@ const App: React.FC = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/doctor"
+              element={
+                <ProtectedRoute roles={["doctor"]}>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/requests"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminRoleRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stats"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminStatsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/clinics"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminClinicsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/billing"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminBillingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/devices"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminDevicesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/appointments"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminAppointmentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/logs"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminLogsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/impersonate"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminImpersonatePage />
                 </ProtectedRoute>
               }
             />
