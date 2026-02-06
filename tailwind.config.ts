@@ -102,14 +102,32 @@ export default {
 				'fade-in': {
 					from: { opacity: '0' },
 					to: { opacity: '1' },
-				}
+				},
+				// Spring animations for premium feel
+				'spring-in': {
+					'0%': { transform: 'scale(0.95)', opacity: '0' },
+					'100%': { transform: 'scale(1)', opacity: '1' },
+				},
+				'spring-out': {
+					'0%': { transform: 'scale(1)', opacity: '1' },
+					'100%': { transform: 'scale(0.95)', opacity: '0' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-subtle': 'pulse-subtle 2s infinite ease-in-out',
 				'fade-in': 'fade-in 0.5s ease-out forwards',
+				// Fast and snappy - Apple's interaction language
+				'spring-in': 'spring-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+				'spring-out': 'spring-out 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+			},
+			// Premium shadow system
+			boxShadow: {
+				'premium': '0 2px 4px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.1), 0 40px 80px rgba(0,0,0,0.15)',
+				'premium-dark': '0 2px 4px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3), 0 40px 80px rgba(0,0,0,0.4)',
 			}
+
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
