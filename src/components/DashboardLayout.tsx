@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { cn } from "@/lib/utils";
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/lib/i18n';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -90,18 +91,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: User2Icon,
       descriptionKey: 'Manage your profile'
     },
-    // Admin-only management links
+    // Admin-only management links (labels are explicit to ensure distinct names)
     {
       id: 'admin-users',
-      nameKey: 'users',
+      nameKey: 'admin.users',
+      label: 'Users',
       href: '/admin/users',
       icon: Users,
-      descriptionKey: 'Manage users',
+      descriptionKey: 'Manage users and accounts',
       roles: ['admin']
     },
     {
       id: 'admin-requests',
-      nameKey: 'requests',
+      nameKey: 'admin.requests',
+      label: 'Requests',
       href: '/admin/requests',
       icon: Bell,
       descriptionKey: 'Role change requests',
@@ -109,47 +112,80 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     },
     {
       id: 'admin-stats',
-      nameKey: 'stats',
+      nameKey: 'admin.stats',
+      label: 'Statistics',
       href: '/admin/stats',
       icon: BarChart,
-      descriptionKey: 'System statistics',
+      descriptionKey: 'System statistics and analytics',
       roles: ['admin']
     },
     {
       id: 'admin-clinics',
-      nameKey: 'clinics',
+      nameKey: 'admin.clinics',
+      label: 'Clinics',
       href: '/admin/clinics',
       icon: Calendar,
       descriptionKey: 'Clinic and hospital management',
       roles: ['admin']
     },
     {
-      id: 'admin-billing',
-      nameKey: 'billing',
-      href: '/admin/billing',
+      id: 'admin-onboarding',
+      nameKey: 'admin.onboarding',
+      label: 'Onboarding',
+      href: '/admin/onboarding',
       icon: Users,
-      descriptionKey: 'Billing and RSSB adjustments',
+      descriptionKey: 'Institution onboarding & hardware linking',
       roles: ['admin']
     },
     {
-      id: 'admin-devices',
-      nameKey: 'devices',
-      href: '/admin/devices',
+      id: 'admin-hardware',
+      nameKey: 'admin.hardware',
+      label: 'Hardware',
+      href: '/admin/hardware',
       icon: Upload,
-      descriptionKey: 'Device management',
+      descriptionKey: 'EEG devices and inventory',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-reporting',
+      nameKey: 'admin.reporting',
+      label: 'Reporting',
+      href: '/admin/reports',
+      icon: BarChart,
+      descriptionKey: 'Reports and RSSB-tariffed reports',
       roles: ['admin']
     },
     {
       id: 'admin-appointments',
-      nameKey: 'appointments',
+      nameKey: 'admin.appointments',
+      label: 'Appointments',
       href: '/admin/appointments',
       icon: MessageCircle,
       descriptionKey: 'Appointment oversight',
       roles: ['admin']
     },
     {
+      id: 'admin-billing',
+      nameKey: 'admin.billing',
+      label: 'Billing',
+      href: '/admin/billing',
+      icon: Users,
+      descriptionKey: 'Billing and RSSB adjustments',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-monitoring',
+      nameKey: 'admin.monitoring',
+      label: 'Monitoring',
+      href: '/admin/monitoring',
+      icon: Activity,
+      descriptionKey: 'Facility usage & AI accuracy monitoring',
+      roles: ['admin']
+    },
+    {
       id: 'admin-logs',
-      nameKey: 'logs',
+      nameKey: 'admin.logs',
+      label: 'Logs',
       href: '/admin/logs',
       icon: HelpCircle,
       descriptionKey: 'Audit logs',
@@ -158,7 +194,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     // Doctor portal link (kept separate)
     {
       id: 'doctor-portal',
-      nameKey: 'nav.doctor',
+      nameKey: 'doctor',
       href: '/doctor',
       icon: Brain,
       descriptionKey: 'Doctor portal',
@@ -183,17 +219,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <Sidebar>
-          <SidebarHeader className="flex flex-row justify-center items-center gap-2 px-6 py-4">
-            <img 
-              src={theme === 'light' ? '/logo1.png' : '/logo.png'} 
-              alt="Neurolab Logo" 
-              className="h-10 w-auto"
-            />
-            <span className="text-2xl font-extrabold tracking-tight text-[hsl(var(--sidebar-foreground))]">NeuroLab</span>
+      <div className="flex min-h-screen w-full bg-background overflow-hidden">
+        {/* Sidebar with Glass Material */}
+        <Sidebar className="border-r border-sidebar-border/50 backdrop-blur-xl bg-sidebar-background">
+          <SidebarHeader className="flex flex-row justify-center items-center gap-3 px-6 py-8">
+            <div className="p-2 bg-primary/10 rounded-xl shadow-inner">
+              <Brain className="h-6 w-6 text-primary" />
+            </div>
+            <span className="text-xl font-bold tracking-tighter text-sidebar-foreground">NeuroLab</span>
           </SidebarHeader>
-          <SidebarContent className="flex-1 flex flex-col gap-2 px-2 py-4">
+
+          <SidebarContent className="flex-1 flex flex-col gap-1 px-3 py-2 scrollbar-none">
             <SidebarMenu>
               {navigation
                 .filter((item) => {
@@ -201,71 +237,88 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   const r = (user?.role || '').toString().toLowerCase();
                   return item.roles.map((x: string) => x.toString().toLowerCase()).includes(r);
                 })
-                .map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                          <SidebarMenuButton
-                            isActive={location.pathname === item.href}
-                            onClick={() => navigate(item.href)}
-                            tooltip={t(item.nameKey)}
-                          className={`relative flex items-center gap-3 border py-6 rounded-lg font-medium text-base transition-all duration-150
-                            ${location.pathname === item.href
-                              ? 'bg-[hsl(var(--sidebar-active-bg))] text-white font-bold border-l-4 border-[hsl(var(--sidebar-primary))] shadow-sm'
-                              : 'text-[hsl(var(--sidebar-muted))] hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-[hsl(var(--sidebar-primary))] border-l-4 border-transparent'}
-                          `}
-                        >
-                          <item.icon className={`h-5 w-5 transition-colors duration-150 ${location.pathname === item.href ? 'text-white' : 'text-[hsl(var(--sidebar-muted))] group-hover:text-[hsl(var(--sidebar-primary))]'}`} />
-                            <span>{t(item.nameKey)}</span>
-                          {item.badge && (
-                            <Badge variant="secondary" className="ml-auto bg-blue-500/20 text-blue-400">
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-[200px]">
-                        <p className="font-medium">{t(item.nameKey)}</p>
-                        <p className="text-xs text-muted-foreground">{item.descriptionKey}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </SidebarMenuItem>
-              ))}
+                .map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <SidebarMenuItem key={item.id} className="mb-0.5">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <SidebarMenuButton
+                              isActive={isActive}
+                              onClick={() => navigate(item.href)}
+                              tooltip={item.label ?? t(item.nameKey)}
+                              className={cn(
+                                "flex items-center gap-3 px-4 py-6 rounded-xl transition-all duration-200 group text-sm font-medium",
+                                isActive
+                                  ? "bg-primary/10 text-primary shadow-sm"
+                                  : "text-sidebar-muted hover:bg-sidebar-hover-bg hover:text-sidebar-foreground"
+                              )}
+                            >
+                              <item.icon className={cn(
+                                "h-5 w-5 transition-colors duration-200",
+                                isActive ? "text-primary" : "text-sidebar-muted group-hover:text-sidebar-foreground"
+                              )} />
+                              <span className={cn(isActive && "font-bold")}>{item.label ?? t(item.nameKey)}</span>
+                              {item.badge && (
+                                <Badge variant="secondary" className="ml-auto bg-primary/10 text-primary border-none text-[10px] py-0 h-4">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </SidebarMenuButton>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="glass-platter border-white/10 text-xs">
+                            <p className="font-bold">{item.label ?? t(item.nameKey)}</p>
+                            <p className="opacity-60">{item.descriptionKey}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarContent>
-          <div className="mt-auto px-4 pb-4 cursor-pointer" onClick={handleLogout}>
-            <button className="w-full flex flex-row justify-center items-center gap-4 py-4 rounded-lg bg-transparent text-[hsl(var(--sidebar-foreground))] shadow-sm border border-[hsl(var(--sidebar-border))] hover:bg-destructive/10 hover:text-destructive transition-colors duration-150">
-                <LogOut className="w-5 h-5"/>
-                <span>Logout</span>
+
+          <div className="mt-auto px-4 pb-6">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-sidebar-border bg-sidebar-hover-bg/30 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200 group press-effect"
+            >
+              <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+              <span className="text-sm font-semibold">Logout</span>
             </button>
           </div>
         </Sidebar>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center gap-4 px-4">
-              <SidebarTrigger />
+        <div className="flex-1 flex flex-col min-w-0 bg-background/50 relative">
+          {/* Ambient Background Blur for the whole shell */}
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-primary/5 rounded-full blur-[150px] -z-10 pointer-events-none" />
+
+          <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger className="hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors" />
               <div className="flex-1" />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-blue-400">
+                      <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full">
                         <HelpCircle className="h-5 w-5" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Help & Support</TooltipContent>
+                    <TooltipContent className="glass-platter">Help & Support</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                <div className="h-6 w-px bg-border/50 mx-1" />
                 <ThemeSwitcher />
               </div>
             </div>
           </header>
 
-          <main className="flex-1 w-full p-2 md:p-4 overflow-auto">
-            {children}
+          <main className="flex-1 w-full p-6 md:p-8 lg:p-10 overflow-auto scrollbar-thin">
+            <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
+              {children}
+            </div>
           </main>
         </div>
       </div>

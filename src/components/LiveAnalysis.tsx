@@ -45,6 +45,20 @@ type SessionStatus = 'idle' | 'connecting' | 'active' | 'paused' | 'completed' |
 type ReportStatus = 'generating' | 'completed' | 'error';
 
 const LiveAnalysis = () => {
+  // Feature flag: mark live-analysis as coming soon
+  const comingSoon = true;
+  if (comingSoon) {
+    return (
+      <DashboardLayout>
+        <div className="p-8 flex items-center justify-center h-full">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl font-bold">Live Analysis — Coming Soon</h1>
+            <p className="text-muted-foreground">Real-time monitoring and live EEG analysis is under development. Stay tuned.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
   const [elapsedTime, setElapsedTime] = useState(0); // Time in seconds

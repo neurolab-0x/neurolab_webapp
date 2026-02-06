@@ -66,14 +66,37 @@ const SessionScheduler = () => {
   const fetchDoctors = async () => {
     setIsLoading(true);
     try {
-      // Assuming there's an endpoint to get doctors, otherwise fetch from users with role 'doctor'
-      const response = await axios.get('/doctors/profile');
-      // If this returns a single doctor, wrap it in an array
-      if (response.data && !Array.isArray(response.data)) {
-        setDoctors([response.data]);
-      } else {
-        setDoctors(response.data || []);
+      // Try several possible endpoints for doctors list
+      const candidates = ['/doctors', '/doctors/profile', '/users?role=doctor', '/admin/users?role=doctor', '/users'];
+      let found: any[] = [];
+      for (const path of candidates) {
+        try {
+          const resp = await axios.get(path);
+          const d = resp?.data;
+          if (!d) continue;
+          if (Array.isArray(d)) {
+            found = d;
+            break;
+          }
+          if (Array.isArray(d?.doctors)) { found = d.doctors; break; }
+          if (Array.isArray(d?.users)) { found = d.users.filter((u: any) => (u.role || '').toLowerCase() === 'doctor'); break; }
+          if (Array.isArray(d?.data)) { found = d.data; break; }
+          // single object
+          if (d && typeof d === 'object') { found = [d]; break; }
+        } catch (e: any) {
+          const status = e?.response?.status;
+          if (status === 401 || status === 403) throw e;
+          continue;
+        }
       }
+      // Normalize doctor shape
+      const normalized = (found || []).map((doc: any) => ({
+        id: doc.id || doc._id || doc.user || doc.username || String(doc.email || doc.user || Math.random()),
+        user: doc.fullName || doc.name || doc.user || doc.username || doc.email || 'Unknown',
+        specialization: doc.specialization || doc.speciality || 'General',
+        availability: doc.availability || []
+      }));
+      setDoctors(normalized);
     } catch (error: any) {
       // Fallback: Try to get a list of users or use a default
       console.warn('Could not fetch doctors list:', error);
@@ -125,7 +148,7 @@ const SessionScheduler = () => {
       const [hours, minutes] = selectedTime.split(':').map(Number);
       const startTime = new Date(selectedDate);
       startTime.setHours(hours, minutes, 0);
-      
+
       // Assuming 30 minute appointment
       const endTime = new Date(startTime);
       endTime.setMinutes(endTime.getMinutes() + 30);
@@ -137,10 +160,10 @@ const SessionScheduler = () => {
       };
 
       const result = await requestAppointment(selectedDoctor, payload);
-      
+
       setAppointments([...appointments, result]);
       toast.success('Appointment requested successfully');
-      
+
       // Reset form
       setSelectedTime('');
       setMessage('');
@@ -169,174 +192,215 @@ const SessionScheduler = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-8 p-1">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Request Appointment Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarIcon className="h-5 w-5" />
-              Request New Appointment
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Doctor</label>
-                  <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a doctor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {doctors.length === 0 ? (
-                        <SelectItem value="default" disabled>
-                          No doctors available
-                        </SelectItem>
-                      ) : (
-                        doctors.map((doc) => (
-                          <SelectItem key={doc.id} value={doc.id}>
-                            {doc.user} ({doc.specialization})
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+        <div className="lg:col-span-7 space-y-6">
+          <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold tracking-tighter">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <CalendarIcon className="h-5 w-5 text-primary" />
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Date</label>
-                  <div className="border rounded-md p-3">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      disabled={(date) => date < new Date()}
-                      className="w-full"
-                    />
-                  </div>
+                Request New Appointment
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-8 space-y-6">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm font-medium text-muted-foreground">Loading experts...</p>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Time Slot</label>
-                  {slotsLoading ? (
-                    <div className="flex items-center justify-center p-4">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    </div>
-                  ) : availableSlots.length === 0 ? (
-                    <div className="p-3 text-sm text-muted-foreground border border-dashed rounded">
-                      {selectedDoctor && selectedDate
-                        ? 'No available slots for this date'
-                        : 'Select a doctor and date to see available slots'}
-                    </div>
-                  ) : (
-                    <Select value={selectedTime} onValueChange={setSelectedTime}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a time" />
+              ) : (
+                <div className="space-y-6">
+                  <div className="space-y-2.5">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Select Specialist</label>
+                    <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20">
+                        <SelectValue placeholder="Choose a specialist" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {availableSlots.map((slot) => (
-                          <SelectItem key={slot} value={slot}>
-                            {slot}
+                      <SelectContent className="glass-platter">
+                        {doctors.length === 0 ? (
+                          <SelectItem value="default" disabled>
+                            No specialists available
                           </SelectItem>
-                        ))}
+                        ) : (
+                          doctors.map((doc) => (
+                            <SelectItem key={doc.id} value={doc.id} className="font-medium">
+                              {doc.user} — <span className="opacity-60">{doc.specialization}</span>
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
-                  )}
-                </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Message (Optional)</label>
-                  <Textarea
-                    placeholder="Add any notes or reason for appointment..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    rows={3}
-                  />
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2.5">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Select Date</label>
+                      <div className="border border-border/50 rounded-2xl p-4 bg-muted/10 shadow-inner">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          disabled={(date) => date < new Date()}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
 
-                <Button
-                  className="w-full"
-                  onClick={handleRequestAppointment}
-                  disabled={!selectedDoctor || !selectedDate || !selectedTime || isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Requesting...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Request Appointment
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    <div className="space-y-6 flex flex-col justify-start">
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Available Slots</label>
+                        {slotsLoading ? (
+                          <div className="flex items-center justify-center p-8 bg-muted/10 rounded-2xl border border-dashed border-border/50">
+                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          </div>
+                        ) : availableSlots.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/10 rounded-2xl border border-dashed border-border/50 space-y-2">
+                            <Clock className="h-6 w-6 text-muted-foreground opacity-30" />
+                            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">
+                              {selectedDoctor && selectedDate
+                                ? 'No slots available'
+                                : 'Select doctor & date'}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto scrollbar-none pr-1">
+                            {availableSlots.map((slot) => (
+                              <button
+                                key={slot}
+                                onClick={() => setSelectedTime(slot)}
+                                className={cn(
+                                  "py-3 rounded-xl text-sm font-bold transition-all duration-200 press-effect border",
+                                  selectedTime === slot
+                                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                                    : "bg-muted/20 text-foreground border-border/40 hover:bg-primary/5 hover:border-primary/30"
+                                )}
+                              >
+                                {slot}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Session Notes (Optional)</label>
+                    <Textarea
+                      placeholder="Add any specific details about your neural session request..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={3}
+                      className="rounded-2xl bg-muted/20 border-border/50 focus:ring-primary/20 resize-none p-4"
+                    />
+                  </div>
+
+                  <Button
+                    size="lg"
+                    className="w-full h-14 rounded-2xl font-bold text-lg bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+                    onClick={handleRequestAppointment}
+                    disabled={!selectedDoctor || !selectedDate || !selectedTime || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                        Scheduling...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="mr-3 h-5 w-5" />
+                        Confirm Session
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Appointment History */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Your Appointments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {appointments.length === 0 ? (
-              <div className="text-center text-muted-foreground">
-                No appointments yet
-              </div>
-            ) : (
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-4">
-                  {appointments
-                    .sort(
-                      (a, b) =>
-                        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-                    )
-                    .map((apt) => (
-                      <div
-                        key={apt.id}
-                        className="flex items-start justify-between p-4 rounded-lg border"
-                      >
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant="outline"
-                              className={getStatusColor(apt.status)}
-                            >
-                              {apt.status}
-                            </Badge>
-                            {apt.status === 'ACCEPTED' && (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {format(new Date(apt.startTime), "MMM d, yyyy")}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(apt.startTime), "HH:mm")} -{' '}
-                            {format(new Date(apt.endTime), "HH:mm")}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+        <div className="lg:col-span-5 space-y-6">
+          <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30 flex flex-col h-full max-h-[800px]">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold tracking-tighter">
+                <div className="p-2 bg-amber-500/10 rounded-lg">
+                  <Clock className="h-5 w-5 text-amber-500" />
                 </div>
-              </ScrollArea>
-            )}
-          </CardContent>
-        </Card>
+                Recent Sessions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 flex-1 overflow-hidden">
+              {appointments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-12 text-center space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-full">
+                    <CalendarIcon className="h-8 w-8 text-muted-foreground opacity-20" />
+                  </div>
+                  <p className="text-sm font-bold text-muted-foreground/50 uppercase tracking-widest">
+                    No scheduled sessions
+                  </p>
+                </div>
+              ) : (
+                <ScrollArea className="h-full px-6 py-8">
+                  <div className="space-y-4">
+                    {appointments
+                      .sort(
+                        (a, b) =>
+                          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+                      )
+                      .map((apt) => (
+                        <motion.div
+                          key={apt.id}
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/40 hover:bg-muted/20 hover:border-border/60 transition-all group"
+                        >
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-3">
+                              <Badge
+                                className={cn(
+                                  "px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-tighter border-none",
+                                  getStatusColor(apt.status)
+                                )}
+                              >
+                                {apt.status}
+                              </Badge>
+                              {apt.status === 'ACCEPTED' && (
+                                <CheckCircle className="h-4 w-4 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-lg font-bold tracking-tight">
+                                {format(new Date(apt.startTime), "EEEE, MMM d")}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <Clock className="h-3 w-3 text-muted-foreground" />
+                                <p className="text-xs font-bold text-muted-foreground tracking-wide">
+                                  {format(new Date(apt.startTime), "HH:mm")} —{' '}
+                                  {format(new Date(apt.endTime), "HH:mm")}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 hover:text-destructive">
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SessionScheduler; 
+export default SessionScheduler;

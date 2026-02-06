@@ -9,12 +9,14 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      // Obsidian & Glass: The Platter material
+      "rounded-2xl border bg-card backdrop-blur-xl text-card-foreground shadow-premium transition-all duration-200",
       className
     )}
     {...props}
   />
 ))
+
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
