@@ -1,98 +1,109 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* Obsidian & Glass System - Light Mode */
+    --background: 0 0% 96%;
+    /* #F5F5F7 - Apple's signature light gray */
+    --foreground: 0 0% 9%;
+    /* Near black for text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 100% / 0.7;
+    /* White at 70% - The Platter */
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 216 98% 40%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 211 100% 45%;
+    /* #0071E3 - Apple Blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 173 79% 44%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 211 100% 45%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 84% 5%;
+    --border: 0 0% 0% / 0.05;
+    /* Subtle light border */
+    --input: 0 0% 0% / 0.05;
+    --ring: 211 100% 45%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
+    /* 16px - Organic squircle feel */
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Obsidian & Glass System - Dark Mode */
+    --background: 0 0% 4%;
+    /* #0A0A0B - Deep Obsidian */
+    --foreground: 0 0% 98%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 11% / 0.8;
+    /* #1C1C1E at 80% - The Platter */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 216 98% 52%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 211 100% 50%;
+    /* Brighter Apple Blue for dark */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 173 79% 37%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 211 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 213 27% 84%;
+    --border: 0 0% 100% / 0.1;
+    /* White at 10% - subtle edge definition */
+    --input: 0 0% 100% / 0.1;
+    --ring: 211 100% 50%;
   }
 
-  /* Sidebar variables (ensure readable colors in both light and dark themes) */
+  /* Sidebar - Uses Platter Material */
   :root {
-    --sidebar-background: 0 0% 100%; /* white */
-    --sidebar-foreground: 222 47% 20%; /* darker text for better contrast */
-    --sidebar-muted: 215 16% 47%; /* muted text color */
-    --sidebar-primary: 216 98% 45%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-active-bg: 216 98% 45% / 0.1;
-    --sidebar-hover-bg: 216 98% 45% / 0.05;
-    --sidebar-accent: 216 98% 45%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 85%;
-    --sidebar-ring: 213 27% 84%;
+    --sidebar-background: 0 0% 100% / 0.7;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-muted: 0 0% 45%;
+    --sidebar-primary: 211 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-active-bg: 211 100% 45% / 0.1;
+    --sidebar-hover-bg: 0 0% 0% / 0.03;
+    --sidebar-accent: 211 100% 45%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 0% / 0.05;
+    --sidebar-ring: 211 100% 45%;
   }
 
   .dark {
-    --sidebar-background: 222 47% 11%; /* dark */
-    --sidebar-foreground: 210 40% 98%; /* light text */
-    --sidebar-muted: 215 20% 65%; /* muted text color */
-    --sidebar-primary: 216 98% 52%; 
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-active-bg: 216 98% 52% / 0.2;
-    --sidebar-hover-bg: 216 98% 52% / 0.1;
-    --sidebar-accent: 216 98% 52%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 20%;
-    --sidebar-ring: 213 27% 84%;
+    --sidebar-background: 0 0% 11% / 0.8;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-muted: 0 0% 64%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-active-bg: 211 100% 50% / 0.15;
+    --sidebar-hover-bg: 0 0% 100% / 0.05;
+    --sidebar-accent: 211 100% 50%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-ring: 211 100% 50%;
   }
 }
 
@@ -102,12 +113,21 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    line-height: 1.6;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+
+  /* Typography: The "Crisp" Stack */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+    letter-spacing: -0.022em;
+    /* The Apple secret */
   }
 
   h1 {
@@ -122,37 +142,83 @@
     @apply text-xl md:text-2xl;
   }
 
-  input, textarea {
+  input,
+  textarea {
     @apply focus:outline-none;
   }
 }
 
 @layer utilities {
-  .neural-card {
-    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-200;
+
+  /* Premium Shadow System - Layered, low-opacity for natural depth */
+  .shadow-premium {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.05),
+      0 10px 20px rgba(0, 0, 0, 0.1),
+      0 40px 80px rgba(0, 0, 0, 0.15);
   }
-  
+
+  .dark .shadow-premium {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      0 10px 20px rgba(0, 0, 0, 0.3),
+      0 40px 80px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Glass Platter - The core "frosted glass" material */
+  .glass-platter {
+    @apply backdrop-blur-xl bg-white/70 border border-black/5 rounded-2xl;
+  }
+
+  .dark .glass-platter {
+    @apply bg-[#1C1C1E]/80 border-white/10;
+  }
+
+  /* Obsidian Card - For dashboard widgets and primary containers */
+  .obsidian-card {
+    @apply glass-platter shadow-premium transition-all duration-200;
+  }
+
+  .obsidian-card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Legacy utilities (kept for compatibility, updated styles) */
+  .neural-card {
+    @apply obsidian-card;
+  }
+
   .neural-card-hover {
-    @apply hover:shadow-md hover:border-primary/20 transition-all duration-200;
+    @apply hover:shadow-premium transition-all duration-200;
   }
 
   .neural-gradient {
-    @apply bg-gradient-to-br from-neural-blue to-neural-teal;
+    @apply bg-gradient-to-br from-primary to-accent;
   }
-  
+
   .text-neural-gradient {
-    @apply bg-gradient-to-r from-neural-blue to-neural-teal bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
-  
+
   .card-gradient {
     @apply bg-gradient-to-br from-card to-secondary/80 backdrop-blur-sm;
   }
-  
+
+  /* Updated glass utility */
   .glass {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl;
+    @apply backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl;
   }
-  
+
   .section-padding {
     @apply py-10 px-4 md:px-8 lg:px-12;
+  }
+
+  /* Interaction: Press effect for buttons */
+  .press-effect {
+    @apply transition-transform duration-150 ease-out;
+  }
+
+  .press-effect:active {
+    transform: scale(0.98);
   }
 }
