@@ -30,3 +30,23 @@ export async function createAnalysis(payload: CreateAnalysisPayload): Promise<an
     throw error;
   }
 }
+
+// Upload analysis file (multipart/form-data) - supports doctor's upload flow
+export async function uploadAnalysisFile(file: File, sessionId?: string): Promise<any> {
+  try {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    if (sessionId) form.append('sessionId', sessionId);
+
+    // Don't set Content-Type header - let axios/browser handle it automatically
+    // This ensures the boundary parameter is correctly included
+    const response = await axios.post<any>('analysis', form);
+    return response.data;
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || err?.message || 'Failed to upload analysis file';
+    const status = err?.response?.status;
+    const error = new Error(msg);
+    (error as any).status = status;
+    throw error;
+  }
+}
