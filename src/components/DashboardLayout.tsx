@@ -183,12 +183,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       roles: ['admin']
     },
     {
-      id: 'admin-logs',
-      nameKey: 'admin.logs',
-      label: 'Logs',
-      href: '/admin/logs',
-      icon: HelpCircle,
-      descriptionKey: 'Audit logs',
+      id: 'admin-reviews',
+      nameKey: 'admin.reviews',
+      label: 'Reviews',
+      href: '/admin/reviews',
+      icon: MessageCircle,
+      descriptionKey: 'Manage user reviews',
+      roles: ['admin']
+    },
+    {
+      id: 'admin-partnerships',
+      nameKey: 'admin.partnerships',
+      label: 'Partnerships',
+      href: '/admin/partnerships',
+      icon: Users,
+      descriptionKey: 'Manage partnerships',
       roles: ['admin']
     },
     // Doctor portal link (kept separate)

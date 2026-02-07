@@ -10,7 +10,7 @@ const Card = React.forwardRef<
     ref={ref}
     className={cn(
       // Obsidian & Glass: The Platter material
-      "rounded-2xl border bg-card backdrop-blur-xl text-card-foreground shadow-premium transition-all duration-200",
+      "rounded-xl border bg-card backdrop-blur-xl text-card-foreground shadow-premium transition-all duration-200",
       className
     )}
     {...props}
