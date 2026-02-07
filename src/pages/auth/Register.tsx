@@ -100,42 +100,54 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#030329]">
-      <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-foreground dark:text-white lg:flex dark:border-r">
-          <div className="absolute inset-0 dark:bg-blue-800" />
+    <div className="min-h-screen flex items-center justify-center bg-background overflow-hidden relative">
+      {/* Ambient Background Blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse-subtle" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px] animate-pulse-subtle" style={{ animationDelay: '1s' }} />
+
+      <div className="container relative z-10 h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+        <div className="relative hidden h-full flex-col p-10 text-white lg:flex">
+          <div className="absolute inset-0 overflow-hidden rounded-r-3xl">
+            <img
+              src="/brain-scan.jpg"
+              alt="Brain scan visualization"
+              className="h-full w-full object-cover opacity-20 grayscale"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-transparent" />
+          </div>
           <div className="relative z-20 flex items-center text-lg font-medium">
-            <Brain className="mr-2 h-6 w-6" />
-            NeuroLab
+            <img src="/logo.png" alt="neurolab's logo" className='size-12 mr-2 filter drop-shadow-lg' />
+            <span className="text-xl font-bold tracking-tight">Neurolab Inc.</span>
           </div>
           <div className="relative z-20 mt-auto">
-            <blockquote className="space-y-2">
-              <p className="text-lg">
-                "Join our community of researchers and healthcare professionals using NeuroLab's cutting-edge neural analysis platform."
+            <blockquote className="space-y-4">
+              <p className="text-3xl font-medium leading-tight tracking-tight">
+                "Join our community of researchers and healthcare professionals using Neurolab's cutting-edge neural analysis platform."
               </p>
-              <footer className="text-sm">NeuroLab Team</footer>
+              <footer className="text-sm opacity-60">Neurolab Team</footer>
             </blockquote>
           </div>
         </div>
-        <div className="lg:p-4">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:w-[400px]">
-            <div className="flex flex-col space-y-1 text-center">
-              <div className="flex items-center justify-center gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
-                  {t('register.title')}
-                </h1>
+        <div className="lg:p-4 flex items-center justify-center">
+          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
+            <div className="flex flex-col space-y-2 text-center">
+              <div className="flex items-center justify-center gap-3 mb-1">
+                <img src="/logo1.png" alt="neurolab's logo" className='size-12 filter drop-shadow-xl' />
               </div>
-              <p className="text-sm text-gray-400">
+              <h1 className="text-3xl font-bold tracking-tighter text-foreground">
+                {t('register.title')}
+              </h1>
+              <p className="text-muted-foreground font-medium">
                 {t('register.subtitle')}
               </p>
             </div>
 
-            <Card className="bg-transparent border-none backdrop-blur-md bg-opacity-10">
-              <CardContent className="pt-4">
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label htmlFor="firstName" className="text-foreground dark:text-gray-300 text-sm">First Name</Label>
+            <Card className="border-white/10 shadow-premium overflow-hidden">
+              <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName" className="text-xs font-semibold ml-1">First Name</Label>
                       <Input
                         id="firstName"
                         name="firstName"
@@ -143,11 +155,11 @@ export default function Register() {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="bg-muted/30 focus:bg-muted/50 transition-colors"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="lastName" className="text-foreground dark:text-gray-300 text-sm">Last Name</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="text-xs font-semibold ml-1">Last Name</Label>
                       <Input
                         id="lastName"
                         name="lastName"
@@ -155,12 +167,12 @@ export default function Register() {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="bg-muted/30 focus:bg-muted/50 transition-colors"
                       />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="username" className="text-foreground dark:text-gray-300 text-sm">Username</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="username" className="text-xs font-semibold ml-1">Username</Label>
                     <Input
                       id="username"
                       name="username"
@@ -168,11 +180,11 @@ export default function Register() {
                       value={formData.username}
                       onChange={handleChange}
                       required
-                      className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="bg-muted/30 focus:bg-muted/50 transition-colors"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email" className="text-foreground dark:text-gray-300 text-sm">Email</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-xs font-semibold ml-1">Email</Label>
                     <Input
                       id="email"
                       name="email"
@@ -181,11 +193,11 @@ export default function Register() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="bg-muted/30 focus:bg-muted/50 transition-colors"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="password" className="text-foreground dark:text-gray-300 text-sm">Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-xs font-semibold ml-1">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -195,25 +207,25 @@ export default function Register() {
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="bg-muted/30 focus:bg-muted/50 transition-colors"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4" />
                         )}
                       </Button>
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="confirmPassword" className="text-foreground dark:text-gray-300 text-sm">Confirm Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-xs font-semibold ml-1">Confirm Password</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -223,36 +235,36 @@ export default function Register() {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-[#3A3A3A] text-foreground dark:text-white placeholder:text-gray-500 backdrop-blur-sm bg-opacity-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="bg-muted/30 focus:bg-muted/50 transition-colors"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4" />
                         )}
                       </Button>
                     </div>
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 mt-2"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
               </CardContent>
-              <CardFooter className="flex flex-col space-y-2 border-t border-[#2A2A2A] pt-4">
-                <p className="text-sm text-gray-400 text-center">
+              <CardFooter className="flex flex-col space-y-2 border-t border-white/5 bg-black/5 dark:bg-white/5 py-6">
+                <p className="text-sm text-muted-foreground text-center">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-blue-500 hover:text-blue-400">
+                  <Link to="/login" className="font-bold text-primary hover:underline">
                     Sign in
                   </Link>
                 </p>

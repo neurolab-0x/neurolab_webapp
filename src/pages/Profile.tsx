@@ -57,8 +57,8 @@ export default function Profile() {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Image size should be less than 5MB",
+          title: t('common.error'),
+          description: t('profile.imageTooLarge'),
         });
         return;
       }
@@ -66,8 +66,8 @@ export default function Profile() {
       if (!file.type.startsWith('image/')) {
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Please upload an image file",
+          title: t('common.error'),
+          description: t('profile.invalidImage'),
         });
         return;
       }
@@ -110,7 +110,7 @@ export default function Profile() {
       if (Object.keys(updates).length === 0) {
         toast({
           title: "Info",
-          description: "No changes to update.",
+          description: t('profile.noChanges'),
         });
         setIsLoading(false);
         return;
@@ -118,8 +118,8 @@ export default function Profile() {
 
       await updateProfile(updates);
       toast({
-        title: "Success",
-        description: "Profile updated successfully.",
+        title: t('common.success'),
+        description: t('profile.updated'),
       });
       // Reset image states after successful upload
       setSelectedImage(null);
@@ -127,8 +127,8 @@ export default function Profile() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.response?.data?.message || "Failed to update profile",
+        title: t('common.error'),
+        description: error.response?.data?.message || t('profile.failedUpdate'),
       });
     } finally {
       setIsLoading(false);
@@ -140,8 +140,8 @@ export default function Profile() {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "New passwords do not match",
+        title: t('common.error'),
+        description: t('profile.passwordMismatch'),
       });
       return;
     }
@@ -152,7 +152,7 @@ export default function Profile() {
         newPassword: passwordData.newPassword
       });
       toast({
-        title: "Success",
+        title: t('common.success'),
         description: "Password changed successfully.",
       });
       setPasswordData({
@@ -163,8 +163,8 @@ export default function Profile() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.response?.data?.message || "Failed to change password",
+        title: t('common.error'),
+        description: error.response?.data?.message || t('profile.failedChangePassword'),
       });
     } finally {
       setIsLoading(false);
@@ -176,14 +176,14 @@ export default function Profile() {
     try {
       await deleteAccount(deletePassword);
       toast({
-        title: "Success",
+        title: t('common.success'),
         description: "Account deleted successfully.",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.response?.data?.message || "Failed to delete account",
+        title: t('common.error'),
+        description: error.response?.data?.message || t('profile.failedDeleteAccount'),
       });
     } finally {
       setIsLoading(false);
@@ -264,7 +264,7 @@ export default function Profile() {
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="fullName">Full Name</Label>
+                        <Label htmlFor="fullName">{t('profile.fullName')}</Label>
                         <Input
                           id="fullName"
                           name="fullName"
@@ -273,7 +273,7 @@ export default function Profile() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">{t('profile.username')}</Label>
                         <Input
                           id="username"
                           name="username"
@@ -282,7 +282,7 @@ export default function Profile() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t('profile.email')}</Label>
                         <Input
                           id="email"
                           name="email"
@@ -311,7 +311,7 @@ export default function Profile() {
                 <CardContent className="space-y-6">
                   <form onSubmit={handlePasswordSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Current Password</Label>
+                      <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
                       <Input
                         id="currentPassword"
                         name="currentPassword"
@@ -321,7 +321,7 @@ export default function Profile() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
+                      <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
                       <Input
                         id="newPassword"
                         name="newPassword"
@@ -331,7 +331,7 @@ export default function Profile() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                      <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
                       <Input
                         id="confirmPassword"
                         name="confirmPassword"
@@ -407,14 +407,14 @@ export default function Profile() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('common.confirmAction')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your account
+                            {t('common.deleteWarning')} This will permanently delete your account
                             and remove all associated data from our servers.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="space-y-4 py-4">
-                          <Label htmlFor="deletePassword">Enter your password to confirm</Label>
+                          <Label htmlFor="deletePassword">{t('profile.enterPasswordConfirm')}</Label>
                           <Input
                             id="deletePassword"
                             type="password"
@@ -423,7 +423,7 @@ export default function Profile() {
                           />
                         </div>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={handleDeleteAccount}
                             disabled={isLoading || !deletePassword}

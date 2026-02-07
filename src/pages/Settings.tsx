@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function Settings() {
   const { user, changePassword, deleteAccount } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
 
   // Password form state
@@ -61,8 +62,8 @@ export default function Settings() {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "New passwords do not match",
+        title: t('common.error'),
+        description: t('settings.passwordMismatch'),
       });
       return;
     }
@@ -73,8 +74,8 @@ export default function Settings() {
         newPassword: passwordData.newPassword
       });
       toast({
-        title: "Success",
-        description: "Password changed successfully.",
+        title: t('common.success'),
+        description: t('settings.passwordChanged'),
       });
       setPasswordData({
         currentPassword: '',
@@ -84,8 +85,8 @@ export default function Settings() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.response?.data?.message || "Failed to change password",
+        title: t('common.error'),
+        description: error.response?.data?.message || t('settings.failedChangePassword'),
       });
     } finally {
       setIsLoading(false);
@@ -97,14 +98,14 @@ export default function Settings() {
     try {
       await deleteAccount(deletePassword);
       toast({
-        title: "Success",
-        description: "Account deleted successfully.",
+        title: t('common.success'),
+        description: t('settings.accountDeleted'),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.response?.data?.message || "Failed to delete account",
+        title: t('common.error'),
+        description: error.response?.data?.message || t('settings.failedDeleteAccount'),
       });
     } finally {
       setIsLoading(false);
@@ -248,7 +249,7 @@ export default function Settings() {
         const parsed = JSON.parse(saved);
         setLanguageSettings(prev => ({ ...prev, ...parsed }));
         if (parsed.language) {
-          try { setLanguage(parsed.language as any) } catch (e) {}
+          try { setLanguage(parsed.language as any) } catch (e) { }
         }
       }
     } catch (e) {
@@ -258,290 +259,287 @@ export default function Settings() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-full">
-        <div className="flex-1 space-y-6 p-6">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">Settings</h1>
-            <p className="text-muted-foreground">Manage your preferences and account settings.</p>
-          </div>
+      <div className="w-full space-y-8 animate-fade-in relative pb-12">
+        {/* Ambient Background Blur */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px] -z-10 pointer-events-none" />
 
-          <Tabs defaultValue="notifications" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="notifications">
-                <Bell className="h-4 w-4 mr-2" />
-                Notifications
-              </TabsTrigger>
-              <TabsTrigger value="appearance">
-                <Moon className="h-4 w-4 mr-2" />
-                Appearance
-              </TabsTrigger>
-              <TabsTrigger value="language">
-                <Globe className="h-4 w-4 mr-2" />
-                Language
-              </TabsTrigger>
-              <TabsTrigger value="security">
-                <Shield className="h-4 w-4 mr-2" />
-                Security
-              </TabsTrigger>
-            </TabsList>
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tighter">{t('settings.title')}</h1>
+          <p className="text-muted-foreground font-medium">{t('settings.description')}</p>
+        </div>
 
-            <TabsContent value="notifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notification Settings</CardTitle>
-                  <CardDescription>Manage how you receive notifications</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Email Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive notifications via email
-                      </p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.emailNotifications}
-                      onCheckedChange={handleNotificationChange('emailNotifications')}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Push Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive push notifications
-                      </p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.pushNotifications}
-                      onCheckedChange={handleNotificationChange('pushNotifications')}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Analysis Updates</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Get notified about analysis results
-                      </p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.analysisUpdates}
-                      onCheckedChange={handleNotificationChange('analysisUpdates')}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Marketing Emails</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive marketing and promotional emails
-                      </p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.marketingEmails}
-                      onCheckedChange={handleNotificationChange('marketingEmails')}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+        <Tabs defaultValue="notifications" className="space-y-8">
+          <TabsList className="bg-muted/20 border border-border/50 p-1 rounded-2xl h-14 w-full sm:w-auto overflow-x-auto justify-start scrollbar-none flex-nowrap">
+            <TabsTrigger value="notifications" className="rounded-xl h-full px-6 transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg shadow-primary/20">
+              <Bell className="h-4 w-4 mr-2" />
+              {t('settings.notifications')}
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="rounded-xl h-full px-6 transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg shadow-primary/20">
+              <Moon className="h-4 w-4 mr-2" />
+              {t('settings.appearance')}
+            </TabsTrigger>
+            <TabsTrigger value="language" className="rounded-xl h-full px-6 transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg shadow-primary/20">
+              <Globe className="h-4 w-4 mr-2" />
+              {t('settings.language')}
+            </TabsTrigger>
+            <TabsTrigger value="security" className="rounded-xl h-full px-6 transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg shadow-primary/20">
+              <Shield className="h-4 w-4 mr-2" />
+              Security
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="appearance">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Appearance Settings</CardTitle>
-                  <CardDescription>Customize how the app looks</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Theme</Label>
+          <TabsContent value="notifications" className="focus-visible:outline-none">
+            <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30 max-w-2xl">
+              <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+                <CardTitle className="text-xl font-bold tracking-tight">Notification Channels</CardTitle>
+                <CardDescription className="text-sm font-medium">Control how and when you receive neural activity updates.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-8 space-y-6">
+                {[
+                  { id: 'emailNotifications', label: t('settings.emailNotifications'), desc: t('settings.emailNotificationsDesc') },
+                  { id: 'pushNotifications', label: t('settings.pushNotifications'), desc: 'Receive real-time alerts on your device.' },
+                  { id: 'analysisUpdates', label: t('settings.analysisUpdates'), desc: 'Get notified as soon as neural analysis completes.' },
+                  { id: 'marketingEmails', label: t('settings.marketingEmails'), desc: t('settings.marketingEmailsDesc') }
+                ].map((item) => (
+                  <div key={item.id} className="flex items-center justify-between group p-3 rounded-2xl hover:bg-muted/20 transition-all border border-transparent hover:border-border/40">
+                    <div className="space-y-1">
+                      <Label className="text-base font-bold tracking-tight cursor-pointer">{item.label}</Label>
+                      <p className="text-xs font-medium text-muted-foreground/80">
+                        {item.desc}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={(notificationSettings as any)[item.id]}
+                      onCheckedChange={handleNotificationChange(item.id)}
+                      className="data-[state=checked]:bg-primary"
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="focus-visible:outline-none">
+            <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30 max-w-2xl">
+              <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+                <CardTitle className="text-xl font-bold tracking-tight">Visual Interface</CardTitle>
+                <CardDescription className="text-sm font-medium">Customize your workspace environment and legibility.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-8 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Color Theme</Label>
                     <Select
                       value={appearanceSettings.theme}
                       onValueChange={(value) => handleAppearanceChange('theme', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50">
                         <SelectValue placeholder="Select theme" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="glass-platter">
                         <SelectItem value="light">Light</SelectItem>
                         <SelectItem value="dark">Dark</SelectItem>
-                        <SelectItem value="system">System</SelectItem>
+                        <SelectItem value="system">System Preference</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Font Size</Label>
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Dynamic Scaling</Label>
                     <Select
                       value={appearanceSettings.fontSize}
                       onValueChange={(value) => handleAppearanceChange('fontSize', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50">
                         <SelectValue placeholder="Select font size" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="small">Small</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
+                      <SelectContent className="glass-platter">
+                        <SelectItem value="small">Compact</SelectItem>
+                        <SelectItem value="medium">Standard</SelectItem>
                         <SelectItem value="large">Large</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Reduced Motion</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Reduce motion in animations
-                      </p>
-                    </div>
-                    <Switch
-                      checked={appearanceSettings.reducedMotion}
-                      onCheckedChange={(checked) => handleAppearanceChange('reducedMotion', checked)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
 
-            <TabsContent value="language">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Language Settings</CardTitle>
-                  <CardDescription>Customize your language preferences</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Language</Label>
-                    <Select
-                      value={languageSettings.language}
-                      onValueChange={(value) => handleLanguageChange('language', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select language" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="fr">French</SelectItem>
-                          <SelectItem value='rw'>Kinyarwanda</SelectItem>
-                      </SelectContent>
-                    </Select>
+                <div className="flex items-center justify-between group p-3 rounded-2xl hover:bg-muted/20 transition-all border border-transparent hover:border-border/40">
+                  <div className="space-y-1">
+                    <Label className="text-base font-bold tracking-tight cursor-pointer">Reduced Motion</Label>
+                    <p className="text-xs font-medium text-muted-foreground/80">
+                      Minimize high-frequency animations for a focused experience.
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Date Format</Label>
+                  <Switch
+                    checked={appearanceSettings.reducedMotion}
+                    onCheckedChange={(checked) => handleAppearanceChange('reducedMotion', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="language" className="focus-visible:outline-none">
+            <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30 max-w-2xl">
+              <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+                <CardTitle className="text-xl font-bold tracking-tight">Regional Settings</CardTitle>
+                <CardDescription className="text-sm font-medium">Configure your localized experience and data formats.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-8 space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Primary Language</Label>
+                  <Select
+                    value={languageSettings.language}
+                    onValueChange={(value) => handleLanguageChange('language', value)}
+                  >
+                    <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent className="glass-platter">
+                      <SelectItem value="en">English (US)</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                      <SelectItem value='rw'>Kinyarwanda</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Date Representation</Label>
                     <Select
                       value={languageSettings.dateFormat}
                       onValueChange={(value) => handleLanguageChange('dateFormat', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50">
                         <SelectValue placeholder="Select date format" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="glass-platter">
                         <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                         <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">Year-Month-Day</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Time Format</Label>
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Time Chronology</Label>
                     <Select
                       value={languageSettings.timeFormat}
                       onValueChange={(value) => handleLanguageChange('timeFormat', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-border/50">
                         <SelectValue placeholder="Select time format" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="12h">12-hour</SelectItem>
-                        <SelectItem value="24h">24-hour</SelectItem>
+                      <SelectContent className="glass-platter">
+                        <SelectItem value="12h">12-hour Clock</SelectItem>
+                        <SelectItem value="24h">24-hour Clock</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <TabsContent value="security">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>Manage your account security</CardDescription>
+          <TabsContent value="security" className="focus-visible:outline-none">
+            <div className="grid grid-cols-1 lg:grid-cols-1 space-y-8 max-w-2xl">
+              <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30">
+                <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+                  <CardTitle className="text-xl font-bold tracking-tight">Identity & Access</CardTitle>
+                  <CardDescription className="text-sm font-medium">Rotate your access credentials regularly for enhanced security.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Current Password</Label>
-                      <Input
-                        id="currentPassword"
-                        name="currentPassword"
-                        type="password"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                      />
+                <CardContent className="pt-8 bg-muted/5">
+                  <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="currentPassword" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{t('settings.currentPassword')}</Label>
+                        <Input
+                          id="currentPassword"
+                          name="currentPassword"
+                          type="password"
+                          value={passwordData.currentPassword}
+                          onChange={handlePasswordChange}
+                          className="h-12 rounded-xl bg-muted/20 border-border/50"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="newPassword" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{t('settings.newPassword')}</Label>
+                          <Input
+                            id="newPassword"
+                            name="newPassword"
+                            type="password"
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordChange}
+                            className="h-12 rounded-xl bg-muted/20 border-border/50"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmPassword" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{t('settings.confirmPassword')}</Label>
+                          <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            value={passwordData.confirmPassword}
+                            onChange={handlePasswordChange}
+                            className="h-12 rounded-xl bg-muted/20 border-border/50"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
-                      <Input
-                        id="newPassword"
-                        name="newPassword"
-                        type="password"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                      />
-                    </div>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" disabled={isLoading} className="h-12 px-8 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Change Password
+                      Update Account Security
                     </Button>
                   </form>
+                </CardContent>
+              </Card>
 
-                  <div className="pt-4">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive">Delete Account</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your account
-                            and remove all associated data from our servers.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <div className="space-y-4 py-4">
-                          <Label htmlFor="deletePassword">Enter your password to confirm</Label>
+              <Card className="border-red-500/20 shadow-premium overflow-hidden bg-destructive/5">
+                <CardHeader className="border-b border-red-500/10 bg-destructive/10 pb-6">
+                  <CardTitle className="text-xl font-bold tracking-tight text-destructive">Danger Zone</CardTitle>
+                  <CardDescription className="text-sm font-medium text-destructive/70">Permanently terminate your neural profile and purge all data.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-8">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="h-12 px-8 rounded-xl font-bold scale-100 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        {t('settings.deleteAccount')}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="glass-platter border-destructive/20 max-w-md">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-2xl font-bold tracking-tight text-destructive">Irreversible Termination</AlertDialogTitle>
+                        <AlertDialogDescription className="text-base font-medium">
+                          {t('settings.deleteAccountWarning')} This will permanently purge your neural history, analytical reports, and saved preferences.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="space-y-4 py-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="deletePassword text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Confirm Identity with Password</Label>
                           <Input
                             id="deletePassword"
                             type="password"
                             value={deletePassword}
                             onChange={(e) => setDeletePassword(e.target.value)}
+                            className="h-12 rounded-xl bg-muted/20 border-border/50 focus:ring-destructive/20"
                           />
                         </div>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={handleDeleteAccount}
-                            disabled={isLoading || !deletePassword}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Delete Account
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                      </div>
+                      <AlertDialogFooter className="gap-3">
+                        <AlertDialogCancel className="h-12 rounded-xl font-bold border-border/60">{t('common.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          disabled={isLoading || !deletePassword}
+                          className="h-12 rounded-xl font-bold bg-destructive text-white hover:bg-destructive/90 shadow-lg shadow-destructive/20"
+                        >
+                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Confirm Deletion
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

@@ -42,20 +42,14 @@ export default function Appointments() {
   };
 
   const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'Pending';
-      case 'ACCEPTED':
-        return 'Accepted';
-      case 'DECLINED':
-        return 'Declined';
-      case 'CANCELLED':
-        return 'Cancelled';
-      case 'COMPLETED':
-        return 'Completed';
-      default:
-        return status;
-    }
+    const statusMap: { [key: string]: string } = {
+      'PENDING': t('appointments.status.pending'),
+      'ACCEPTED': t('appointments.status.accepted'),
+      'DECLINED': t('appointments.status.declined'),
+      'CANCELLED': t('appointments.status.cancelled'),
+      'COMPLETED': t('appointments.status.completed'),
+    };
+    return statusMap[status] || status;
   };
 
   const handleAccept = async (appointment: Appointment) => {
@@ -65,9 +59,9 @@ export default function Appointments() {
       updateAppointment(appointment.id, {
         status: result.status as any,
       });
-      toast.success("Appointment accepted");
+      toast.success(t('appointments.acceptedSuccess'));
     } catch (err: any) {
-      toast.error(err?.message || "Failed to accept appointment");
+      toast.error(err?.message || t('appointments.acceptedError'));
     } finally {
       setActionLoading(false);
     }
@@ -80,9 +74,9 @@ export default function Appointments() {
       updateAppointment(appointment.id, {
         status: result.status as any,
       });
-      toast.success("Appointment declined");
+      toast.success(t('appointments.declinedSuccess'));
     } catch (err: any) {
-      toast.error(err?.message || "Failed to decline appointment");
+      toast.error(err?.message || t('appointments.declinedError'));
     } finally {
       setActionLoading(false);
     }
@@ -106,7 +100,7 @@ export default function Appointments() {
               </div>
             ) : appointments.length === 0 ? (
               <div className="p-4 text-center text-muted-foreground">
-                No appointments found
+                {t('appointments.noAppointments')}
               </div>
             ) : (
               <div className="space-y-4">
@@ -165,7 +159,7 @@ export default function Appointments() {
                         disabled={appointment.status !== "PENDING" || actionLoading}
                       >
                         <Check className="mr-2 h-4 w-4" />
-                        Accept
+                        {t('appointments.accept')}
                       </Button>
                       <Button
                         variant="ghost"
@@ -174,7 +168,7 @@ export default function Appointments() {
                         disabled={appointment.status !== "PENDING" || actionLoading}
                       >
                         <X className="mr-2 h-4 w-4" />
-                        Decline
+                        {t('appointments.decline')}
                       </Button>
                     </div>
                   </div>

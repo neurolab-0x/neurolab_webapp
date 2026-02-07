@@ -7,6 +7,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useState, useEffect } from "react";
 import { getUserAnalyses } from "@/api/analysisData";
 import { useI18n } from '@/lib/i18n';
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ const Dashboard = () => {
         console.log('[Dashboard] Got analyses:', analyses);
         const analysesArray = Array.isArray(analyses) ? analyses : [];
         setDashboardInfo(analysesArray);
-        
+
         // Generate chart data from analyses
         const data = analysesArray.slice(0, 12).map((analysis, idx) => ({
           time: `${idx}:00`,
@@ -69,96 +70,102 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 w-full min-w-0 min-h-0">
+      <div className="space-y-8 w-full animate-fade-in">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
           <div>
-            <h1 className="text-4xl font-bold">{t('dashboard.welcome')} <span className="text-primary">@{user?.username}👋</span></h1>
+            <h1 className="text-4xl font-bold tracking-tighter">
+              {t('dashboard.welcome')}{' '}
+              <span className="text-primary drop-shadow-sm">@{user?.username}👋</span>
+            </h1>
+            <p className="text-muted-foreground font-medium mt-1">Here is what's happening with your brain data today.</p>
           </div>
+          <Button className="h-11 px-6 rounded-xl shadow-lg shadow-primary/20">
+            <Activity className="mr-2 h-4 w-4" />
+            New Analysis
+          </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full min-w-0 min-h-0 auto-cols-fr">
-          <Card className="w-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.totalAnalyses')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{loading ? '...' : totalAnalyses}</div>
-                <Brain className="h-6 w-6 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="w-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.activities')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'completed').length}</div>
-                <Activity className="h-6 w-6 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="w-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.reports')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'processing').length}</div>
-                <LineChart className="h-6 w-6 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="w-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.cards.sessions')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{loading ? '...' : dashboardInfo.filter((a: any) => a.status === 'pending').length}</div>
-                <Calendar className="h-6 w-6 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 w-full auto-cols-fr">
+          {[
+            { title: t('dashboard.cards.totalAnalyses'), value: totalAnalyses, icon: Brain, color: 'text-primary' },
+            { title: t('dashboard.cards.activities'), value: dashboardInfo.filter((a: any) => a.status === 'completed').length, icon: Activity, color: 'text-emerald-500' },
+            { title: t('dashboard.cards.reports'), value: dashboardInfo.filter((a: any) => a.status === 'processing').length, icon: LineChart, color: 'text-amber-500' },
+            { title: t('dashboard.cards.sessions'), value: dashboardInfo.filter((a: any) => a.status === 'pending').length, icon: Calendar, color: 'text-indigo-500' },
+          ].map((card, i) => (
+            <Card key={i} className="group hover:scale-[1.02] transition-transform duration-300">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-60">
+                  {card.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-3xl font-bold tracking-tighter">
+                    {loading ? (
+                      <div className="h-8 w-12 bg-muted animate-pulse rounded-md" />
+                    ) : (
+                      card.value
+                    )}
+                  </div>
+                  <div className={cn("p-2 rounded-xl bg-muted/50 group-hover:bg-primary/10 transition-colors", card.color)}>
+                    <card.icon className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 w-full min-w-0 min-h-0 auto-cols-fr">
-          <Card className="lg:col-span-4 w-full">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-7 w-full auto-cols-fr">
+          <Card className="lg:col-span-4 w-full overflow-hidden">
             <CardHeader>
-              <CardTitle>{t('dashboard.recent.title')}</CardTitle>
-              <CardDescription>{t('dashboard.recent.desc')}</CardDescription>
+              <CardTitle className="text-xl font-bold">{t('dashboard.recent.title')}</CardTitle>
+              <CardDescription className="text-sm font-medium">{t('dashboard.recent.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-[300px] w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={chartData.length > 0 ? chartData : [{ time: 'N/A', value: 0 }]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <RechartsLineChart data={chartData.length > 0 ? chartData : [{ time: 'N/A', value: 0 }]}>
+                    <defs>
+                      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
                     <XAxis
                       dataKey="time"
-                      className="text-xs text-muted-foreground"
+                      axisLine={false}
+                      tickLine={false}
+                      className="text-[10px] font-bold text-muted-foreground/50"
                       tick={{ fill: 'currentColor' }}
+                      dy={10}
                     />
                     <YAxis
-                      className="text-xs text-muted-foreground"
+                      axisLine={false}
+                      tickLine={false}
+                      className="text-[10px] font-bold text-muted-foreground/50"
                       tick={{ fill: 'currentColor' }}
+                      dx={-10}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '0.5rem',
+                        backgroundColor: 'rgba(var(--card), 0.8)',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                       }}
+                      itemStyle={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}
                     />
                     <Line
                       type="monotone"
                       dataKey="value"
                       stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      dot={false}
+                      strokeWidth={4}
+                      dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'white' }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                      animationDuration={1500}
                     />
                   </RechartsLineChart>
                 </ResponsiveContainer>
@@ -168,19 +175,22 @@ const Dashboard = () => {
 
           <Card className="lg:col-span-3 w-full">
             <CardHeader>
-              <CardTitle>{t('dashboard.upcoming.title')}</CardTitle>
-              <CardDescription>{t('dashboard.upcoming.desc')}</CardDescription>
+              <CardTitle className="text-xl font-bold">{t('dashboard.upcoming.title')}</CardTitle>
+              <CardDescription className="text-sm font-medium">{t('dashboard.upcoming.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-4 pt-2">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="flex items-center p-3 border rounded-md">
-                    <div className="mr-3 p-2 bg-primary/10 rounded">
-                      <Users className="h-4 w-4 text-primary" />
+                  <div key={item} className="flex items-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors border border-transparent hover:border-border cursor-pointer group">
+                    <div className="mr-4 p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
+                      <Users className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Session #{item}</p>
-                      <p className="text-xs text-muted-foreground">Tomorrow, 2:00 PM</p>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold">Session #{item}</p>
+                      <p className="text-xs font-medium text-muted-foreground">{t('common.tomorrow')}, 2:00 PM</p>
+                    </div>
+                    <div className="text-[10px] font-black uppercase text-primary bg-primary/5 px-2 py-1 rounded-md">
+                      Confirmed
                     </div>
                   </div>
                 ))}

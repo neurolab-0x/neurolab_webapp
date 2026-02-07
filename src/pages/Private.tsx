@@ -18,7 +18,7 @@ const Private = () => {
     if (password === "neuraitest") {
       setAuthenticated(true);
     } else {
-      alert("Incorrect password");
+      alert(t('private.incorrectPassword'));
     }
   };
 

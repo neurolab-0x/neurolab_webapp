@@ -48,7 +48,7 @@ const History = () => {
       const data = await getUserSessions();
       setSessions(data);
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to fetch session history');
+      toast.error(error?.message || t('history.failedFetch'));
     } finally {
       setIsLoading(false);
     }
@@ -84,52 +84,55 @@ const History = () => {
     const statusLower = String(session.status || '').toLowerCase();
     const matchesStatus = filterStatus === 'all' || statusLower === filterStatus;
     const matchesSearch = session.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     // Apply time range filter
     if (selectedTimeRange !== 'all') {
       const sessionDate = new Date(session.startTime);
       const now = new Date();
       const daysDiff = Math.floor((now.getTime() - sessionDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       if (selectedTimeRange === 'today' && daysDiff > 0) return false;
       if (selectedTimeRange === 'week' && daysDiff > 7) return false;
       if (selectedTimeRange === 'month' && daysDiff > 30) return false;
     }
-    
+
     return matchesStatus && matchesSearch;
   });
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 w-full">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="w-full space-y-8 animate-fade-in relative">
+        {/* Ambient Background Blur */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold">{t('history.title')}</h1>
-            <p className="text-sm text-muted-foreground">{t('history.description')}</p>
+            <h1 className="text-4xl font-bold tracking-tighter">{t('history.title')}</h1>
+            <p className="text-muted-foreground font-medium">{t('history.description')}</p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export
+            <Button variant="outline" className="h-11 rounded-xl font-bold border-border/60 hover:bg-primary/5 transition-all">
+              <Download className="h-4 w-4 mr-2" />
+              {t('common.export')}
             </Button>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              Share
+            <Button variant="ghost" className="h-11 rounded-xl font-bold text-muted-foreground hover:text-primary transition-all">
+              <Share2 className="h-4 w-4 mr-2" />
+              {t('common.share')}
             </Button>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4 w-full md:w-auto">
+        <Card className="border-white/5 shadow-premium overflow-hidden bg-card/30">
+          <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3 w-full md:w-auto">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter status" />
+                  <SelectTrigger className="h-11 w-full md:w-[180px] rounded-xl bg-muted/20 border-border/50">
+                    <SelectValue placeholder="All Status" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
+                  <SelectContent className="glass-platter">
+                    <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="interrupted">Interrupted</SelectItem>
                     <SelectItem value="error">Error</SelectItem>
@@ -137,10 +140,10 @@ const History = () => {
                 </Select>
 
                 <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Time range" />
+                  <SelectTrigger className="h-11 w-full md:w-[160px] rounded-xl bg-muted/20 border-border/50">
+                    <SelectValue placeholder="Time Range" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-platter">
                     <SelectItem value="all">All time</SelectItem>
                     <SelectItem value="today">Today</SelectItem>
                     <SelectItem value="week">This week</SelectItem>
@@ -151,27 +154,29 @@ const History = () => {
 
               <div className="flex items-center gap-3 w-full md:w-auto">
                 <div className="relative flex-1 md:flex-none">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground opacity-50" />
                   <Input
-                    placeholder="Search sessions..."
+                    placeholder="Search session ID..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-full md:w-[280px]"
+                    className="h-11 pl-10 w-full md:w-[320px] rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20"
                   />
                 </div>
 
-                <div className="hidden md:flex items-center gap-2">
+                <div className="hidden md:flex items-center gap-2 p-1 bg-muted/20 rounded-xl border border-border/50">
                   <Button
-                    variant={selectedView === 'list' ? 'default' : 'outline'}
-                    size="sm"
+                    variant={selectedView === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
                     onClick={() => setSelectedView('list')}
+                    className="h-9 w-9 rounded-lg"
                   >
                     <BarChart2 className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant={selectedView === 'grid' ? 'default' : 'outline'}
-                    size="sm"
+                    variant={selectedView === 'grid' ? 'secondary' : 'ghost'}
+                    size="icon"
                     onClick={() => setSelectedView('grid')}
+                    className="h-9 w-9 rounded-lg"
                   >
                     <PieChart className="h-4 w-4" />
                   </Button>
@@ -180,109 +185,93 @@ const History = () => {
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin" />
+              <div className="flex flex-col items-center justify-center p-20 space-y-4">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Loading history...</p>
               </div>
             ) : filteredSessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center">
-                <p className="text-muted-foreground">No sessions found</p>
+              <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
+                <div className="p-6 bg-muted/50 rounded-full">
+                  <CalendarClock className="h-12 w-12 text-muted-foreground opacity-20" />
+                </div>
+                <p className="text-lg font-bold text-muted-foreground/60 uppercase tracking-widest">{t('history.noSessions')}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {filteredSessions.map((session) => {
+              <div className="divide-y divide-border/40">
+                {filteredSessions.map((session, idx) => {
                   const startDate = new Date(session.startTime);
                   const endDate = new Date(session.endTime || new Date());
                   const durationSeconds = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
                   const statusDisplay = String(session.status || 'PENDING').charAt(0).toUpperCase() + String(session.status || 'PENDING').slice(1).toLowerCase();
-                  
+
                   return (
                     <motion.div
                       key={session.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="group"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.03 }}
+                      className="group hover:bg-primary/[0.02] transition-colors"
                     >
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 rounded-lg border hover:shadow-md transition">
-                        <div className="flex-1 min-w-0">
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-6">
+                        <div className="flex-1 min-w-0 space-y-4">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                              <div className="text-lg font-semibold truncate">Session {session.id.slice(-8)}</div>
-                              <Badge variant="outline" className={getStatusColor(session.status)}>
+                              <div className="text-xl font-bold tracking-tight">Session <span className="text-primary">{session.id.slice(-8).toUpperCase()}</span></div>
+                              <Badge className={cn(
+                                "px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-tighter border-none",
+                                getStatusColor(session.status)
+                              )}>
                                 {statusDisplay}
                               </Badge>
                             </div>
 
-                            <div className="hidden sm:flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="hidden sm:flex items-center gap-4 text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">
                               <div className="flex items-center gap-2">
-                                <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                                <CalendarClock className="h-4 w-4 text-primary opacity-50" />
                                 <div>{formatDate(session.startTime)}</div>
                               </div>
                             </div>
                           </div>
 
-                          {session.type && (
-                            <div className="mt-2 text-sm text-muted-foreground truncate">{session.type}</div>
-                          )}
-
                           {session.analysisResults && (
-                            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                              {session.analysisResults.attention !== undefined && (
-                                <div className="space-y-1">
-                                  <div className="text-xs text-muted-foreground">Attention</div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-sm font-medium w-8">{Math.round(session.analysisResults.attention)}%</div>
-                                    <Progress value={session.analysisResults.attention} className="h-2 flex-1" />
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                              {[
+                                { label: 'Attention', value: session.analysisResults.attention, color: 'bg-primary' },
+                                { label: 'Cognitive', value: session.analysisResults.cognitiveLoad, color: 'bg-emerald-500' },
+                                { label: 'Fatigue', value: session.analysisResults.mentalFatigue, color: 'bg-amber-500' },
+                                { label: 'Relax', value: session.analysisResults.relaxation, color: 'bg-indigo-500' }
+                              ].map((metric, i) => metric.value !== undefined && (
+                                <div key={i} className="space-y-1.5">
+                                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                    <span>{metric.label}</span>
+                                    <span>{Math.round(metric.value)}%</span>
+                                  </div>
+                                  <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden shadow-inner">
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${metric.value}%` }}
+                                      transition={{ duration: 1, delay: 0.2 + (i * 0.1) }}
+                                      className={cn("h-full rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]", metric.color)}
+                                    />
                                   </div>
                                 </div>
-                              )}
-
-                              {session.analysisResults.cognitiveLoad !== undefined && (
-                                <div className="space-y-1">
-                                  <div className="text-xs text-muted-foreground">Cognitive</div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-sm font-medium w-8">{Math.round(session.analysisResults.cognitiveLoad)}%</div>
-                                    <Progress value={session.analysisResults.cognitiveLoad} className="h-2 flex-1" />
-                                  </div>
-                                </div>
-                              )}
-
-                              {session.analysisResults.mentalFatigue !== undefined && (
-                                <div className="space-y-1">
-                                  <div className="text-xs text-muted-foreground">Fatigue</div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-sm font-medium w-8">{Math.round(session.analysisResults.mentalFatigue)}%</div>
-                                    <Progress value={session.analysisResults.mentalFatigue} className="h-2 flex-1" />
-                                  </div>
-                                </div>
-                              )}
-
-                              {session.analysisResults.relaxation !== undefined && (
-                                <div className="space-y-1">
-                                  <div className="text-xs text-muted-foreground">Relax</div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-sm font-medium w-8">{Math.round(session.analysisResults.relaxation)}%</div>
-                                    <Progress value={session.analysisResults.relaxation} className="h-2 flex-1" />
-                                  </div>
-                                </div>
-                              )}
+                              ))}
                             </div>
                           )}
                         </div>
 
-                        <div className="flex flex-col items-end gap-3">
-                          <div className="text-right">
-                            <div className="text-xs text-muted-foreground">Duration</div>
-                            <div className="font-mono">{formatDuration(durationSeconds)}</div>
+                        <div className="flex md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-4 md:border-l border-border/40 md:pl-8">
+                          <div className="text-left md:text-right">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Duration</div>
+                            <div className="font-mono text-lg font-bold">{formatDuration(durationSeconds)}</div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                              View
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          <Button variant="outline" className="h-10 rounded-xl px-4 font-bold border-border/60 hover:bg-primary/5 group-hover:border-primary/40 group-hover:text-primary transition-all">
+                            View Report
+                            <ChevronRight className="h-4 w-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                          </Button>
                         </div>
                       </div>
                     </motion.div>

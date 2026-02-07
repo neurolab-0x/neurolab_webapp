@@ -48,7 +48,7 @@ const Notifications = () => {
       const data = await getNotifications();
       setNotifications(data);
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to fetch notifications');
+      toast.error(error?.message || t('notifications.failedFetch'));
     } finally {
       setIsLoading(false);
     }
@@ -60,9 +60,9 @@ const Notifications = () => {
     try {
       const result = await markNotificationAsRead(id);
       setNotifications(notifications.map(n => n.id === id ? result : n));
-      toast.success('Marked as read');
+      toast.success(t('notifications.markedAsRead'));
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to mark as read');
+      toast.error(error?.message || t('notifications.failedMarkRead'));
     }
   };
 
@@ -72,9 +72,9 @@ const Notifications = () => {
         await markNotificationAsRead(notif.id);
       }
       await fetchNotifications();
-      toast.success('All marked as read');
+      toast.success(t('notifications.allMarkedRead'));
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to mark all as read');
+      toast.error(error?.message || t('notifications.failedMarkAllRead'));
     }
   };
 
@@ -82,9 +82,9 @@ const Notifications = () => {
     try {
       await deleteNotification(id);
       setNotifications(notifications.filter(n => n.id !== id));
-      toast.success('Notification deleted');
+      toast.success(t('notifications.deleted'));
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to delete notification');
+      toast.error(error?.message || t('notifications.failedDelete'));
     }
   };
 
