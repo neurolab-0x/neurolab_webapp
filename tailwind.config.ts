@@ -122,10 +122,10 @@ export default {
 				'spring-in': 'spring-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
 				'spring-out': 'spring-out 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 			},
-			// Premium shadow system
+			// Premium shadow system - Authentically Linear/Arcadia
 			boxShadow: {
-				'premium': '0 2px 4px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.1), 0 40px 80px rgba(0,0,0,0.15)',
-				'premium-dark': '0 2px 4px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3), 0 40px 80px rgba(0,0,0,0.4)',
+				'premium': '0 2px 10px rgba(0, 0, 0, 0.02), 0 10px 30px rgba(0, 0, 0, 0.04)',
+				'premium-dark': '0 8px 32px rgba(0, 0, 0, 0.4)',
 			}
 
 		}
