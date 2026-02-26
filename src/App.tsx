@@ -10,6 +10,9 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPassword'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmail'));
 
+// E-commerce pages
+// Removed from platform to keep it lightweight. Use the main website for shopping.
+
 // User Portal
 const UserPortal = lazy(() => import('./modules/UserPortal'));
 const UserHistory = lazy(() => import('./modules/UserHistory'));
