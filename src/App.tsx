@@ -15,6 +15,8 @@ const UserAppointments = lazy(() => import('./modules/UserAppointments'));
 const UserChat = lazy(() => import('./modules/UserChat'));
 const UserUploads = lazy(() => import('./modules/UserUploads'));
 const UserReviews = lazy(() => import('./modules/UserReviews'));
+const UserDecisionSupport = lazy(() => import('./modules/UserDecisionSupport'));
+const AppointmentBooking = lazy(() => import('./modules/AppointmentBooking'));
 
 // Admin Portal
 const AdminPortal = lazy(() => import('./modules/AdminPortal'));
@@ -30,6 +32,7 @@ const DoctorPortal = lazy(() => import('./modules/DoctorPortal'));
 const DoctorPatients = lazy(() => import('./modules/DoctorPatients'));
 const DoctorAppointments = lazy(() => import('./modules/DoctorAppointments'));
 const DoctorDecision = lazy(() => import('./modules/DoctorDecision'));
+const DoctorCertifications = lazy(() => import('./modules/DoctorCertifications'));
 
 // Clinic Portal
 const ClinicStats = lazy(() => import('./modules/ClinicStats'));
@@ -37,6 +40,9 @@ const ClinicStats = lazy(() => import('./modules/ClinicStats'));
 // Shared
 const SettingsPage = lazy(() => import('./modules/SettingsPage'));
 const Notifications = lazy(() => import('./modules/Notifications'));
+const CalendarIntegration = lazy(() => import('./modules/CalendarIntegration'));
+
+import NotFound from './pages/NotFound';
 
 const ModuleLoader = () => (
   <div className="flex h-[400px] w-full items-center justify-center">
@@ -74,9 +80,11 @@ function App() {
           <Route path="user/history" element={<S><UserHistory /></S>} />
           <Route path="user/devices" element={<S><UserDevices /></S>} />
           <Route path="user/appointments" element={<S><UserAppointments /></S>} />
+          <Route path="user/booking" element={<S><AppointmentBooking /></S>} />
           <Route path="user/chat" element={<S><UserChat /></S>} />
           <Route path="user/uploads" element={<S><UserUploads /></S>} />
           <Route path="user/reviews" element={<S><UserReviews /></S>} />
+          <Route path="user/insights" element={<S><UserDecisionSupport /></S>} />
 
           {/* Admin Routes */}
           <Route path="admin/metrics" element={<S><AdminPortal /></S>} />
@@ -92,6 +100,7 @@ function App() {
           <Route path="doctor/overview" element={<S><DoctorPatients /></S>} />
           <Route path="doctor/appointments" element={<S><DoctorAppointments /></S>} />
           <Route path="doctor/decision" element={<S><DoctorDecision /></S>} />
+          <Route path="doctor/certifications" element={<S><DoctorCertifications /></S>} />
 
           {/* Clinic Routes */}
           <Route path="clinic/patients" element={<S><DoctorPatients /></S>} />
@@ -101,6 +110,9 @@ function App() {
           {/* Shared Routes */}
           <Route path="settings" element={<S><SettingsPage /></S>} />
           <Route path="notifications" element={<S><Notifications /></S>} />
+          <Route path="calendar-sync" element={<S><CalendarIntegration /></S>} />
+
+          <Route path="*" element={<NotFound />} />
 
           <Route path="*" element={<Navigate to="/doctor/analysis" replace />} />
         </Route>

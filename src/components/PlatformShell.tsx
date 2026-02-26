@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { usePortalStore } from '../store/usePortalStore';
 import {
     Activity,
@@ -34,6 +34,13 @@ const currentUser = {
 
 const PlatformShell = () => {
     const { activeView, setActiveView, theme, toggleTheme } = usePortalStore();
+    const navigate = useNavigate();
+
+    const handleSignOut = () => {
+        localStorage.removeItem('neurai_token');
+        localStorage.removeItem('neurai_refresh');
+        navigate('/auth/login');
+    };
 
     const renderNavLinks = () => {
         if (currentUser.role === 'ADMIN') {
@@ -57,9 +64,11 @@ const PlatformShell = () => {
                     <SidebarLink to="/user/session" icon={<Activity size={18} />} label="Neural Session" />
                     <SidebarLink to="/user/history" icon={<Clock size={18} />} label="History" />
                     <SidebarLink to="/user/devices" icon={<Cpu size={18} />} label="My Devices" />
+                    <SidebarLink to="/user/booking" icon={<Calendar size={18} />} label="Book Session" />
                     <SidebarLink to="/user/appointments" icon={<Calendar size={18} />} label="Appointments" />
                     <SidebarLink to="/user/chat" icon={<MessageSquare size={18} />} label="NeurAI Chat" />
                     <SidebarLink to="/user/uploads" icon={<Upload size={18} />} label="Uploads" />
+                    <SidebarLink to="/user/insights" icon={<BrainCircuit size={18} />} label="Wellness Insights" />
                     <SidebarLink to="/user/reviews" icon={<Star size={18} />} label="Reviews" />
                     <SidebarLink to="/notifications" icon={<Bell size={18} />} label="Notifications" />
                 </>
@@ -85,6 +94,7 @@ const PlatformShell = () => {
                 <SidebarLink to="/doctor/analysis" icon={<Microscope size={18} />} label="Neural Analysis" />
                 <SidebarLink to="/doctor/appointments" icon={<Calendar size={18} />} label="Schedule" />
                 <SidebarLink to="/doctor/decision" icon={<BrainCircuit size={18} />} label="Decision Support" />
+                <SidebarLink to="/doctor/certifications" icon={<Activity size={18} />} label="Certifications" />
                 <SidebarLink to="/notifications" icon={<Bell size={18} />} label="Notifications" />
             </>
         );
@@ -117,12 +127,13 @@ const PlatformShell = () => {
                 <nav className="flex flex-1 flex-col gap-1">{renderNavLinks()}</nav>
 
                 <div className="mt-auto border-t border-sidebar-border pt-4 space-y-1">
+                    <SidebarLink to="/calendar-sync" icon={<Calendar size={18} />} label="Calendar Sync" />
                     <SidebarLink to="/settings" icon={<Settings size={18} />} label="Settings" />
                     <button onClick={toggleTheme} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                         {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
                         {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
                     </button>
-                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                    <button onClick={handleSignOut} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                         <LogOut size={18} strokeWidth={1.5} /> Sign out
                     </button>
                 </div>

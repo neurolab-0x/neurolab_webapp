@@ -80,7 +80,7 @@ export default function LoginPage() {
                 </form>
 
                 <p className="text-center text-sm text-muted-foreground">
-                    Don't have an account? <Link to="/register" className="font-medium text-primary hover:underline">Create one</Link>
+                    Don't have an account? <Link to="/auth/register" className="font-medium text-primary hover:underline">Create one</Link>
                 </p>
             </div>
         </div>
