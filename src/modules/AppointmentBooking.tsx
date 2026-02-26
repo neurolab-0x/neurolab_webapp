@@ -19,7 +19,7 @@ const AppointmentBookingInner = () => {
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [bookingStep, setBookingStep] = useState<'search' | 'schedule' | 'payment' | 'confirmed'>('search');
 
-    const { data: doctors, isLoading } = useSWR<Doctor[]>(
+    const { data: serverDoctors, isLoading } = useSWR<Doctor[]>(
         `${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctors/search?q=${searchQuery}`,
         apiFetcher,
         {
@@ -29,6 +29,11 @@ const AppointmentBookingInner = () => {
                 { id: 'doc_3', name: 'Dr. Elena Rostova', specialty: 'Neurophysiology', rating: 4.9, availability: ['2026-03-03T09:00:00Z', '2026-03-03T15:00:00Z'], price: 18000 },
             ]
         }
+    );
+
+    const doctors = serverDoctors?.filter(doc =>
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.specialty.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleBook = () => setBookingStep('payment');

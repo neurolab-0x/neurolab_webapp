@@ -1,11 +1,13 @@
 import React from 'react';
 import useSWR from 'swr';
+import { useNavigate } from 'react-router-dom';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function AppointmentsInner() {
+    const navigate = useNavigate();
     const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/`, apiFetcher, {
         fallbackData: [
             { id: 'apt_001', doctorName: 'Dr. Fiston Mahamba', date: '2026-02-28', startTime: '10:00', endTime: '11:00', status: 'CONFIRMED', type: 'EEG Review' },
@@ -32,7 +34,12 @@ function AppointmentsInner() {
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">My Appointments</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Scheduled consultations and neural reviews</p>
                 </div>
-                <button className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Book Appointment</button>
+                <button
+                    onClick={() => navigate('/user/booking')}
+                    className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                    Book Appointment
+                </button>
             </div>
 
             <div className="space-y-3">
