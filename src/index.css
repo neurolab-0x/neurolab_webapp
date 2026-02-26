@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 210 40% 98%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 216 100% 46%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 80%;
+    --input: 214 20% 80%;
+    --ring: 216 100% 46%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 80%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Neurolab Clinical Prestige tokens */
+    --surface: 210 40% 98%;
+    --surface-border: 213 20% 78%;
+    --deep-space: 240 50% 3%;
+    --electric-blue: 216 100% 46%;
+
+    /* Apple Precision easing */
+    --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  }
+
+  .dark {
+    /* Night Laboratory Premium Palette */
+    --background: 240 33% 3%;
+    /* #05050A */
+    --foreground: 210 40% 98%;
+    /* #F8FAFC */
+    --card: 240 25% 6%;
+    /* #0C0C14 */
+    --card-foreground: 210 40% 98%;
+    --popover: 240 25% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 211 93% 58%;
+    /* Electric Blue #2E90FA */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 240 25% 10%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 240 25% 10%;
+    --muted-foreground: 215 25% 65%;
+    /* Slate-400 #94A3B8 */
+    --accent: 211 93% 58%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17.5%;
+    /* Slate-800 #1E293B */
+    --input: 217 33% 17.5%;
+    --ring: 211 93% 58%;
+
+    /* Sidebar integration */
+    --sidebar-background: 240 25% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 211 93% 58%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 240 25% 10%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17.5%;
+    --sidebar-ring: 211 93% 58%;
+
+    /* Specific Tokens */
+    --surface: 240 25% 6%;
+    --surface-border: 217 33% 17.5%;
+    --deep-space: 240 33% 3%;
+    --electric-blue: 211 93% 58%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    letter-spacing: -0.022em;
+  }
+}
+
+@layer utilities {
+  .tracking-display {
+    letter-spacing: -0.04em;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Grain texture overlay for deep-space sections */
+.grain-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.02;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  z-index: 1;
+}
+
+/* Surgical Loader — 1px indeterminate progress bar */
+@keyframes surgical-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.surgical-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 9999;
+  overflow: hidden;
+  background: hsl(var(--border));
+}
+
+.surgical-loader-bar {
+  height: 100%;
+  width: 50%;
+  background: hsl(var(--electric-blue));
+  animation: surgical-shimmer 1.2s cubic-bezier(0.25, 0.1, 0.25, 1.0) infinite;
+}
