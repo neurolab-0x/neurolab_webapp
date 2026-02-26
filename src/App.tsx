@@ -6,6 +6,9 @@ import { usePortalStore } from './store/usePortalStore';
 // Auth pages (no shell)
 const LoginPage = lazy(() => import('./pages/Login'));
 const RegisterPage = lazy(() => import('./pages/Register'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPassword'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmail'));
 
 // User Portal
 const UserPortal = lazy(() => import('./modules/UserPortal'));
@@ -70,6 +73,9 @@ function App() {
         {/* Auth — standalone, no shell */}
         <Route path="/auth/login" element={<S><LoginPage /></S>} />
         <Route path="/auth/register" element={<S><RegisterPage /></S>} />
+        <Route path="/auth/forgot-password" element={<S><ForgotPasswordPage /></S>} />
+        <Route path="/auth/reset-password/:token" element={<S><ResetPasswordPage /></S>} />
+        <Route path="/auth/verify-email/:token" element={<S><VerifyEmailPage /></S>} />
 
         {/* Platform Shell (all authenticated routes) */}
         <Route path="/" element={<PlatformShell />}>
