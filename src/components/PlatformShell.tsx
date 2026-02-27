@@ -144,8 +144,8 @@ const PlatformShell = () => {
                                 className="absolute inset-y-0 w-1/2 rounded-lg bg-sidebar-primary transition-transform duration-300 ease-[var(--ease-apple)]"
                                 style={{ transform: activeView === 'DOCTOR' ? 'translateX(100%)' : 'translateX(0)' }}
                             />
-                            <button onClick={() => setActiveView('CLINIC')} className={`relative z-10 w-1/2 py-1.5 text-xs font-medium transition-colors duration-200 ${activeView === 'CLINIC' ? 'text-sidebar-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Clinic View</button>
-                            <button onClick={() => setActiveView('DOCTOR')} className={`relative z-10 w-1/2 py-1.5 text-xs font-medium transition-colors duration-200 ${activeView === 'DOCTOR' ? 'text-sidebar-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Doctor View</button>
+                            <button onClick={() => { setActiveView('CLINIC'); navigate('/clinic/stats'); }} className={`relative z-10 w-1/2 py-1.5 text-xs font-medium transition-colors duration-200 ${activeView === 'CLINIC' ? 'text-sidebar-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Clinic View</button>
+                            <button onClick={() => { setActiveView('DOCTOR'); navigate('/doctor/analysis'); }} className={`relative z-10 w-1/2 py-1.5 text-xs font-medium transition-colors duration-200 ${activeView === 'DOCTOR' ? 'text-sidebar-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Doctor View</button>
                         </div>
                     </div>
                 )}

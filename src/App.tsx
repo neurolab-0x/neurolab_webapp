@@ -48,6 +48,7 @@ const SettingsPage = lazy(() => import('./modules/SettingsPage'));
 const Notifications = lazy(() => import('./modules/Notifications'));
 const CalendarIntegration = lazy(() => import('./modules/CalendarIntegration'));
 
+import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound';
 
 const ModuleLoader = () => (
@@ -82,48 +83,56 @@ function App() {
 
         {/* Platform Shell (all authenticated routes) */}
         <Route path="/" element={<PlatformShell />}>
-          <Route index element={<Navigate to="/doctor/analysis" replace />} />
+          <Route index element={<ProtectedRoute allowedRoles={[]} />} />
 
           {/* User Routes */}
-          <Route path="user/session" element={<S><UserPortal /></S>} />
-          <Route path="user/history" element={<S><UserHistory /></S>} />
-          <Route path="user/devices" element={<S><UserDevices /></S>} />
-          <Route path="user/appointments" element={<S><UserAppointments /></S>} />
-          <Route path="user/booking" element={<S><AppointmentBooking /></S>} />
-          <Route path="user/chat" element={<S><UserChat /></S>} />
-          <Route path="user/uploads" element={<S><UserUploads /></S>} />
-          <Route path="user/reviews" element={<S><UserReviews /></S>} />
-          <Route path="user/insights" element={<S><UserDecisionSupport /></S>} />
+          <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
+            <Route path="user/session" element={<S><UserPortal /></S>} />
+            <Route path="user/history" element={<S><UserHistory /></S>} />
+            <Route path="user/devices" element={<S><UserDevices /></S>} />
+            <Route path="user/appointments" element={<S><UserAppointments /></S>} />
+            <Route path="user/booking" element={<S><AppointmentBooking /></S>} />
+            <Route path="user/chat" element={<S><UserChat /></S>} />
+            <Route path="user/uploads" element={<S><UserUploads /></S>} />
+            <Route path="user/reviews" element={<S><UserReviews /></S>} />
+            <Route path="user/insights" element={<S><UserDecisionSupport /></S>} />
+          </Route>
 
           {/* Admin Routes */}
-          <Route path="admin/metrics" element={<S><AdminPortal /></S>} />
-          <Route path="admin/users" element={<S><AdminUsers /></S>} />
-          <Route path="admin/devices" element={<S><AdminDevices /></S>} />
-          <Route path="admin/sessions" element={<S><AdminSessions /></S>} />
-          <Route path="admin/clinics" element={<S><AdminClinics /></S>} />
-          <Route path="admin/billing" element={<S><AdminBilling /></S>} />
-          <Route path="admin/partnerships" element={<S><AdminPartnerships /></S>} />
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route path="admin/metrics" element={<S><AdminPortal /></S>} />
+            <Route path="admin/users" element={<S><AdminUsers /></S>} />
+            <Route path="admin/devices" element={<S><AdminDevices /></S>} />
+            <Route path="admin/sessions" element={<S><AdminSessions /></S>} />
+            <Route path="admin/clinics" element={<S><AdminClinics /></S>} />
+            <Route path="admin/billing" element={<S><AdminBilling /></S>} />
+            <Route path="admin/partnerships" element={<S><AdminPartnerships /></S>} />
+          </Route>
 
           {/* Doctor Routes */}
-          <Route path="doctor/analysis" element={<S><DoctorPortal /></S>} />
-          <Route path="doctor/overview" element={<S><DoctorPatients /></S>} />
-          <Route path="doctor/appointments" element={<S><DoctorAppointments /></S>} />
-          <Route path="doctor/decision" element={<S><DoctorDecision /></S>} />
-          <Route path="doctor/certifications" element={<S><DoctorCertifications /></S>} />
+          <Route element={<ProtectedRoute allowedRoles={['DOCTOR', 'CLINIC']} />}>
+            <Route path="doctor/analysis" element={<S><DoctorPortal /></S>} />
+            <Route path="doctor/overview" element={<S><DoctorPatients /></S>} />
+            <Route path="doctor/appointments" element={<S><DoctorAppointments /></S>} />
+            <Route path="doctor/decision" element={<S><DoctorDecision /></S>} />
+            <Route path="doctor/certifications" element={<S><DoctorCertifications /></S>} />
+          </Route>
 
           {/* Clinic Routes */}
-          <Route path="clinic/patients" element={<S><DoctorPatients /></S>} />
-          <Route path="clinic/devices" element={<S><AdminDevices /></S>} />
-          <Route path="clinic/stats" element={<S><ClinicStats /></S>} />
+          <Route element={<ProtectedRoute allowedRoles={['CLINIC']} />}>
+            <Route path="clinic/patients" element={<S><DoctorPatients /></S>} />
+            <Route path="clinic/devices" element={<S><AdminDevices /></S>} />
+            <Route path="clinic/stats" element={<S><ClinicStats /></S>} />
+          </Route>
 
           {/* Shared Routes */}
-          <Route path="settings" element={<S><SettingsPage /></S>} />
-          <Route path="notifications" element={<S><Notifications /></S>} />
-          <Route path="calendar-sync" element={<S><CalendarIntegration /></S>} />
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'ADMIN', 'DOCTOR', 'CLINIC']} />}>
+            <Route path="settings" element={<S><SettingsPage /></S>} />
+            <Route path="notifications" element={<S><Notifications /></S>} />
+            <Route path="calendar-sync" element={<S><CalendarIntegration /></S>} />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
-
-          <Route path="*" element={<Navigate to="/doctor/analysis" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
