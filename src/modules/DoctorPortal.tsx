@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { apiFetcher } from '../lib/fetcher';
-import { Activity, Cpu, Wifi, CheckCircle2, Loader2, Settings, Zap } from 'lucide-react';
+import { Activity, Cpu, Wifi, CheckCircle2, Loader2, Settings, Zap, Download, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortalStore } from '../store/usePortalStore';
 
@@ -28,6 +28,37 @@ const ClinicalDiagnosticsInner = () => {
         setTimeout(() => {
             setConnectionState('connected');
         }, 2500); // Simulate connection handshake
+    };
+
+    const handleScreenshot = () => {
+        if (!canvasRef.current) return;
+        const url = canvasRef.current.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `EEG_Snapshot_${new Date().getTime()}.png`;
+        a.click();
+    };
+
+    const handleSaveData = () => {
+        // Generate a simulated CSV of the recent buffer
+        const numChannels = parseInt(config.channels) || 16;
+        let csvContent = "data:text/csv;charset=utf-8,Timestamp,";
+        for (let i = 1; i <= numChannels; i++) csvContent += `Ch${i},`;
+        csvContent += "\n";
+
+        for (let t = 0; t < 100; t++) {
+            csvContent += `${new Date().getTime() - (100 - t) * 10},`;
+            for (let i = 1; i <= numChannels; i++) {
+                csvContent += `${(Math.random() * 50 - 25).toFixed(2)},`;
+            }
+            csvContent += "\n";
+        }
+
+        const encodedUri = encodeURI(csvContent);
+        const a = document.createElement('a');
+        a.href = encodedUri;
+        a.download = `EEG_Data_${new Date().getTime()}.csv`;
+        a.click();
     };
 
     useEffect(() => {
@@ -212,7 +243,6 @@ const ClinicalDiagnosticsInner = () => {
             <div className="max-w-3xl mx-auto mt-6">
                 <div className="mb-8 border-b border-surface-border pb-6">
                     <h1 className="text-3xl font-bold tracking-display text-foreground flex items-center gap-3">
-                        <Activity className="text-[#2E90FA]" />
                         Hardware Initialization
                     </h1>
                     <p className="text-muted-foreground mt-2">Configure and connect to local clinical EEG hardware.</p>
@@ -220,9 +250,6 @@ const ClinicalDiagnosticsInner = () => {
 
                 <div className="rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className={`p-4 rounded-xl ${connectionState === 'connecting' ? 'bg-[#2E90FA]/20 text-[#2E90FA] animate-pulse' : 'bg-surface-border text-muted-foreground'}`}>
-                            <Cpu size={32} />
-                        </div>
                         <div>
                             <h2 className="text-lg font-semibold text-foreground">EEG Telemetry Link</h2>
                             <p className="text-sm text-muted-foreground">
@@ -302,7 +329,7 @@ const ClinicalDiagnosticsInner = () => {
                         onClick={handleConnect}
                         className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-[#2E90FA] text-white font-semibold transition-all hover:bg-[#54A5FF] disabled:opacity-50"
                     >
-                        {connectionState === 'connecting' ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
+                        {connectionState === 'connecting' && <Loader2 className="animate-spin" size={18} />}
                         {connectionState === 'connecting' ? 'Syncing Hardware...' : 'Initialize Connection'}
                     </button>
                 </div>
@@ -325,6 +352,24 @@ const ClinicalDiagnosticsInner = () => {
                     <div className="flex items-center gap-2 rounded-full border border-surface-border bg-surface px-4 py-1.5 text-xs font-medium tabular-nums text-foreground shadow-sm">
                         {data?.rate || <span className="text-emerald-500 animate-pulse">500Hz</span>}
                     </div>
+                    {connectionState === 'connected' && (
+                        <>
+                            <button
+                                onClick={handleScreenshot}
+                                className="flex items-center gap-2 text-xs font-medium text-foreground bg-surface border border-surface-border hover:bg-surface-border/50 px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                                <Camera size={14} className="text-muted-foreground" />
+                                Snapshot
+                            </button>
+                            <button
+                                onClick={handleSaveData}
+                                className="flex items-center gap-2 text-xs font-medium text-foreground bg-surface border border-surface-border hover:bg-surface-border/50 px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                                <Download size={14} className="text-muted-foreground" />
+                                Save Data
+                            </button>
+                        </>
+                    )}
                     <button
                         onClick={() => setConnectionState('disconnected')}
                         className="text-xs font-medium text-red-400 hover:bg-red-400/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-400/20"
@@ -352,7 +397,7 @@ const ClinicalDiagnosticsInner = () => {
                     />
 
                     {/* Annotation overlay layer */}
-                    <div className="absolute top-4 left-4 rounded-md border border-surface-border bg-surface/80 p-3 backdrop-blur-md shadow-lg">
+                    <div className="absolute top-4 right-4 rounded-md border border-surface-border bg-surface/80 p-3 backdrop-blur-md shadow-lg pointer-events-none">
                         <p className="text-xs font-semibold uppercase tracking-widest text-[#2E90FA] mb-1 flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] animate-ping" />
                             Target Anomaly
