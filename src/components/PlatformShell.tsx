@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { usePortalStore } from '../store/usePortalStore';
 import {
     Activity, Users, Server, Microscope, Stethoscope, Building2,
-    LogOut, BrainCircuit, Settings, Clock, Cpu, Calendar,
+    LogOut, BrainCircuit, Settings, Clock, Cpu, Calendar, FileText,
     MessageSquare, Upload, Star, BarChart3, CreditCard,
     Handshake, Bell, Moon, Sun, Loader2, ChevronLeft, ChevronRight
 } from 'lucide-react';
@@ -157,10 +157,11 @@ const PlatformShell = () => {
         return (
             <>
                 <NavItem to="/doctor/overview" icon={<Stethoscope size={18} />} label="My Patients" />
-                <NavItem to="/doctor/analysis" icon={<Microscope size={18} />} label="Neural Analysis" />
+                <NavItem to="/doctor/analysis" icon={<Activity size={18} />} label="Live Analysis" />
+                <NavItem to="/doctor/uploads" icon={<FileText size={18} />} label="Offline Uploads" />
                 <NavItem to="/doctor/appointments" icon={<Calendar size={18} />} label="Schedule" />
                 <NavItem to="/doctor/decision" icon={<BrainCircuit size={18} />} label="Decision Support" />
-                <NavItem to="/doctor/certifications" icon={<Activity size={18} />} label="Certifications" />
+                <NavItem to="/doctor/certifications" icon={<Microscope size={18} />} label="Certifications" />
                 <NavItem to="/notifications" icon={<Bell size={18} />} label="Notifications" />
             </>
         );
