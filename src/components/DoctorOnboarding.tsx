@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Microscope, CheckCircle2, ChevronRight, X } from 'lucide-react';
+import { Microscope, CheckCircle2, ChevronRight, X } from 'lucide-react';
 
 export default function DoctorOnboarding({ user }: { user: any }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +25,15 @@ export default function DoctorOnboarding({ user }: { user: any }) {
         {
             title: "Welcome Dr. " + (user?.name?.split(' ').pop() || ''),
             desc: "Welcome to your new Clinical Diagnostics Terminal. Your patients and their neural data have been migrated successfully.",
-            icon: <BrainCircuit size={48} className="text-primary mb-6" />
+            icon: (
+                <div className="mb-6 flex flex-col items-center">
+                    <div className="flex items-baseline">
+                        <span className="text-4xl font-bold tracking-tight text-foreground">NeurAI</span>
+                        <span className="w-2 h-2 rounded-full bg-[#2E90FA] ml-1" />
+                    </div>
+                    <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
+                </div>
+            )
         },
         {
             title: "High-Resolution SNR",
