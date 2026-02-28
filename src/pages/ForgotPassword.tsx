@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BrainCircuit, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -34,38 +34,45 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-            <div className="w-full max-w-sm space-y-8">
-                <div className="text-center">
-                    <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                        <BrainCircuit size={24} />
+        <div className="flex min-h-screen items-center justify-center bg-[#05050A] relative overflow-hidden selection:bg-[#2E90FA]/30 selection:text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+            {/* Surgical Environment Background Overlay */}
+            <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at top right, rgba(46, 144, 250, 0.08), transparent 40%), linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)', backgroundSize: '100% 100%, 20px 20px, 20px 20px' }} />
+
+            <div className="w-full max-w-[420px] rounded-[24px] bg-[#0C0C14]/80 backdrop-blur-[12px] border-[0.5px] border-[#1E293B] p-8 shadow-2xl relative z-10 mx-6 hover:border-[#1E293B]/80 transition-colors">
+                <div className="text-center mb-8 flex flex-col items-center">
+                    <div className="mb-6 flex flex-col items-center">
+                        <div className="flex items-baseline">
+                            <span className="text-3xl font-bold text-slate-50 tracking-tight">NeurAI</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
+                        </div>
+                        <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
                     </div>
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground">Forgot Password</h1>
-                    <p className="mt-2 text-sm text-muted-foreground">Enter your email to receive a reset link</p>
+                    <h1 className="text-xl font-semibold text-slate-100" style={{ letterSpacing: '-0.02em' }}>Forgot Password</h1>
+                    <p className="mt-2 text-[13px] text-slate-400">Enter your email to receive a reset link</p>
                 </div>
 
                 {success ? (
                     <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center text-sm text-emerald-500">
                         <CheckCircle2 size={32} className="mx-auto mb-4" />
-                        <p>We've sent a password reset link to <strong>{email}</strong>. Please check your inbox.</p>
-                        <Link to="/auth/login" className="mt-6 inline-block font-medium hover:underline">Return to Login</Link>
+                        <p>We've sent a password reset link to <strong className="text-slate-200">{email}</strong>. Please check your inbox.</p>
+                        <Link to="/auth/login" className="mt-6 inline-block font-medium hover:text-emerald-400 transition-colors">Return to Login</Link>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
-                            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                            <div className="rounded-lg bg-red-500/10 p-3 text-xs text-red-400 border border-red-500/20">
                                 {error}
                             </div>
                         )}
                         <div>
-                            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Email Address</label>
+                            <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.05em] text-slate-400">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    className="w-full h-[40px] rounded-lg border border-transparent bg-[#05050A] pl-10 pr-4 text-sm text-slate-200 transition-all focus:outline-none focus:border-[#2E90FA] hover:border-[#1E293B] shadow-inner placeholder:text-slate-600 tabular-nums"
                                     placeholder="doctor@neurolab.cc"
                                     required
                                 />
@@ -74,19 +81,19 @@ export default function ForgotPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                            className="mt-6 w-full h-[44px] relative flex items-center justify-center overflow-hidden rounded-lg bg-[#2E90FA] text-white text-[13px] font-bold transition-all hover:bg-[#54A5FF] disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wide"
                         >
                             {loading ? 'Sending link...' : 'Send Reset Link'}
                         </button>
                     </form>
                 )}
 
-                <div className="text-center">
-                    <Link to="/auth/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-                        <ArrowLeft size={16} /> Back to Sign In
+                <div className="mt-6 text-center">
+                    <Link to="/auth/login" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                        <ArrowLeft size={14} /> Back to Sign In
                     </Link>
                 </div>
             </div>
         </div>
     );
-}
+};
