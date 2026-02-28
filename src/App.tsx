@@ -39,6 +39,7 @@ const DoctorPatients = lazy(() => import('./modules/DoctorPatients'));
 const DoctorAppointments = lazy(() => import('./modules/DoctorAppointments'));
 const DoctorDecision = lazy(() => import('./modules/DoctorDecision'));
 const DoctorCertifications = lazy(() => import('./modules/DoctorCertifications'));
+const DoctorUploads = lazy(() => import('./modules/DoctorUploads'));
 
 // Clinic Portal
 const ClinicStats = lazy(() => import('./modules/ClinicStats'));
@@ -112,6 +113,7 @@ function App() {
           {/* Doctor Routes */}
           <Route element={<ProtectedRoute allowedRoles={['DOCTOR', 'CLINIC']} />}>
             <Route path="doctor/analysis" element={<S><DoctorPortal /></S>} />
+            <Route path="doctor/uploads" element={<S><DoctorUploads /></S>} />
             <Route path="doctor/overview" element={<S><DoctorPatients /></S>} />
             <Route path="doctor/appointments" element={<S><DoctorAppointments /></S>} />
             <Route path="doctor/decision" element={<S><DoctorDecision /></S>} />
