@@ -19,6 +19,54 @@ interface User {
     email: string;
 }
 
+const CornerDots = ({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) => {
+    const size = 18;
+    const spacing = 20;
+    const maxDist = size * 0.8;
+
+    const dots = [];
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            const dist = Math.sqrt(r * r + c * c);
+            if (dist < maxDist) {
+                const progress = dist / maxDist;
+                const dotSize = Math.max(0, 1.2 * (1 - Math.pow(progress, 1.5)));
+                const opacity = Math.max(0, 0.4 * (1 - Math.pow(progress, 2)));
+                if (dotSize > 0.1 && opacity > 0.01) {
+                    dots.push(
+                        <circle
+                            key={`${r}-${c}`}
+                            cx={c * spacing + spacing / 2}
+                            cy={r * spacing + spacing / 2}
+                            r={dotSize}
+                            fill="currentColor"
+                            opacity={opacity}
+                        />
+                    );
+                }
+            }
+        }
+    }
+
+    const posClasses = {
+        tl: 'top-0 left-0',
+        tr: 'top-0 right-0 scale-x-[-1]',
+        bl: 'bottom-0 left-0 scale-y-[-1]',
+        br: 'bottom-0 right-0 -scale-x-100 -scale-y-100', // Rotates 180 degrees
+    };
+
+    return (
+        <svg
+            className={`pointer-events-none absolute text-foreground/50 ${posClasses[position]}`}
+            width={size * spacing}
+            height={size * spacing}
+            viewBox={`0 0 ${size * spacing} ${size * spacing}`}
+        >
+            {dots}
+        </svg>
+    );
+};
+
 const PlatformShell = () => {
     const { activeView, setActiveView, theme, toggleTheme } = usePortalStore();
     const navigate = useNavigate();
@@ -126,11 +174,19 @@ const PlatformShell = () => {
 
             <aside className={`fixed inset-y-0 left-0 flex flex-col border-r border-sidebar-border bg-sidebar py-6 transition-all duration-300 z-50 ${isSidebarMinimized ? 'w-[72px] px-2' : 'w-64 px-4'}`}>
                 <div className={`mb-8 flex items-center gap-3 px-2 ${isSidebarMinimized ? 'justify-center flex-col' : 'justify-between'}`}>
-                    <div className="flex items-center gap-3">
-                        <div className="relative flex shrink-0 h-8 w-8 items-center justify-center rounded-md bg-electric-blue text-white shadow-lg shadow-electric-blue/20">
-                            <BrainCircuit size={16} />
+                    <div className="flex justify-center items-center gap-3">
+                        <div className="relative flex shrink-0 h-8 w-8 items-center justify-center">
+                            <img src={theme === 'dark' ? '/logo1.png' : '/logo.png'} alt="NeurAI OS" className="h-full w-full object-contain" />
                         </div>
-                        {!isSidebarMinimized && <span className="text-lg font-bold tracking-tight text-sidebar-foreground truncate">NeurAI OS</span>}
+                        {!isSidebarMinimized && (
+                            <div className="flex flex-col items-center ml-2">
+                                <div className="flex items-baseline">
+                                    <span className="text-xl font-bold tracking-tight text-sidebar-foreground truncate">NeurAI</span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
+                                </div>
+                                <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
+                            </div>
+                        )}
                     </div>
                     <button onClick={() => setIsSidebarMinimized(!isSidebarMinimized)} className="text-muted-foreground hover:text-foreground shrink-0 bg-sidebar-accent/50 p-1 rounded">
                         {isSidebarMinimized ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -169,6 +225,12 @@ const PlatformShell = () => {
             </aside>
 
             <main className={`flex-1 transition-all duration-300 ${isSidebarMinimized ? 'ml-[72px]' : 'ml-64'}`}>
+                {/* Background Dots Overlay fixed to viewport but aligned with main content */}
+                <div className={`fixed inset-y-0 right-0 z-0 pointer-events-none transition-all duration-300 ${isSidebarMinimized ? 'left-[72px]' : 'left-64'}`}>
+                    <CornerDots position="tr" />
+                    <CornerDots position="bl" />
+                </div>
+
                 <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border/40 bg-background/80 px-8 backdrop-blur-md">
                     <h2 className="text-sm font-medium tracking-tight text-foreground">
                         {currentUser.role === 'ADMIN' ? 'System Administration' : currentUser.role === 'USER' ? 'Patient Dashboard' : activeView === 'CLINIC' ? 'Facility Management Engine' : 'Clinical Diagnostics Terminal'}
