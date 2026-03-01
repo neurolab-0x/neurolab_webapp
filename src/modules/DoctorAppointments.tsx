@@ -190,7 +190,7 @@ const AvailabilityManager = () => {
 function AppointmentsInner() {
     const [activeTab, setActiveTab] = useState<'schedule' | 'availability'>('schedule');
 
-    const { data } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`, apiFetcher, {
+    const { data, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`, apiFetcher, {
         fallbackData: [
             { id: 'apt_d01', patientName: 'Jean Pierre', date: '2026-02-28', startTime: '10:00', endTime: '11:00', status: 'CONFIRMED', type: 'EEG Review' },
             { id: 'apt_d02', patientName: 'Marie Claire', date: '2026-02-28', startTime: '14:00', endTime: '15:00', status: 'PENDING', type: 'Consultation' },
@@ -198,6 +198,12 @@ function AppointmentsInner() {
             { id: 'apt_d04', patientName: 'Paul Kagame Jr.', date: '2026-02-25', startTime: '11:00', endTime: '12:00', status: 'COMPLETED', type: 'Neural Assessment' },
         ]
     });
+
+    const handleStatusChange = (id: string, status: string) => {
+        if (!data) return;
+        const updated = data.map((a: any) => a.id === id ? { ...a, status } : a);
+        mutate(updated, false);
+    };
 
     const statusIcon = (s: string) => {
         if (s === 'CONFIRMED') return <CheckCircle size={14} className="text-[#2E90FA]" />;
@@ -215,7 +221,7 @@ function AppointmentsInner() {
                 </div>
             </div>
 
-            <div className="flex inline-flex rounded-xl bg-surface border border-surface-border p-1 mb-6">
+            <div className="inline-flex rounded-xl bg-surface border border-surface-border p-1 mb-6">
                 <button
                     onClick={() => setActiveTab('schedule')}
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'schedule'
@@ -265,8 +271,8 @@ function AppointmentsInner() {
                                     <span className="text-xs font-medium text-muted-foreground">{apt.status}</span>
                                     {apt.status === 'PENDING' && (
                                         <div className="ml-4 flex gap-2">
-                                            <button className="rounded-lg bg-[#2E90FA] px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#54A5FF]">Accept</button>
-                                            <button className="rounded-lg border border-surface-border bg-background px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-surface-border/50">Decline</button>
+                                            <button onClick={() => handleStatusChange(apt.id, 'CONFIRMED')} className="rounded-lg bg-[#2E90FA] px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#54A5FF]">Accept</button>
+                                            <button onClick={() => handleStatusChange(apt.id, 'CANCELLED')} className="rounded-lg border border-surface-border bg-background px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-surface-border/50">Decline</button>
                                         </div>
                                     )}
                                 </div>
