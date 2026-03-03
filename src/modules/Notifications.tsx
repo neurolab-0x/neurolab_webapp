@@ -7,17 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetcher } from '../lib/fetcher';
 
 function NotificationsInner() {
-    const { data: serverData } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, apiFetcher);
+    const { data: serverData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, apiFetcher);
 
-    const [notifications, setNotifications] = useState([
-        { id: 'n_001', title: 'New patient registered', message: 'Jean Pierre completed onboarding.', read: false, createdAt: '2 min ago' },
-        { id: 'n_002', title: 'Device offline', message: 'NL-EEG-003 has been offline for 3 hours.', read: false, createdAt: '1 hour ago' },
-        { id: 'n_003', title: 'Session completed', message: 'Session ses_03 completed successfully.', read: true, createdAt: '3 hours ago' },
-        { id: 'n_004', title: 'Partnership request', message: 'WHO Africa Region submitted a new application.', read: true, createdAt: '1 day ago' },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     useEffect(() => {
-        if (serverData && serverData.length > 0) setNotifications(serverData);
+        if (serverData) setNotifications(serverData);
     }, [serverData]);
 
     const handleMarkRead = (id: string) => {
