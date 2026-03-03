@@ -19,21 +19,18 @@ const AppointmentBookingInner = () => {
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [bookingStep, setBookingStep] = useState<'search' | 'schedule' | 'payment' | 'confirmed'>('search');
 
-    const { data: serverDoctors, isLoading } = useSWR<Doctor[]>(
-        `${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctors/search?q=${searchQuery}`,
-        apiFetcher,
-        {
-            fallbackData: [
-                { id: 'doc_1', name: 'Dr. Sarah Chen', specialty: 'Neurology', rating: 4.9, availability: ['2026-03-01T10:00:00Z', '2026-03-01T14:00:00Z'], price: 15000 },
-                { id: 'doc_2', name: 'Dr. Marcus Webb', specialty: 'Cognitive Science', rating: 4.8, availability: ['2026-03-02T11:00:00Z'], price: 12000 },
-                { id: 'doc_3', name: 'Dr. Elena Rostova', specialty: 'Neurophysiology', rating: 4.9, availability: ['2026-03-03T09:00:00Z', '2026-03-03T15:00:00Z'], price: 18000 },
-            ]
-        }
+    const { data: serverResponse, isLoading } = useSWR<Doctor[] | { doctors: Doctor[] }>(
+        `${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctors`,
+        apiFetcher
     );
 
-    const doctors = serverDoctors?.filter(doc =>
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+    const doctorsList = Array.isArray(serverResponse)
+        ? serverResponse
+        : (serverResponse?.doctors || []);
+
+    const doctors = doctorsList.filter(doc =>
+        (doc.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.specialty || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleBook = () => setBookingStep('payment');
@@ -86,12 +83,12 @@ const AppointmentBookingInner = () => {
 
                                         <div className="mt-4 flex items-center gap-1 text-sm font-medium text-amber-500">
                                             <Star size={16} className="fill-current" />
-                                            <span>{doc.rating}</span>
+                                            <span>{doc.rating || 0}</span>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 flex items-center justify-between border-t border-surface-border pt-4">
-                                        <span className="text-sm font-medium tabular-nums">{doc.price.toLocaleString()} RWF</span>
+                                        <span className="text-sm font-medium tabular-nums">{(doc.price || 0).toLocaleString()} RWF</span>
                                         <button
                                             onClick={() => { setSelectedDoctor(doc); setBookingStep('schedule'); }}
                                             className="rounded-lg bg-secondary px-4 py-2 text-xs font-semibold hover:bg-secondary/80 text-foreground transition-colors"
@@ -110,13 +107,13 @@ const AppointmentBookingInner = () => {
                 <div className="max-w-2xl rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
                     <div className="mb-8">
                         <h3 className="text-xl font-bold text-foreground">Schedule with {selectedDoctor.name}</h3>
-                        <p className="text-sm text-muted-foreground">{selectedDoctor.specialty} · Consultation fee: {selectedDoctor.price.toLocaleString()} RWF</p>
+                        <p className="text-sm text-muted-foreground">{selectedDoctor.specialty} · Consultation fee: {(selectedDoctor.price || 0).toLocaleString()} RWF</p>
                     </div>
 
                     <div className="space-y-4">
                         <label className="text-sm font-medium text-foreground">Available Time Slots</label>
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {selectedDoctor.availability.map(slot => (
+                            {(selectedDoctor.availability || []).map(slot => (
                                 <button
                                     key={slot}
                                     onClick={() => setSelectedSlot(slot)}
@@ -166,7 +163,7 @@ const AppointmentBookingInner = () => {
                         <div className="my-2 border-t border-surface-border"></div>
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
-                            <span>{selectedDoctor.price.toLocaleString()} RWF</span>
+                            <span>{(selectedDoctor.price || 0).toLocaleString()} RWF</span>
                         </div>
                     </div>
 
@@ -180,7 +177,7 @@ const AppointmentBookingInner = () => {
                             onClick={handlePay}
                             className="flex-1 rounded-lg bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-colors hover:bg-foreground/90 disabled:opacity-50"
                         >
-                            Pay {selectedDoctor.price.toLocaleString()} RWF
+                            Pay {(selectedDoctor.price || 0).toLocaleString()} RWF
                         </button>
                     </div>
                 </div>

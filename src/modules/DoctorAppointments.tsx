@@ -190,14 +190,7 @@ const AvailabilityManager = () => {
 function AppointmentsInner() {
     const [activeTab, setActiveTab] = useState<'schedule' | 'availability'>('schedule');
 
-    const { data, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`, apiFetcher, {
-        fallbackData: [
-            { id: 'apt_d01', patientName: 'Jean Pierre', date: '2026-02-28', startTime: '10:00', endTime: '11:00', status: 'CONFIRMED', type: 'EEG Review' },
-            { id: 'apt_d02', patientName: 'Marie Claire', date: '2026-02-28', startTime: '14:00', endTime: '15:00', status: 'PENDING', type: 'Consultation' },
-            { id: 'apt_d03', patientName: 'Ange Teta', date: '2026-03-01', startTime: '09:00', endTime: '10:00', status: 'CONFIRMED', type: 'Follow-up' },
-            { id: 'apt_d04', patientName: 'Paul Kagame Jr.', date: '2026-02-25', startTime: '11:00', endTime: '12:00', status: 'COMPLETED', type: 'Neural Assessment' },
-        ]
-    });
+    const { data, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`, apiFetcher);
 
     const handleStatusChange = (id: string, status: string) => {
         if (!data) return;

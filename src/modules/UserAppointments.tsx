@@ -8,14 +8,7 @@ import { apiFetcher } from '../lib/fetcher';
 
 function AppointmentsInner() {
     const navigate = useNavigate();
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/`, apiFetcher, {
-        fallbackData: [
-            { id: 'apt_001', doctorName: 'Dr. Fiston Mahamba', date: '2026-02-28', startTime: '10:00', endTime: '11:00', status: 'CONFIRMED', type: 'EEG Review' },
-            { id: 'apt_002', doctorName: 'Dr. Amara Diallo', date: '2026-03-02', startTime: '14:00', endTime: '15:00', status: 'PENDING', type: 'Neural Consultation' },
-            { id: 'apt_003', doctorName: 'Dr. Fiston Mahamba', date: '2026-02-20', startTime: '09:00', endTime: '10:00', status: 'COMPLETED', type: 'Follow-up' },
-            { id: 'apt_004', doctorName: 'Dr. Amara Diallo', date: '2026-02-15', startTime: '11:00', endTime: '12:00', status: 'CANCELLED', type: 'Voice Analysis Review' },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/`, apiFetcher);
 
     const statusStyle = (status: string) => {
         switch (status) {
