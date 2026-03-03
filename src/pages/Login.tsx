@@ -4,12 +4,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePortalStore } from '../store/usePortalStore';
 
-const MOCK_USERS: Record<string, { role: string, name: string, id: string }> = {
-    'doctor@neurolab.cc': { role: 'DOCTOR', name: 'Dr. Sarah Chen', id: 'usr_doc_1' },
-    'user@neurolab.cc': { role: 'USER', name: 'Alex Thompson', id: 'usr_pat_1' },
-    'clinic@neurolab.cc': { role: 'CLINIC', name: 'Nexus Radiography', id: 'usr_cln_1' },
-    'admin@neurolab.cc': { role: 'ADMIN', name: 'System Admin', id: 'usr_adm_1' },
-};
+const BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function LoginPage() {
     const { theme } = usePortalStore();
@@ -24,22 +19,39 @@ export default function LoginPage() {
         setLoading(true);
         setError('');
 
-        // Simulate network delay for premium feel
-        await new Promise(resolve => setTimeout(resolve, 800));
+        try {
+            const res = await fetch(`${BASE}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.toLowerCase(), password }),
+            });
 
-        const mockUser = MOCK_USERS[email.toLowerCase()];
+            const data = await res.json();
 
-        if (mockUser) {
-            // Success
-            localStorage.setItem('neurai_user', JSON.stringify({ email: email.toLowerCase(), ...mockUser }));
-            localStorage.setItem('neurai_token', 'mock_token_123'); // Keep for backward compatibility with older components
+            if (!res.ok) {
+                setError(data.message || data.error || 'Invalid credentials. Please try again.');
+                setLoading(false);
+                return;
+            }
+
+            // Store auth tokens
+            localStorage.setItem('neurai_token', data.token || data.accessToken || '');
+            if (data.refreshToken) localStorage.setItem('neurai_refresh', data.refreshToken);
+
+            // Store user info
+            const user = data.user || data;
+            localStorage.setItem('neurai_user', JSON.stringify({
+                id: user._id || user.id,
+                email: user.email,
+                name: user.fullName || user.username || user.email,
+                role: user.role || 'USER',
+            }));
+
             window.location.href = '/';
-        } else {
-            // Failure
-            setError('Invalid credentials. For trial, use doctor@neurolab.cc, user@neurolab.cc, clinic@neurolab.cc, or admin@neurolab.cc');
+        } catch (err: any) {
+            setError('Network error. Please check your connection and try again.');
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
 

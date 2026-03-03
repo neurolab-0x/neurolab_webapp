@@ -4,6 +4,8 @@ import { Eye, EyeOff, Loader2, ChevronDown, User, Stethoscope, Building2, Check 
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortalStore } from '../store/usePortalStore';
 
+const BASE = import.meta.env.VITE_API_BASE_URL;
+
 const ROLES = [
     { id: 'USER', label: 'Patient / User', icon: User, desc: 'Personal neural insights' },
     { id: 'DOCTOR', label: 'Doctor', icon: Stethoscope, desc: 'Clinical diagnostics' },
@@ -16,6 +18,7 @@ export default function RegisterPage() {
     const [form, setForm] = useState({ fullName: '', username: '', email: '', password: '', role: 'USER' });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [roleOpen, setRoleOpen] = useState(false);
     const roleRef = useRef<HTMLDivElement>(null);
 
@@ -34,21 +37,47 @@ export default function RegisterPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
-        // Mock registration delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        try {
+            const res = await fetch(`${BASE}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: form.fullName,
+                    username: form.username,
+                    email: form.email.toLowerCase(),
+                    password: form.password,
+                    role: form.role,
+                }),
+            });
 
-        // Immediately log them in
-        const mockUser = {
-            id: `usr_new_${Date.now()}`,
-            name: form.fullName || form.username || 'New User',
-            role: form.role,
-        };
+            const data = await res.json();
 
-        localStorage.setItem('neurai_user', JSON.stringify({ email: form.email.toLowerCase(), ...mockUser }));
-        localStorage.setItem('neurai_token', 'mock_token_123'); // Legacy standard bypass
+            if (!res.ok) {
+                setError(data.message || data.error || 'Registration failed. Please try again.');
+                setLoading(false);
+                return;
+            }
 
-        window.location.href = '/';
+            // Store auth tokens
+            localStorage.setItem('neurai_token', data.token || data.accessToken || '');
+            if (data.refreshToken) localStorage.setItem('neurai_refresh', data.refreshToken);
+
+            // Store user info
+            const user = data.user || data;
+            localStorage.setItem('neurai_user', JSON.stringify({
+                id: user._id || user.id,
+                email: user.email,
+                name: user.fullName || user.username || user.email,
+                role: user.role || form.role,
+            }));
+
+            window.location.href = '/';
+        } catch (err: any) {
+            setError('Network error. Please check your connection and try again.');
+            setLoading(false);
+        }
     };
 
     const selectedRole = ROLES.find(r => r.id === form.role) || ROLES[0];
