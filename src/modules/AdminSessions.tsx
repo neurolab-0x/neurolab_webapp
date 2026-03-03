@@ -6,14 +6,7 @@ import { Activity, Radio } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function SessionsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, apiFetcher, {
-        fallbackData: [
-            { id: 'ses_01', user: 'Jean Pierre', device: 'NL-EEG-001', status: 'ACTIVE', startedAt: '2026-02-26 18:30', duration: '14m' },
-            { id: 'ses_02', user: 'Marie Claire', device: 'NL-VOICE-001', status: 'ACTIVE', startedAt: '2026-02-26 18:45', duration: '3m' },
-            { id: 'ses_03', user: 'Paul Kagame', device: 'NL-EEG-002', status: 'COMPLETED', startedAt: '2026-02-26 16:00', duration: '45m' },
-            { id: 'ses_04', user: 'Ange Teta', device: 'NL-EEG-003', status: 'COMPLETED', startedAt: '2026-02-26 14:15', duration: '32m' },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-6xl">
