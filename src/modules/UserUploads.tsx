@@ -4,41 +4,33 @@ import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Upload, File, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { apiFetcher } from '../lib/fetcher';
+import { apiFetcher, apiUploadFile } from '../lib/fetcher';
 
 function UploadsInner() {
-    const { data: serverData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`, apiFetcher);
-
-    const [files, setFiles] = useState([
-        { id: 'upl_001', filename: 'session_eeg_feb25.csv', size: '2.4 MB', uploadedAt: '2026-02-25 14:32', type: 'EEG' },
-        { id: 'upl_002', filename: 'voice_sample_feb24.wav', size: '8.1 MB', uploadedAt: '2026-02-24 09:15', type: 'Voice' },
-        { id: 'upl_003', filename: 'baseline_recording.csv', size: '1.8 MB', uploadedAt: '2026-02-20 16:45', type: 'EEG' },
-    ]);
+    // SWR will automatically fetch and manage the upload list state
+    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`, apiFetcher);
+    const files = Array.isArray(serverData) ? serverData : (serverData?.uploads || []);
     const [isDragging, setIsDragging] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        if (serverData && serverData.length > 0) setFiles(serverData);
-    }, [serverData]);
-
-    const handleFileUpload = (newFiles: FileList | null) => {
+    const handleFileUpload = async (newFiles: FileList | null) => {
         if (!newFiles || newFiles.length === 0) return;
 
         setIsUploading(true);
-        // Simulate network delay
-        setTimeout(() => {
-            const newEntries = Array.from(newFiles).map((file, i) => ({
-                id: `upl_${Date.now()}_${i}`,
-                filename: file.name,
-                size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-                uploadedAt: 'Just now',
-                type: file.name.endsWith('.wav') || file.name.endsWith('.mp3') ? 'Voice' : 'EEG'
-            }));
-
-            setFiles(prev => [...newEntries, ...prev]);
+        try {
+            for (let i = 0; i < newFiles.length; i++) {
+                const formData = new FormData();
+                formData.append('file', newFiles[i]);
+                await apiUploadFile(`${import.meta.env.VITE_API_BASE_URL}/api/uploads/upload`, formData);
+            }
+            await mutate(); // Refresh the list after all uploads finish
+        } catch (err) {
+            console.error('Failed to upload files:', err);
+        } finally {
             setIsUploading(false);
-        }, 1500);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -57,8 +49,21 @@ function UploadsInner() {
         handleFileUpload(e.dataTransfer.files);
     };
 
-    const handleDelete = (id: string) => {
-        setFiles(prev => prev.filter(f => f.id !== id));
+    const handleDelete = async (id: string) => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/uploads/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}` }
+            });
+            mutate(); // Refresh list after deletion
+        } catch (err) {
+            console.error("Failed to delete", err);
+        }
+    };
+
+    const handleAnalyze = (id: string) => {
+        // Mocking analysis connection for User uploads
+        alert(`NeurAI is processing file ${id}. You will be notified when the clinical analysis is complete.`);
     };
 
     return (
@@ -123,12 +128,18 @@ function UploadsInner() {
                                     <File size={18} className="text-muted-foreground" />
                                     <div>
                                         <p className="text-sm font-medium text-foreground">{file.filename}</p>
-                                        <p className="text-xs text-muted-foreground">{file.size} · {file.uploadedAt}</p>
+                                        <p className="text-xs text-muted-foreground">{file.size} bytes · {new Date(file.created_at || file.uploadedAt || Date.now()).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{file.type}</span>
-                                    <button onClick={() => handleDelete(file.id)} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={14} /></button>
+                                    <button
+                                        onClick={() => handleAnalyze(file.id || file.upload_id)}
+                                        className="rounded-lg bg-emerald-500/10 text-emerald-500 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-500/20 transition-colors"
+                                    >
+                                        Analyse via NeurAI
+                                    </button>
+                                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{file.file_type || file.type || 'Data'}</span>
+                                    <button onClick={() => handleDelete(file.id || file.upload_id)} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={14} /></button>
                                 </div>
                             </motion.div>
                         ))

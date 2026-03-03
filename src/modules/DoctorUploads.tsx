@@ -1,13 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
+import useSWR from 'swr';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
-import { UploadCloud, FileType, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Download, AlertCircle, FileText } from 'lucide-react';
+import { UploadCloud, FileType, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Download, AlertCircle, FileText, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
+import { apiFetcher, apiUploadFile } from '../lib/fetcher';
 
 const DoctorUploadsInner = () => {
+    // Live Data Fetching
+    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`, apiFetcher);
+    const serverFiles = Array.isArray(serverData) ? serverData : (serverData?.uploads || []);
+
     const [file, setFile] = useState<File | null>(null);
+    const [selectedServerFile, setSelectedServerFile] = useState<any | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisComplete, setAnalysisComplete] = useState(false);
+    const [aiFindings, setAiFindings] = useState<string[]>([]);
 
     // Parse Real Data
     const [parsedData, setParsedData] = useState<{ labels: string[], data: number[][], maxVals: number[] } | null>(null);
@@ -26,19 +36,51 @@ const DoctorUploadsInner = () => {
     const [showPatientSelect, setShowPatientSelect] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+            const rawFile = e.target.files[0];
+            setFile(rawFile);
             setAnalysisComplete(false);
             setParsedData(null);
+            setSelectedServerFile(null); // Deselect any existing server report
+
+            setIsUploading(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', rawFile);
+                await apiUploadFile(`${import.meta.env.VITE_API_BASE_URL}/api/uploads/upload`, formData);
+                await mutate();
+            } catch (err) {
+                console.error('Failed to upload', err);
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
-    const runAnalysis = () => {
-        if (!file) return;
-        setIsAnalyzing(true);
+    const handleSelectServerFile = (sFile: any) => {
+        setSelectedServerFile(sFile);
+        setFile(null);
+        setAnalysisComplete(false);
+        setParsedData(null);
+    };
 
-        if (file.name.toLowerCase().endsWith('.csv')) {
+    const runAnalysis = () => {
+        if (!file && !selectedServerFile) return;
+        setIsAnalyzing(true);
+        setAiFindings([]); // Reset previous findings
+
+        // Mock processing the backend analytical model as requested with "Analyse" button capability
+        setTimeout(() => {
+            const mockBackendInsights = [
+                "Normal Alpha Rhythm: Found dominant 9Hz oscillations over Occipital regions matching expected baseline.",
+                "Intermittent Slowing: Brief episodes of 5Hz theta waves observed in frontal leads indicating possible fatigue."
+            ];
+            setAiFindings(mockBackendInsights);
+            if (!file) finishAnalysis(); // For server files, finish without readAsText
+        }, 1500);
+
+        if (file && file.name.toLowerCase().endsWith('.csv')) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const text = e.target?.result as string;
@@ -98,11 +140,12 @@ const DoctorUploadsInner = () => {
                         setParsedData({ labels: finalLabels, data: dataMatrix, maxVals });
                     }
                 }
-                finishAnalysis();
+                finishAnalysis(); // Run finish inside onload for client csv files
             };
             reader.readAsText(file);
-        } else {
-            // Simulated delay for other files
+        } else if (file) {
+            // Simulated delay for other local files or server files
+            // (If server file, we don't have the raw text blob in browser memory right now, so we just use the mocked visualizer)
             setTimeout(finishAnalysis, 2000);
         }
     };
@@ -146,7 +189,7 @@ const DoctorUploadsInner = () => {
         doc.text(`Name: ${ptNameStr}`, 20, 68);
         doc.text(`ID: ${ptIdStr}`, 20, 74);
         doc.text("DOB: 15-Jun-1985 (Age: 40)", 20, 80);
-        doc.text("Recording File: " + (file?.name || "Unknown.edf"), 20, 86);
+        doc.text("Recording File: " + (file?.name || selectedServerFile?.filename || "Unknown.edf"), 20, 86);
 
         doc.setFontSize(14);
         doc.setTextColor(0, 0, 0);
@@ -368,38 +411,81 @@ const DoctorUploadsInner = () => {
             </div>
 
             {!analysisComplete ? (
-                <div className="rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
-                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-border rounded-xl p-12 bg-background/50 transition-colors hover:bg-surface-border/20">
-                        <UploadCloud size={48} className="text-[#2E90FA] mb-4" />
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Upload Neural Data File</h3>
-                        <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
-                            Drag and drop an EDF or CSV file containing raw EEG recordings, or click to browse your local machine.
-                        </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Upload New File */}
+                    <div className="rounded-2xl border border-surface-border bg-surface p-8 shadow-sm h-full flex flex-col">
+                        <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-surface-border rounded-xl p-12 bg-background/50 transition-colors hover:bg-surface-border/20">
+                            <UploadCloud size={48} className="text-[#2E90FA] mb-4" />
+                            <h3 className="text-lg font-semibold text-foreground mb-2">Upload Neural Data File</h3>
+                            <p className="text-sm text-muted-foreground mb-6 text-center max-w-sm">
+                                Drag and drop an EDF or CSV file containing raw EEG recordings, or click to browse your local machine.
+                            </p>
 
-                        <div className="flex flex-col items-center gap-4">
-                            <label className="cursor-pointer rounded-xl bg-[#2E90FA] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#54A5FF] shadow-sm">
-                                <span>Browse Files</span>
-                                <input type="file" className="hidden" accept=".edf,.csv,.txt" onChange={handleFileUpload} />
-                            </label>
+                            <div className="flex flex-col items-center gap-4">
+                                <label className="cursor-pointer rounded-xl bg-[#2E90FA] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#54A5FF] shadow-sm">
+                                    <span>{isUploading ? 'Uploading...' : 'Browse Files'}</span>
+                                    <input type="file" className="hidden" accept=".edf,.csv,.txt" onChange={handleFileUpload} disabled={isUploading} />
+                                </label>
 
-                            {file && (
-                                <div className="flex items-center gap-3 bg-card border border-surface-border px-4 py-2 rounded-lg">
-                                    <FileType size={16} className="text-emerald-500" />
-                                    <span className="text-sm font-medium text-foreground">{file.name}</span>
-                                    <span className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                {file && (
+                                    <div className="flex items-center gap-3 bg-card border border-primary/20 bg-primary/5 px-4 py-2 rounded-lg w-full">
+                                        <FileType size={16} className="text-[#2E90FA]" />
+                                        <span className="text-sm font-medium text-[#2E90FA] truncate max-w-[200px]">{file.name}</span>
+                                        <span className="text-xs text-[#2E90FA]/80">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Select from Server (Patient Uploads) */}
+                    <div className="rounded-2xl border border-surface-border bg-surface p-6 shadow-sm h-full flex flex-col">
+                        <div className="flex items-center gap-3 mb-6">
+                            <Database size={24} className="text-emerald-500" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground">Cloud Platform Uploads</h3>
+                                <p className="text-sm text-muted-foreground">Select a file previously uploaded by a patient.</p>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-3 max-h-[350px]">
+                            {isLoading ? (
+                                <p className="text-sm text-muted-foreground">Loading server files...</p>
+                            ) : serverFiles.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <p className="text-sm text-muted-foreground">No patient uploads available on the server.</p>
                                 </div>
+                            ) : (
+                                serverFiles.map((sFile: any) => (
+                                    <button
+                                        key={sFile.id || sFile.upload_id}
+                                        onClick={() => handleSelectServerFile(sFile)}
+                                        className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-colors ${selectedServerFile?.id === (sFile.id || sFile.upload_id) ? 'border-emerald-500 bg-emerald-500/5' : 'border-surface-border bg-background hover:border-emerald-500/30'}`}
+                                    >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <FileType size={18} className={selectedServerFile?.id === (sFile.id || sFile.upload_id) ? 'text-emerald-500' : 'text-muted-foreground'} />
+                                            <div className="truncate">
+                                                <p className={`text-sm font-medium truncate ${selectedServerFile?.id === (sFile.id || sFile.upload_id) ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
+                                                    {sFile.filename}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">{sFile.size} bytes · {new Date(sFile.created_at || Date.now()).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))
                             )}
                         </div>
                     </div>
 
-                    {file && (
-                        <div className="mt-6 flex justify-end">
+                    {/* Action Footer */}
+                    {(file || selectedServerFile) && (
+                        <div className="col-span-1 md:col-span-2 mt-2 flex justify-end">
                             <button
                                 onClick={runAnalysis}
                                 disabled={isAnalyzing}
-                                className="flex items-center gap-2 rounded-xl bg-foreground text-background px-6 py-3 text-sm font-semibold transition-all hover:bg-foreground/90 disabled:opacity-50"
+                                className="flex items-center gap-2 rounded-xl bg-foreground text-background px-8 py-3 text-sm font-semibold transition-all hover:bg-foreground/90 disabled:opacity-50 shadow-md hover:shadow-lg"
                             >
-                                {isAnalyzing ? 'Processing via NeurAI...' : 'Run Deep Analysis'}
+                                {isAnalyzing ? 'Processing via NeurAI...' : 'Analyze via NeurAI Backend'}
                             </button>
                         </div>
                     )}
@@ -445,7 +531,7 @@ const DoctorUploadsInner = () => {
                     {/* Canvas Area */}
                     <div className="rounded-2xl border border-surface-border bg-surface overflow-hidden shadow-sm">
                         <div className="bg-sidebar px-4 py-3 border-b border-surface-border flex justify-between items-center">
-                            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Playback: {file?.name} {parsedData && `(${parsedData.labels.length} Extracted Channels)`}</span>
+                            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Playback: {file?.name || selectedServerFile?.filename} {parsedData && `(${parsedData.labels.length} Extracted Channels)`}</span>
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Zoom: {zoom.toFixed(1)}x</span>
                         </div>
                         <canvas ref={canvasRef} className="w-full h-[500px] bg-background block" />
@@ -456,14 +542,16 @@ const DoctorUploadsInner = () => {
                         <div className="col-span-2 rounded-2xl border border-surface-border bg-surface p-6 shadow-sm">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">AI Findings</h3>
                             <div className="space-y-4">
-                                <div className="border-l-2 border-emerald-500 pl-4 py-1">
-                                    <p className="text-sm font-medium text-foreground">Normal Alpha Rhythm</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Found dominant oscillations over Occipital regions matching expected baseline.</p>
-                                </div>
-                                <div className="border-l-2 border-amber-500 pl-4 py-1">
-                                    <p className="text-sm font-medium text-foreground">Intermittent Slowing</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Brief episodes of theta waves observed in frontal leads between 01:23 and 01:45.</p>
-                                </div>
+                                {aiFindings.map((finding, idx) => {
+                                    const title = finding.split(':')[0];
+                                    const desc = finding.split(':')[1] || '';
+                                    return (
+                                        <div key={idx} className={`border-l-2 pl-4 py-1 ${idx % 2 === 0 ? 'border-emerald-500' : 'border-amber-500'}`}>
+                                            <p className="text-sm font-medium text-foreground">{title}</p>
+                                            <p className="text-xs text-muted-foreground mt-1">{desc.trim()}</p>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                         <div className="rounded-2xl border border-surface-border bg-surface p-6 shadow-sm relative">
