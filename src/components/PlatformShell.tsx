@@ -91,7 +91,13 @@ const PlatformShell = () => {
         setLoading(false);
     }, [navigate]);
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}` },
+            });
+        } catch (_) { /* Always clear local state even if logout fails */ }
         localStorage.removeItem('neurai_token');
         localStorage.removeItem('neurai_refresh');
         localStorage.removeItem('neurai_user');
