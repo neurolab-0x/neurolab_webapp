@@ -6,15 +6,7 @@ import { Clock, FileText } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function HistoryInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/history`, apiFetcher, {
-        fallbackData: [
-            { id: 'ses_001', date: '2026-02-25', type: 'EEG Analysis', status: 'COMPLETED', duration: '32m', snr_avg: 21.4 },
-            { id: 'ses_002', date: '2026-02-24', type: 'Voice Analysis', status: 'COMPLETED', duration: '12m', snr_avg: 18.7 },
-            { id: 'ses_003', date: '2026-02-22', type: 'EEG Analysis', status: 'COMPLETED', duration: '45m', snr_avg: 24.1 },
-            { id: 'ses_004', date: '2026-02-20', type: 'EEG Analysis', status: 'PROCESSING', duration: '28m', snr_avg: 19.3 },
-            { id: 'ses_005', date: '2026-02-18', type: 'Voice Analysis', status: 'COMPLETED', duration: '15m', snr_avg: 16.8 },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/history`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-5xl">
@@ -33,9 +25,15 @@ function HistoryInner() {
                     Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="h-16 animate-pulse rounded-xl bg-card" />
                     ))
+                ) : !data || (Array.isArray(data) && data.length === 0) ? (
+                    <div className="rounded-xl border bg-card p-12 text-center">
+                        <FileText size={36} className="mx-auto mb-3 text-muted-foreground/40" />
+                        <h3 className="text-base font-semibold text-foreground">No Sessions Yet</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">Complete a neural analysis session to see your history here.</p>
+                    </div>
                 ) : (
-                    data?.map((session: any) => (
-                        <div key={session.id} className="flex items-center justify-between rounded-xl border bg-card px-6 py-4 transition-colors hover:bg-secondary/50">
+                    (Array.isArray(data) ? data : []).map((session: any) => (
+                        <div key={session.id || session._id} className="flex items-center justify-between rounded-xl border bg-card px-6 py-4 transition-colors hover:bg-secondary/50">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                                     <FileText size={18} className="text-muted-foreground" />
