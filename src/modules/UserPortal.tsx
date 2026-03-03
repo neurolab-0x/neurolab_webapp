@@ -14,16 +14,7 @@ interface EegMetric {
 }
 
 const UserSessionInner = () => {
-    const { data: eegData, isLoading } = useSWR<EegMetric[]>(`${import.meta.env.VITE_API_BASE_URL}/api/analysis/user`, apiFetcher, {
-        fallbackData: [
-            { channel_id: 'Fp1', frequency_hz: 10.24, amplitude_uv: 42.8, snr_db: 18.3 },
-            { channel_id: 'Fp2', frequency_hz: 10.18, amplitude_uv: 41.2, snr_db: 17.9 },
-            { channel_id: 'C3', frequency_hz: 12.50, amplitude_uv: 38.6, snr_db: 21.4 },
-            { channel_id: 'C4', frequency_hz: 12.44, amplitude_uv: 39.1, snr_db: 20.8 },
-            { channel_id: 'O1', frequency_hz: 9.76, amplitude_uv: 55.3, snr_db: 24.6 },
-            { channel_id: 'O2', frequency_hz: 9.82, amplitude_uv: 54.7, snr_db: 23.9 },
-        ]
-    });
+    const { data: eegData, isLoading } = useSWR<EegMetric[]>(`${import.meta.env.VITE_API_BASE_URL}/api/analysis/user`, apiFetcher);
 
     const [isStreaming, setIsStreaming] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
