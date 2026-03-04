@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetcher } from '../lib/fetcher';
 
 function NotificationsInner() {
-    const { data: serverData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, apiFetcher);
+    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, apiFetcher);
 
     const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -15,12 +15,34 @@ function NotificationsInner() {
         if (serverData) setNotifications(serverData);
     }, [serverData]);
 
-    const handleMarkRead = (id: string) => {
+    const handleMarkRead = async (id: string) => {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        try {
+            const token = localStorage.getItem('neurai_token') || '';
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}/read`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (mutate) mutate();
+        } catch (err) {
+            console.error('Failed to mark read', err);
+            if (mutate) mutate();
+        }
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
+        try {
+            const token = localStorage.getItem('neurai_token') || '';
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (mutate) mutate();
+        } catch (err) {
+            console.error('Failed to delete', err);
+            if (mutate) mutate();
+        }
     };
 
     return (
