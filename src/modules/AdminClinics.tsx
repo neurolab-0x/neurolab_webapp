@@ -19,7 +19,7 @@ function ClinicsInner() {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {isLoading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-44 animate-pulse rounded-2xl bg-card" />) : data?.map((c: any) => (
-                    <div key={c.id} className="rounded-2xl border bg-card p-6">
+                    <div key={c._id || c.id} className="rounded-2xl border bg-card p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <Building2 size={20} className="text-primary" />
                             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500">{c.status}</span>

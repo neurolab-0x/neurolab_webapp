@@ -17,18 +17,18 @@ function BillingInner() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border bg-card p-6">
                     <TrendingUp size={20} className="mb-3 text-emerald-500" />
-                    <p className="text-3xl font-bold tabular-nums text-foreground">{(analytics?.totalRevenue / 100).toLocaleString()} <span className="text-sm text-muted-foreground">RWF</span></p>
+                    <p className="text-3xl font-bold tabular-nums text-foreground">{((analytics?.totalRevenue || analytics?.projectedAnnual || 0) / 100).toLocaleString()} <span className="text-sm text-muted-foreground">RWF</span></p>
                     <p className="text-xs text-muted-foreground">Total Revenue</p>
                 </div>
                 <div className="rounded-2xl border bg-card p-6">
                     <Receipt size={20} className="mb-3 text-primary" />
-                    <p className="text-3xl font-bold tabular-nums text-foreground">{analytics?.totalInvoices}</p>
+                    <p className="text-3xl font-bold tabular-nums text-foreground">{analytics?.totalInvoices ?? analytics?.historical?.length ?? 0}</p>
                     <p className="text-xs text-muted-foreground">Total Invoices</p>
                 </div>
                 <div className="rounded-2xl border bg-card p-6">
                     <CreditCard size={20} className="mb-3 text-muted-foreground" />
-                    <p className="text-3xl font-bold tabular-nums text-foreground">{analytics?.avgAmount?.toLocaleString()} <span className="text-sm text-muted-foreground">RWF</span></p>
-                    <p className="text-xs text-muted-foreground">Avg per Invoice</p>
+                    <p className="text-3xl font-bold tabular-nums text-foreground">{(analytics?.avgAmount || analytics?.target || 0).toLocaleString()} <span className="text-sm text-muted-foreground">RWF</span></p>
+                    <p className="text-xs text-muted-foreground">{analytics?.target ? 'Revenue Target' : 'Avg per Invoice'}</p>
                 </div>
             </div>
 
@@ -43,10 +43,10 @@ function BillingInner() {
                         </tr></thead>
                         <tbody>
                             {tariffs?.map((t: any) => (
-                                <tr key={t.id} className="border-b border-border/50 hover:bg-secondary/20">
+                                <tr key={t._id || t.id} className="border-b border-border/50 hover:bg-secondary/20">
                                     <td className="px-6 py-4 text-sm font-medium text-foreground">{t.serviceName}</td>
                                     <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{t.code}</td>
-                                    <td className="px-6 py-4 text-right text-sm font-semibold tabular-nums text-foreground">{t.basePrice.toLocaleString()} RWF</td>
+                                    <td className="px-6 py-4 text-right text-sm font-semibold tabular-nums text-foreground">{t.basePrice?.toLocaleString()} RWF</td>
                                 </tr>
                             ))}
                         </tbody>

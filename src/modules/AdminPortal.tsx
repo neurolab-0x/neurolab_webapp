@@ -33,7 +33,7 @@ const AdminDashboardInner = () => {
                     ) : (
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-bold tabular-nums text-foreground">
-                                {data?.activeNodes.toLocaleString()}
+                                {data?.activeNodes?.toLocaleString() ?? '—'}
                             </span>
                             <span className="text-sm font-medium text-emerald-500">+12%</span>
                         </div>
@@ -51,7 +51,7 @@ const AdminDashboardInner = () => {
                     ) : (
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-bold tabular-nums text-foreground">
-                                {data?.globalSnrAvg.toFixed(1)} <span className="text-xl text-muted-foreground">dB</span>
+                                {data?.globalSnrAvg?.toFixed(1) ?? '—'} <span className="text-xl text-muted-foreground">dB</span>
                             </span>
                         </div>
                     )}
@@ -68,7 +68,7 @@ const AdminDashboardInner = () => {
                     ) : (
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-bold tabular-nums text-foreground">
-                                {data?.systemLatencyMs} <span className="text-xl text-muted-foreground">ms</span>
+                                {data?.systemLatencyMs ?? '—'} <span className="text-xl text-muted-foreground">ms</span>
                             </span>
                             <span className="text-sm font-medium text-emerald-500">Optimal</span>
                         </div>

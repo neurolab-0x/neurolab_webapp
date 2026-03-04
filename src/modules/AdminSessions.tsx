@@ -25,8 +25,8 @@ function SessionsInner() {
                     </tr></thead>
                     <tbody>
                         {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data?.map((s: any) => (
-                            <tr key={s.id} className="border-b border-border/50 hover:bg-secondary/20">
-                                <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s.id}</td>
+                            <tr key={s._id || s.id} className="border-b border-border/50 hover:bg-secondary/20">
+                                <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s._id || s.id}</td>
                                 <td className="px-6 py-4 text-sm font-medium text-foreground">{s.user}</td>
                                 <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s.device}</td>
                                 <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s.duration}</td>
