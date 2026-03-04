@@ -40,13 +40,16 @@ export default function RegisterPage() {
         setError('');
 
         try {
+            const email = form.email.toLowerCase().trim();
+            const generatedUsername = form.username || email.split('@')[0] + Math.floor(Math.random() * 1000);
+
             const res = await fetch(`${BASE}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    fullName: form.fullName,
-                    username: form.username,
-                    email: form.email.toLowerCase(),
+                    fullName: form.fullName.trim(),
+                    username: generatedUsername,
+                    email: email,
                     password: form.password,
                     role: form.role,
                 }),
