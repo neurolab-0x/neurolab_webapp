@@ -9,14 +9,7 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
 function AdminDevicesInner() {
-    const { data, isLoading, mutate } = useSWR(`${BASE}/api/devices`, apiFetcher, {
-        fallbackData: [
-            { id: 'dev_001', name: 'NL-EEG-001', type: 'EEG', serialNumber: 'NL-2026-A001', status: 'ACTIVE', assignedTo: 'Dr. Fiston Mahamba', clinic: 'Kigali Clinic' },
-            { id: 'dev_002', name: 'NL-EEG-002', type: 'EEG', serialNumber: 'NL-2026-A002', status: 'ACTIVE', assignedTo: 'Dr. Amara Diallo', clinic: 'Kigali Clinic' },
-            { id: 'dev_003', name: 'NL-VOICE-001', type: 'VOICE', serialNumber: 'NL-2026-V001', status: 'INACTIVE', assignedTo: null, clinic: null },
-            { id: 'dev_004', name: 'NL-EEG-003', type: 'EEG', serialNumber: 'NL-2026-A003', status: 'MAINTENANCE', assignedTo: null, clinic: 'Nairobi Lab' },
-        ]
-    });
+    const { data, isLoading, mutate } = useSWR(`${BASE}/api/devices`, apiFetcher);
 
     const [showForm, setShowForm] = useState(false);
     const [formState, setFormState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -140,8 +133,8 @@ function AdminDevicesInner() {
                                     type="submit"
                                     disabled={formState === 'submitting' || formState === 'success'}
                                     className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-xs font-semibold transition-all ${formState === 'success'
-                                            ? 'bg-emerald-500 text-white'
-                                            : 'bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50'
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50'
                                         }`}
                                 >
                                     {formState === 'submitting' && <Loader2 size={14} className="animate-spin" />}
