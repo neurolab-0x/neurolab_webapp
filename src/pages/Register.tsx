@@ -58,7 +58,13 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.message || data.error || 'Registration failed. Please try again.');
+                if (res.status === 429) {
+                    setError('Too many attempts. Please wait 15 minutes before trying again.');
+                } else if (data && (data.message || data.error)) {
+                    setError(data.message || data.error);
+                } else {
+                    setError('Registration failed. Please try again.');
+                }
                 setLoading(false);
                 return;
             }
