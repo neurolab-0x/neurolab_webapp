@@ -6,13 +6,7 @@ import { Building2, Plus, BarChart3 } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function ClinicsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`, apiFetcher, {
-        fallbackData: [
-            { id: 'cln_001', name: 'Kigali Neural Center', type: 'CLINIC', doctors: 4, patients: 128, devices: 8, status: 'ACTIVE' },
-            { id: 'cln_002', name: 'Nairobi Diagnostics Lab', type: 'LAB', doctors: 2, patients: 64, devices: 3, status: 'ACTIVE' },
-            { id: 'cln_003', name: 'Lagos Research Institute', type: 'RESEARCH', doctors: 6, patients: 256, devices: 12, status: 'ACTIVE' },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-6xl">
