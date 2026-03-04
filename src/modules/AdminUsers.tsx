@@ -46,7 +46,7 @@ function UsersInner() {
                             <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading users...</td></tr>
                         ) : (
                             data?.map((user: any) => (
-                                <tr key={user.id} className="border-b border-border/50 transition-colors hover:bg-secondary/20">
+                                <tr key={user._id || user.id} className="border-b border-border/50 transition-colors hover:bg-secondary/20">
                                     <td className="px-6 py-4">
                                         <div>
                                             <p className="text-sm font-medium text-foreground">{user.fullName}</p>
