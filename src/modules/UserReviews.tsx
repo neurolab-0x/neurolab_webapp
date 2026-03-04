@@ -6,13 +6,9 @@ import { Star } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function ReviewsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/reviews`, apiFetcher, {
-        fallbackData: [
-            { id: 'rev_001', analysisType: 'EEG Analysis', rating: 5, comment: 'Extremely accurate baseline reading.', date: '2026-02-25' },
-            { id: 'rev_002', analysisType: 'Voice Analysis', rating: 4, comment: 'Good stress detection, minor noise in results.', date: '2026-02-22' },
-            { id: 'rev_003', analysisType: 'EEG Analysis', rating: 5, comment: 'Perfect signal quality throughout the session.', date: '2026-02-18' },
-        ]
-    });
+    const { data, isLoading, error } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/reviews`, apiFetcher);
+
+    const reviews = Array.isArray(data) ? data : [];
 
     return (
         <div className="mx-auto max-w-5xl">
@@ -26,9 +22,17 @@ function ReviewsInner() {
                     Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="h-20 animate-pulse rounded-xl bg-card" />
                     ))
+                ) : error || reviews.length === 0 ? (
+                    <div className="rounded-xl border bg-card p-12 text-center">
+                        <Star size={36} className="mx-auto mb-3 text-muted-foreground/40" />
+                        <h3 className="text-base font-semibold text-foreground">{error ? 'Unable to Load Reviews' : 'No Reviews Yet'}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {error ? 'This feature may not be available for your account type.' : 'Complete an analysis session and leave a review here.'}
+                        </p>
+                    </div>
                 ) : (
-                    data?.map((review: any) => (
-                        <div key={review.id} className="rounded-xl border bg-card p-5 transition-colors hover:bg-secondary/30">
+                    reviews.map((review: any) => (
+                        <div key={review.id || review._id} className="rounded-xl border bg-card p-5 transition-colors hover:bg-secondary/30">
                             <div className="mb-2 flex items-center justify-between">
                                 <span className="text-sm font-semibold text-foreground">{review.analysisType}</span>
                                 <div className="flex gap-0.5">
