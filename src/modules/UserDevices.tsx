@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useSWR from 'swr';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Cpu, Wifi, WifiOff, Plus, X, Loader2 } from 'lucide-react';
@@ -6,46 +6,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { apiFetcher } from '../lib/fetcher';
 
-const FALLBACK_DEVICES = [
-    { id: 'dev_001', name: 'NeuroLab EEG-16', type: 'EEG', serialNumber: 'NL-2026-A001', status: 'ACTIVE', lastSync: '2 min ago' },
-    { id: 'dev_002', name: 'NeuroLab Voice Sensor', type: 'VOICE', serialNumber: 'NL-2026-V003', status: 'ACTIVE', lastSync: '5 min ago' },
-    { id: 'dev_003', name: 'NeuroLab EEG-16 (Backup)', type: 'EEG', serialNumber: 'NL-2026-A002', status: 'INACTIVE', lastSync: '3 days ago' },
-];
-
 function DevicesInner() {
-    const { data: serverData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/devices`, apiFetcher);
+    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/devices`, apiFetcher);
+    const devices = Array.isArray(serverData) ? serverData : [];
 
-    // Use local state to handle the mock addition of new devices without a real backend
-    const [devices, setDevices] = useState(FALLBACK_DEVICES);
     const [isRegistering, setIsRegistering] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [serial, setSerial] = useState('');
-
-    useEffect(() => {
-        if (serverData && serverData.length > 0) {
-            setDevices(serverData);
-        }
-    }, [serverData]);
+    const [localDevices, setLocalDevices] = useState<any[]>([]);
 
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         if (!serial.trim()) return;
 
         setIsSubmitting(true);
-        // Mock network delay for premium feel
+        // TODO: Replace with real POST /api/devices when backend supports it
         setTimeout(() => {
             const newDevice = {
-                id: `dev_${Date.now()}`,
+                _id: `dev_${Date.now()}`,
                 name: 'Neurolab Halo Gen-2',
                 type: 'BCI',
                 serialNumber: serial.toUpperCase(),
                 status: 'ACTIVE',
                 lastSync: 'Just now'
             };
-            setDevices(prev => [newDevice, ...prev]);
+            setLocalDevices(prev => [newDevice, ...prev]);
             setSerial('');
             setIsSubmitting(false);
             setIsRegistering(false);
+            mutate();
         }, 1200);
     };
 
@@ -124,16 +113,22 @@ function DevicesInner() {
             </AnimatePresence>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {isLoading && !devices.length ? (
+                {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="h-40 animate-pulse rounded-2xl bg-card" />
                     ))
+                ) : [...localDevices, ...devices].length === 0 ? (
+                    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed bg-card/50 py-16">
+                        <Cpu size={40} className="mb-4 text-muted-foreground/40" />
+                        <p className="text-sm font-medium text-muted-foreground">No devices registered</p>
+                        <p className="mt-1 text-xs text-muted-foreground/60">Click "Register Device" to pair your Neurolab hardware</p>
+                    </div>
                 ) : (
-                    devices.map((device: any) => (
+                    [...localDevices, ...devices].map((device: any) => (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            key={device.id}
+                            key={device._id || device.id}
                             className="rounded-2xl border bg-card p-5 transition-colors hover:bg-secondary/30"
                         >
                             <div className="mb-4 flex items-center justify-between">
@@ -151,7 +146,7 @@ function DevicesInner() {
                             <h3 className="text-sm font-semibold text-foreground">{device.name}</h3>
                             <p className="mt-1 text-xs text-muted-foreground">S/N: {device.serialNumber}</p>
                             <div className="mt-3 flex items-center justify-between border-t pt-3 border-border/50">
-                                <span className="text-xs text-muted-foreground">Last sync: {device.lastSync}</span>
+                                <span className="text-xs text-muted-foreground">Last sync: {device.lastSync || '—'}</span>
                                 <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{device.type}</span>
                             </div>
                         </motion.div>
