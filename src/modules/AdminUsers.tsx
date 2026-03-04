@@ -6,7 +6,8 @@ import { Users, Shield, Trash2, MoreHorizontal } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function UsersInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`, apiFetcher);
+    const { data: rawData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`, apiFetcher);
+    const data = Array.isArray(rawData) ? rawData : rawData?.users || rawData?.data || [];
 
     const roleBadge = (role: string) => {
         switch (role) {
