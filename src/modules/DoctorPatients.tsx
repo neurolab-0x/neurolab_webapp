@@ -29,16 +29,28 @@ function PatientsInner() {
         setInviteState('idle');
     };
 
-    // Search results — filter existing patients by name
-    const searchResults = useMemo(() => {
-        if (!searchQuery.trim() || !data) return [];
-        const q = searchQuery.toLowerCase();
-        return data.filter((p: any) =>
-            (p.fullName || p.name || '').toLowerCase().includes(q)
-        );
-    }, [searchQuery, data]);
+    const { data: globalUsers, isLoading: isSearchLoading } = useSWR(
+        searchQuery.trim().length >= 2
+            ? `${BASE}/api/users/search?query=${encodeURIComponent(searchQuery)}`
+            : null,
+        apiFetcher
+    );
 
-    const showInvite = searchQuery.trim().length >= 2 && searchResults.length === 0;
+    // Search results — use global search from backend or filter locally if needed
+    const searchResults = useMemo(() => {
+        if (!searchQuery.trim() || searchQuery.trim().length < 2) return [];
+        // If the backend search endpoint returns an array, use it
+        if (Array.isArray(globalUsers)) {
+            return globalUsers;
+        } else if (globalUsers?.users && Array.isArray(globalUsers.users)) {
+            return globalUsers.users;
+        } else if (globalUsers?.data && Array.isArray(globalUsers.data)) {
+            return globalUsers.data;
+        }
+        return [];
+    }, [searchQuery, globalUsers]);
+
+    const showInvite = searchQuery.trim().length >= 2 && searchResults.length === 0 && !isSearchLoading;
 
     const handleAssign = async (patientId: string) => {
         setAssignState('assigning');
@@ -61,13 +73,18 @@ function PatientsInner() {
     const handleInvite = async () => {
         if (!inviteEmail.trim() || !inviteEmail.includes('@')) return;
         setInviteState('sending');
-        // Simulated invite since backend doesn't have this endpoint yet
-        await new Promise(r => setTimeout(r, 800));
-        setInviteState('sent');
-        setTimeout(() => {
-            setShowAssign(false);
-            resetAssign();
-        }, 1500);
+        setAssignError('');
+        try {
+            await apiPost(`${BASE}/api/doctors/patients/invite`, { email: inviteEmail });
+            setInviteState('sent');
+            setTimeout(() => {
+                setShowAssign(false);
+                resetAssign();
+            }, 1500);
+        } catch (err: any) {
+            setInviteState('idle');
+            setAssignError(err.message || 'Failed to send invitation. Please try again.');
+        }
     };
 
     return (
@@ -117,7 +134,17 @@ function PatientsInner() {
 
                             {/* Search Results */}
                             <AnimatePresence>
-                                {searchResults.length > 0 && (
+                                {isSearchLoading && searchQuery.trim().length >= 2 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -4 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -4 }}
+                                        className="mt-3 py-4 flex justify-center rounded-lg border border-surface-border bg-background"
+                                    >
+                                        <Loader2 size={24} className="animate-spin text-primary" />
+                                    </motion.div>
+                                )}
+                                {!isSearchLoading && searchResults.length > 0 && (
                                     <motion.div
                                         initial={{ opacity: 0, y: -4 }}
                                         animate={{ opacity: 1, y: 0 }}
