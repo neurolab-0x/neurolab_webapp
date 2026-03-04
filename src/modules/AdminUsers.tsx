@@ -6,15 +6,7 @@ import { Users, Shield, Trash2, MoreHorizontal } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function UsersInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`, apiFetcher, {
-        fallbackData: [
-            { id: 'usr_001', fullName: 'Dr. Fiston Mahamba', email: 'fiston@neurolab.cc', role: 'DOCTOR', status: 'ACTIVE', createdAt: '2026-01-15' },
-            { id: 'usr_002', fullName: 'Amara Diallo', email: 'amara@neurolab.cc', role: 'DOCTOR', status: 'ACTIVE', createdAt: '2026-01-20' },
-            { id: 'usr_003', fullName: 'Jean Pierre', email: 'jean@gmail.com', role: 'USER', status: 'ACTIVE', createdAt: '2026-02-01' },
-            { id: 'usr_004', fullName: 'Marie Claire', email: 'marie@gmail.com', role: 'USER', status: 'INACTIVE', createdAt: '2026-02-05' },
-            { id: 'usr_005', fullName: 'Admin Root', email: 'admin@neurolab.cc', role: 'ADMIN', status: 'ACTIVE', createdAt: '2026-01-01' },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`, apiFetcher);
 
     const roleBadge = (role: string) => {
         switch (role) {
