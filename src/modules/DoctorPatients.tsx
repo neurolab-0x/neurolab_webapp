@@ -9,14 +9,7 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
 function PatientsInner() {
-    const { data, isLoading, mutate } = useSWR(`${BASE}/api/doctors/patients`, apiFetcher, {
-        fallbackData: [
-            { id: 'pat_001', fullName: 'Jean Pierre', age: 34, status: 'ACTIVE', lastSession: '2026-02-25', condition: 'Stress monitoring', snr_avg: 21.4 },
-            { id: 'pat_002', fullName: 'Marie Claire', age: 28, status: 'ACTIVE', lastSession: '2026-02-24', condition: 'Sleep analysis', snr_avg: 18.2 },
-            { id: 'pat_003', fullName: 'Paul Kagame Jr.', age: 42, status: 'INACTIVE', lastSession: '2026-02-10', condition: 'Neurological assessment', snr_avg: 24.6 },
-            { id: 'pat_004', fullName: 'Ange Teta', age: 31, status: 'ACTIVE', lastSession: '2026-02-26', condition: 'Baseline EEG', snr_avg: 19.8 },
-        ]
-    });
+    const { data, isLoading, mutate } = useSWR(`${BASE}/api/doctors/patients`, apiFetcher);
 
     // Assign Patient panel state
     const [showAssign, setShowAssign] = useState(false);
@@ -183,8 +176,8 @@ function PatientsInner() {
                                                 onClick={handleInvite}
                                                 disabled={inviteState !== 'idle' || !inviteEmail.includes('@')}
                                                 className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${inviteState === 'sent'
-                                                        ? 'bg-emerald-500 text-white'
-                                                        : 'bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50'
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : 'bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50'
                                                     }`}
                                             >
                                                 {inviteState === 'sending' && <Loader2 size={14} className="animate-spin" />}
