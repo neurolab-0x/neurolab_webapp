@@ -6,16 +6,7 @@ import { BarChart3, Users, Cpu, Activity } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function StatsInner() {
-    const { data } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics/stats/overview`, apiFetcher, {
-        fallbackData: {
-            totalPatients: 128, activeDevices: 8, totalDoctors: 4, avgSessionsPerDay: 12,
-            recentSessions: [
-                { id: 's1', patient: 'Jean Pierre', device: 'NL-EEG-001', duration: '32m', status: 'COMPLETED' },
-                { id: 's2', patient: 'Marie Claire', device: 'NL-VOICE-001', duration: '14m', status: 'ACTIVE' },
-                { id: 's3', patient: 'Ange Teta', device: 'NL-EEG-002', duration: '45m', status: 'COMPLETED' },
-            ]
-        }
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics/stats/overview`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-6xl space-y-8">
