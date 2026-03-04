@@ -26,3 +26,5 @@ npm-debug.log*
 # Cache
 .eslintcache
 *.tsbuildinfo
+.vercel
+.env*.local
