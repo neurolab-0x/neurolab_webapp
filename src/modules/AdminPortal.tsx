@@ -12,13 +12,7 @@ interface AdminData {
 }
 
 const AdminDashboardInner = () => {
-    const { data, isLoading } = useSWR<AdminData>(`${import.meta.env.VITE_API_BASE_URL}/api/admin/metrics`, apiFetcher, {
-        fallbackData: {
-            activeNodes: 14208,
-            globalSnrAvg: 22.4,
-            systemLatencyMs: 12
-        }
-    });
+    const { data, isLoading } = useSWR<AdminData>(`${import.meta.env.VITE_API_BASE_URL}/api/admin/metrics`, apiFetcher);
 
     return (
         <div className="space-y-6">
