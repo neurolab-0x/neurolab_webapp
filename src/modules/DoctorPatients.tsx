@@ -29,26 +29,49 @@ function PatientsInner() {
         setInviteState('idle');
     };
 
-    const { data: globalUsers, isLoading: isSearchLoading } = useSWR(
-        searchQuery.trim().length >= 2
-            ? `${BASE}/api/users/search?query=${encodeURIComponent(searchQuery)}`
-            : null,
-        apiFetcher
+    // Fetch all users when the assign panel is open (for searching)
+    // Uses /api/admin/users — if the logged-in user lacks admin permissions (403),
+    // the fetch silently fails and we fall back to filtering assigned patients only.
+    const allUsersFetcher = (url: string) =>
+        fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+                'Content-Type': 'application/json',
+            },
+        }).then(res => {
+            if (!res.ok) return { users: [] }; // silently return empty on 403 or any error
+            return res.json();
+        }).then(json => {
+            if (Array.isArray(json)) return json;
+            if (json?.users && Array.isArray(json.users)) return json.users;
+            return [];
+        });
+
+    const { data: allUsers, isLoading: isSearchLoading } = useSWR(
+        showAssign ? `${BASE}/api/admin/users` : null,
+        allUsersFetcher
     );
 
-    // Search results — use global search from backend or filter locally if needed
+    // Search results — client-side filter from all users, with fallback to assigned patients
     const searchResults = useMemo(() => {
         if (!searchQuery.trim() || searchQuery.trim().length < 2) return [];
-        // If the backend search endpoint returns an array, use it
-        if (Array.isArray(globalUsers)) {
-            return globalUsers;
-        } else if (globalUsers?.users && Array.isArray(globalUsers.users)) {
-            return globalUsers.users;
-        } else if (globalUsers?.data && Array.isArray(globalUsers.data)) {
-            return globalUsers.data;
-        }
-        return [];
-    }, [searchQuery, globalUsers]);
+
+        const q = searchQuery.toLowerCase();
+        const assignedIds = new Set((data || []).map((p: any) => p.id || p._id));
+
+        // If we got users from the admin endpoint, search across all of them
+        const userPool = Array.isArray(allUsers) && allUsers.length > 0
+            ? allUsers
+            : (data || []); // fall back to assigned patients
+
+        return userPool.filter((u: any) => {
+            const id = u.id || u._id;
+            if (assignedIds.has(id)) return false; // skip already assigned
+            const name = (u.fullName || u.name || '').toLowerCase();
+            const email = (u.email || '').toLowerCase();
+            return name.includes(q) || email.includes(q);
+        });
+    }, [searchQuery, allUsers, data]);
 
     const showInvite = searchQuery.trim().length >= 2 && searchResults.length === 0 && !isSearchLoading;
 
@@ -160,7 +183,7 @@ function PatientsInner() {
                                             >
                                                 <div>
                                                     <p className="text-sm font-medium text-foreground">{p.fullName || p.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{p.condition || 'No condition on file'} • Age {p.age || '—'}</p>
+                                                    <p className="text-xs text-muted-foreground">{p.email || 'No email'} {p.role ? `• ${p.role}` : ''}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {assignState === 'assigning' && <Loader2 size={14} className="animate-spin text-primary" />}
