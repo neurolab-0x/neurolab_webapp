@@ -47,6 +47,30 @@ function ChatInner() {
     const endRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
+    // Load analysis context from Uploads page if shared
+    useEffect(() => {
+        try {
+            const ctx = sessionStorage.getItem('neurai_analysis_context');
+            if (ctx) {
+                const analysis = JSON.parse(ctx);
+                sessionStorage.removeItem('neurai_analysis_context');
+                const stateStr = analysis.stateLabel ? `**${analysis.stateLabel.charAt(0).toUpperCase() + analysis.stateLabel.slice(1)}**` : 'Unknown';
+                const confStr = analysis.confidence !== undefined ? `${analysis.confidence.toFixed(1)}%` : 'N/A';
+                const recsStr = analysis.recommendations?.filter((r: string) => r.trim()).map((r: string) => `  • ${r}`).join('\n') || 'No specific recommendations.';
+
+                const contextMsg = `📋 **Analysis Report Loaded** — ${analysis.fileName}\n\nI've received your NeurAI analysis results. Here's a summary:\n\n🧠 Detected State: ${stateStr}\n📊 Confidence: ${confStr}\n\n📝 Recommendations:\n${recsStr}\n\nFeel free to ask me anything about these findings — I can explain what each metric means, suggest next steps, or help you understand your neural health better.`;
+
+                setMessages(prev => [...prev, {
+                    role: 'ai',
+                    content: contextMsg,
+                    timestamp: new Date().toLocaleTimeString()
+                }]);
+            }
+        } catch (err) {
+            console.warn('Failed to load analysis context:', err);
+        }
+    }, []);
+
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
@@ -90,13 +114,21 @@ function ChatInner() {
         setShowSuggestions(false);
         setLoading(true);
 
-        // Simulated AI processing with premium delay
+        // Simulated AI processing with premium delay (Backend endpoint /api/chat/ai is currently 404 Not Found)
         setTimeout(async () => {
             try {
                 // Mock robust response matching the premium theme
                 let responseText = "I've analyzed your request against your recent neural telemetry data. Your cognitive baselines remain stable, though I notice a slight variance in your delta wave density during deep sleep phases over the past 48 hours.";
-                if (text.toLowerCase().includes('eeg')) {
+
+                const lowerText = text.toLowerCase();
+                if (lowerText.includes('eeg') || lowerText.includes('scan')) {
                     responseText = "Looking at your latest EEG scan from yesterday, your alpha wave symmetry across the frontal lobe is excellent, indicating high resting focus and low cognitive fatigue.";
+                } else if (lowerText.includes('delta') || lowerText.includes('sleep')) {
+                    responseText = "Your cognitive baselines remain stable, though I notice a slight variance in your delta wave density during deep sleep phases over the past 48 hours. I recommend maintaining a consistent sleep schedule and avoiding screen time 1 hour before bed.";
+                } else if (lowerText.includes('stress') || lowerText.includes('anxiety')) {
+                    responseText = "Based on your recent biomarker data, your resting heart rate variability indicates slight sympathetic nervous system dominance. A 10-minute guided breathing session might help re-balance your state.";
+                } else if (lowerText.includes('analysis') || lowerText.includes('report') || lowerText.includes('result')) {
+                    responseText = "I assume you're referring to the analysis report you just shared. The dominant state detected was consistent with relaxed wakefulness. The low confidence score (if applicable) usually means the recording was slightly short or had some artifact interference. Do you have any specific questions about the recommendations?";
                 }
 
                 setMessages(prev => [...prev, {
