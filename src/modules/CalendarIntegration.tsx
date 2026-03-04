@@ -7,13 +7,9 @@ import { Calendar, Link as LinkIcon, Unlink, ExternalLink } from 'lucide-react';
 const CalendarIntegrationInner = () => {
     const [isConnecting, setIsConnecting] = useState(false);
 
-    // Simulated status endpoint
     const { data, mutate } = useSWR(
-        `${import.meta.env.VITE_API_BASE_URL}/api/calendar/status`, // Using a mock status endpoint conceptually
-        apiFetcher,
-        {
-            fallbackData: { connected: false, email: null }
-        }
+        `${import.meta.env.VITE_API_BASE_URL}/api/calendar/status`,
+        apiFetcher
     );
 
     const handleConnect = () => {
