@@ -6,9 +6,7 @@ import { User, Lock, Trash2 } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function SettingsInner() {
-    const { data: user } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, apiFetcher, {
-        fallbackData: { fullName: 'Dr. Sarah Chen', email: 'sarah@neurolab.cc', username: 'sarahchen', role: 'DOCTOR' }
-    });
+    const { data: user, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, apiFetcher);
 
     const [fullName, setFullName] = useState(user?.fullName || '');
     const [currentPassword, setCurrentPassword] = useState('');
