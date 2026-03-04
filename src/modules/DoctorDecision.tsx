@@ -6,19 +6,7 @@ import { BrainCircuit, AlertTriangle, CheckCircle } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function DecisionInner() {
-    const { data } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/decision-support/mock`, apiFetcher, {
-        fallbackData: {
-            patientName: 'Jean Pierre',
-            riskLevel: 'MODERATE',
-            confidence: 87.4,
-            recommendations: [
-                { id: 1, text: 'Elevated stress biomarkers detected in frontal lobe channels (Fp1, Fp2). Consider follow-up session.', priority: 'HIGH' },
-                { id: 2, text: 'Sleep quality metrics below baseline. Recommend sleep hygiene evaluation.', priority: 'MEDIUM' },
-                { id: 3, text: 'Signal quality excellent across all 16 channels. No hardware calibration required.', priority: 'LOW' },
-            ],
-            metrics: { stressIndex: 64, sleepQuality: 42, cognitiveLoad: 78, focusScore: 83 }
-        }
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/decision-support/mock`, apiFetcher);
 
     const priorityStyle = (p: string) => {
         if (p === 'HIGH') return 'border-l-destructive bg-destructive/5';
