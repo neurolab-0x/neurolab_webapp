@@ -6,17 +6,9 @@ import { CreditCard, Receipt, TrendingUp } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function BillingInner() {
-    const { data: tariffs } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`, apiFetcher, {
-        fallbackData: [
-            { id: 't_001', serviceName: 'EEG Analysis', code: 'NM-01', basePrice: 10000 },
-            { id: 't_002', serviceName: 'Voice Analysis', code: 'NM-02', basePrice: 5000 },
-            { id: 't_003', serviceName: 'Neural Consultation', code: 'NM-03', basePrice: 15000 },
-        ]
-    });
+    const { data: tariffs, isLoading: loadingTariffs } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`, apiFetcher);
 
-    const { data: analytics } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`, apiFetcher, {
-        fallbackData: { totalRevenue: 2450000, totalInvoices: 342, avgAmount: 7164 }
-    });
+    const { data: analytics, isLoading: loadingAnalytics } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-6xl space-y-8">
