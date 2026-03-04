@@ -19,8 +19,7 @@ const ClinicalDiagnosticsInner = () => {
 
     const { data } = useSWR(
         connectionState === 'connected' ? `${import.meta.env.VITE_API_BASE_URL}/api/doctors/patients/stream` : null,
-        apiFetcher,
-        { fallbackData: { status: 'streaming', rate: '500Hz' } }
+        apiFetcher
     );
 
     const handleConnect = () => {
