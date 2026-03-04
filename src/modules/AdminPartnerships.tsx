@@ -6,13 +6,7 @@ import { Handshake } from 'lucide-react';
 import { apiFetcher } from '../lib/fetcher';
 
 function PartnershipsInner() {
-    const { data } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/partnerships`, apiFetcher, {
-        fallbackData: [
-            { id: 'p_001', name: 'Rwanda Biomedical Center', contact: 'info@rbc.gov.rw', status: 'ACTIVE', since: '2025-06-15' },
-            { id: 'p_002', name: 'University of Nairobi', contact: 'neuro@uon.ac.ke', status: 'ACTIVE', since: '2025-09-01' },
-            { id: 'p_003', name: 'WHO Africa Region', contact: 'afro@who.int', status: 'PENDING', since: '2026-01-10' },
-        ]
-    });
+    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/partnerships`, apiFetcher);
 
     return (
         <div className="mx-auto max-w-5xl">
