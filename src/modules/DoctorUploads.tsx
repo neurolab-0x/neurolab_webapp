@@ -65,20 +65,83 @@ const DoctorUploadsInner = () => {
         setParsedData(null);
     };
 
-    const runAnalysis = () => {
+    const runAnalysis = async () => {
         if (!file && !selectedServerFile) return;
         setIsAnalyzing(true);
         setAiFindings([]); // Reset previous findings
 
-        // Mock processing the backend analytical model as requested with "Analyse" button capability
-        setTimeout(() => {
+        let fileToAnalyze: File | null = file;
+
+        // Attempt to fetch server file blob if needed
+        if (!fileToAnalyze && selectedServerFile) {
+            try {
+                const fileUrl = selectedServerFile.url || selectedServerFile.filepath || selectedServerFile.fileUrl || selectedServerFile.filePath;
+                if (fileUrl) {
+                    const fullUrl = fileUrl.startsWith('http') ? fileUrl : `${import.meta.env.VITE_API_BASE_URL}${fileUrl.startsWith('/') ? '' : '/'}${fileUrl}`;
+                    const res = await fetch(fullUrl);
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        fileToAnalyze = new globalThis.File([blob], selectedServerFile.filename || selectedServerFile.fileName || 'server_file.edf');
+                    } else {
+                        throw new Error(`Cloudinary returned ${res.status}`);
+                    }
+                }
+            } catch (err: any) {
+                console.warn("Could not fetch server file prior to analysis:", err);
+                setAiFindings([
+                    "Error: Failed to fetch file from cloud storage.",
+                    err.message || "Network error"
+                ]);
+                setIsAnalyzing(false);
+                return;
+            }
+        }
+
+        if (fileToAnalyze) {
+            try {
+                const formData = new FormData();
+                formData.append('file', fileToAnalyze);
+                formData.append('sessionId', 'manual-analysis');
+
+                // Send to real NeurAI backend endpoint
+                const response = await apiUploadFile(`${import.meta.env.VITE_API_BASE_URL}/api/analysis`, formData);
+
+                // Parse AI response into our findings array format
+                if (response) {
+                    const parsedFindings: string[] = [];
+                    const analysisData = response.analysis?.results || response.analysis?.summary || response.analysis || response;
+
+                    if (typeof analysisData === 'string') {
+                        const lines = analysisData.split('\n').filter((l: string) => l.trim().length > 0);
+                        parsedFindings.push(...lines);
+                    } else if (typeof analysisData === 'object') {
+                        parsedFindings.push(JSON.stringify(analysisData, null, 2));
+                    }
+
+                    setAiFindings(parsedFindings.length ? parsedFindings : ["Analysis complete, but no readable findings text returned."]);
+                } else {
+                    setAiFindings([
+                        "Backend AI Analysis Response Received:",
+                        typeof response === 'object' ? JSON.stringify(response, null, 2) : String(response)
+                    ]);
+                }
+            } catch (err: any) {
+                console.error("Backend analysis failed", err);
+                setAiFindings([
+                    "Error: Failed to communicate with the NeurAI Analysis Backend.",
+                    err.message || "Server error"
+                ]);
+            }
+        } else {
+            // Simulated fallback if we couldn't get a physical file (e.g CORS issue on sFile url)
             const mockBackendInsights = [
                 "Normal Alpha Rhythm: Found dominant 9Hz oscillations over Occipital regions matching expected baseline.",
                 "Intermittent Slowing: Brief episodes of 5Hz theta waves observed in frontal leads indicating possible fatigue."
             ];
             setAiFindings(mockBackendInsights);
-            if (!file) finishAnalysis(); // For server files, finish without readAsText
-        }, 1500);
+        }
+
+        if (!file) finishAnalysis(); // For server files, finish without readAsText
 
         if (file && file.name.toLowerCase().endsWith('.csv')) {
             const reader = new FileReader();
@@ -189,7 +252,7 @@ const DoctorUploadsInner = () => {
         doc.text(`Name: ${ptNameStr}`, 20, 68);
         doc.text(`ID: ${ptIdStr}`, 20, 74);
         doc.text("DOB: 15-Jun-1985 (Age: 40)", 20, 80);
-        doc.text("Recording File: " + (file?.name || selectedServerFile?.filename || "Unknown.edf"), 20, 86);
+        doc.text("Recording File: " + (file?.name || selectedServerFile?.filename || selectedServerFile?.fileName || "Unknown.edf"), 20, 86);
 
         doc.setFontSize(14);
         doc.setTextColor(0, 0, 0);
@@ -466,7 +529,7 @@ const DoctorUploadsInner = () => {
                                             <FileType size={18} className={selectedServerFile?.id === (sFile.id || sFile.upload_id) ? 'text-emerald-500' : 'text-muted-foreground'} />
                                             <div className="truncate">
                                                 <p className={`text-sm font-medium truncate ${selectedServerFile?.id === (sFile.id || sFile.upload_id) ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
-                                                    {sFile.filename}
+                                                    {sFile.filename || sFile.fileName || 'Unknown File'}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">{sFile.size} bytes · {new Date(sFile.created_at || Date.now()).toLocaleDateString()}</p>
                                             </div>
@@ -531,7 +594,7 @@ const DoctorUploadsInner = () => {
                     {/* Canvas Area */}
                     <div className="rounded-2xl border border-surface-border bg-surface overflow-hidden shadow-sm">
                         <div className="bg-sidebar px-4 py-3 border-b border-surface-border flex justify-between items-center">
-                            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Playback: {file?.name || selectedServerFile?.filename} {parsedData && `(${parsedData.labels.length} Extracted Channels)`}</span>
+                            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Playback: {file?.name || selectedServerFile?.filename || selectedServerFile?.fileName || 'Unknown File'} {parsedData && `(${parsedData.labels.length} Extracted Channels)`}</span>
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Zoom: {zoom.toFixed(1)}x</span>
                         </div>
                         <canvas ref={canvasRef} className="w-full h-[500px] bg-background block" />
