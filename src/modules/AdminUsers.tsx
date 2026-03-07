@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Users, Shield, Trash2, MoreHorizontal } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function UsersInner() {
-    const { data: rawData, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`, apiFetcher);
+    const { data: rawData, isPending: isLoading } = useQuery({
+        queryKey: ['admin-users'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`),
+    });
     const data = Array.isArray(rawData) ? rawData : rawData?.users || rawData?.data || [];
 
     const roleBadge = (role: string) => {
