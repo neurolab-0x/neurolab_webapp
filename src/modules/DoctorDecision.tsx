@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { BrainCircuit, AlertTriangle, CheckCircle } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function DecisionInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/decision-support/mock`, apiFetcher);
+    const { data } = useQuery({
+        queryKey: ['doctor-decision-support'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/decision-support/mock`),
+    });
 
     const priorityStyle = (p: string) => {
         if (p === 'HIGH') return 'border-l-destructive bg-destructive/5';
