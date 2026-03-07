@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { apiFetcher } from '../lib/fetcher';
 import { Calendar, Link as LinkIcon, Unlink, ExternalLink } from 'lucide-react';
 
 const CalendarIntegrationInner = () => {
     const [isConnecting, setIsConnecting] = useState(false);
+    const queryClient = useQueryClient();
 
-    const { data, mutate } = useSWR(
-        `${import.meta.env.VITE_API_BASE_URL}/api/calendar/status`,
-        apiFetcher
-    );
+    const { data } = useQuery({
+        queryKey: ['calendar-status'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/calendar/status`),
+    });
 
     const handleConnect = () => {
         setIsConnecting(true);
         // Simulate redirect to /api/calendar/auth-url
         setTimeout(() => {
-            mutate({ connected: true, email: 'dr.chen@neurolab.cc' }, false);
+            queryClient.setQueryData(['calendar-status'], { connected: true, email: 'dr.chen@neurolab.cc' });
             setIsConnecting(false);
         }, 1500);
     };
 
     const handleDisconnect = () => {
         // Simulate POST /api/calendar/disconnect
-        mutate({ connected: false, email: null }, false);
+        queryClient.setQueryData(['calendar-status'], { connected: false, email: null });
     };
 
     return (
