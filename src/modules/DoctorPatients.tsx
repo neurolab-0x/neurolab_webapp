@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Users, UserCheck, UserX, Search, Plus, X, Loader2, Check, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,22 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
 function PatientsInner() {
-    const { data, isLoading, mutate } = useSWR(`${BASE}/api/doctors/patients`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data: rawData, isPending: isLoading } = useQuery({
+        queryKey: ['doctor-patients'],
+        queryFn: () => apiFetcher(`${BASE}/api/doctors/patients`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['doctor-patients'] });
+
+    // Normalise to array regardless of whether the API returns a bare array
+    // or a wrapped object like { patients: [...] } / { data: [...] }
+    const data: any[] = Array.isArray(rawData)
+        ? rawData
+        : Array.isArray(rawData?.patients)
+            ? rawData.patients
+            : Array.isArray(rawData?.data)
+                ? rawData.data
+                : [];
 
     // Assign Patient panel state
     const [showAssign, setShowAssign] = useState(false);
@@ -29,28 +44,25 @@ function PatientsInner() {
         setInviteState('idle');
     };
 
-    // Fetch all users when the assign panel is open (for searching)
-    // Uses /api/admin/users — if the logged-in user lacks admin permissions (403),
-    // the fetch silently fails and we fall back to filtering assigned patients only.
-    const allUsersFetcher = (url: string) =>
-        fetch(url, {
+    const allUsersFetcher = async (): Promise<any[]> => {
+        const res = await fetch(`${BASE}/api/admin/users`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
                 'Content-Type': 'application/json',
             },
-        }).then(res => {
-            if (!res.ok) return { users: [] }; // silently return empty on 403 or any error
-            return res.json();
-        }).then(json => {
-            if (Array.isArray(json)) return json;
-            if (json?.users && Array.isArray(json.users)) return json.users;
-            return [];
         });
+        if (!res.ok) return []; // silently return empty on 403 or any error
+        const json = await res.json();
+        if (Array.isArray(json)) return json;
+        if (json?.users && Array.isArray(json.users)) return json.users;
+        return [];
+    };
 
-    const { data: allUsers, isLoading: isSearchLoading } = useSWR(
-        showAssign ? `${BASE}/api/admin/users` : null,
-        allUsersFetcher
-    );
+    const { data: allUsers, isPending: isSearchLoading } = useQuery({
+        queryKey: ['admin-users-search'],
+        queryFn: allUsersFetcher,
+        enabled: showAssign,
+    });
 
     // Search results — client-side filter from all users, with fallback to assigned patients
     const searchResults = useMemo(() => {
@@ -98,7 +110,7 @@ function PatientsInner() {
         setInviteState('sending');
         setAssignError('');
         try {
-            await apiPost(`${BASE}/api/doctors/patients/invite`, { email: inviteEmail });
+            await apiPost(`${BASE}/api/doctors/patient/invite`, { email: inviteEmail });
             setInviteState('sent');
             setTimeout(() => {
                 setShowAssign(false);
@@ -262,7 +274,7 @@ function PatientsInner() {
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                     </tr></thead>
                     <tbody>
-                        {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data?.map((p: any) => (
+                        {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No patients assigned yet.</td></tr> : data.map((p: any) => (
                             <tr key={p.id || p._id} className="border-b border-border/50 hover:bg-secondary/20">
                                 <td className="px-6 py-4"><p className="text-sm font-medium text-foreground">{p.fullName || p.name}</p><p className="text-xs text-muted-foreground">Age {p.age || '—'}</p></td>
                                 <td className="px-6 py-4 text-sm text-muted-foreground">{p.condition || '—'}</td>
