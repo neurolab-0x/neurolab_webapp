@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { BarChart3, Users, Cpu, Activity } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function StatsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics/stats/overview`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['clinic-stats'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/clinics/stats/overview`),
+    });
 
     return (
         <div className="mx-auto max-w-6xl space-y-8">
