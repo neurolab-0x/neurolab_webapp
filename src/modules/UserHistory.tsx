@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Clock, FileText } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function HistoryInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/history`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['user-history'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/users/history`),
+    });
 
     return (
         <div className="mx-auto max-w-5xl">
