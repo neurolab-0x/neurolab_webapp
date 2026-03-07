@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Cpu, Wifi, WifiOff, Plus, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,7 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetcher } from '../lib/fetcher';
 
 function DevicesInner() {
-    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/devices`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data: serverData, isPending: isLoading } = useQuery({
+        queryKey: ['user-devices'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/devices`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['user-devices'] });
     const devices = Array.isArray(serverData) ? serverData : [];
 
     const [isRegistering, setIsRegistering] = useState(false);
