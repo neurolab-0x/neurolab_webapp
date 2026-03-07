@@ -1,14 +1,20 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { CreditCard, Receipt, TrendingUp } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function BillingInner() {
-    const { data: tariffs, isLoading: loadingTariffs } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`, apiFetcher);
+    const { data: tariffs, isPending: loadingTariffs } = useQuery({
+        queryKey: ['billing-tariffs'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`),
+    });
 
-    const { data: analytics, isLoading: loadingAnalytics } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`, apiFetcher);
+    const { data: analytics, isPending: loadingAnalytics } = useQuery({
+        queryKey: ['billing-analytics'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`),
+    });
 
     return (
         <div className="mx-auto max-w-6xl space-y-8">
