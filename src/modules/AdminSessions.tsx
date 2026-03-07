@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Activity, Radio } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function SessionsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['admin-sessions'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`),
+    });
 
     return (
         <div className="mx-auto max-w-6xl">
