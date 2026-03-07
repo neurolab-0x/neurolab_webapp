@@ -1,5 +1,5 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Activity, Zap, Database } from 'lucide-react';
 
@@ -12,7 +12,10 @@ interface AdminData {
 }
 
 const AdminDashboardInner = () => {
-    const { data, isLoading } = useSWR<AdminData>(`${import.meta.env.VITE_API_BASE_URL}/api/admin/metrics`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery<AdminData>({
+        queryKey: ['admin-metrics'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/admin/metrics`),
+    });
 
     return (
         <div className="space-y-6">
