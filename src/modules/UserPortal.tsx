@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Bluetooth, Loader2 } from 'lucide-react';
@@ -14,7 +14,10 @@ interface EegMetric {
 }
 
 const UserSessionInner = () => {
-    const { data: eegData, isLoading } = useSWR<EegMetric[]>(`${import.meta.env.VITE_API_BASE_URL}/api/analysis/user`, apiFetcher);
+    const { data: eegData, isPending: isLoading } = useQuery<EegMetric[]>({
+        queryKey: ['user-eeg-analysis'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/analysis/user`),
+    });
 
     const [isStreaming, setIsStreaming] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
