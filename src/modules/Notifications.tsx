@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,7 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetcher } from '../lib/fetcher';
 
 function NotificationsInner() {
-    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data: serverData } = useQuery({
+        queryKey: ['notifications'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
     const [notifications, setNotifications] = useState<any[]>([]);
 
