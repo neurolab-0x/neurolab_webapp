@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Cpu, Wifi, WifiOff, Plus, X, Loader2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,12 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
 function AdminDevicesInner() {
-    const { data, isLoading, mutate } = useSWR(`${BASE}/api/devices`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['devices'],
+        queryFn: () => apiFetcher(`${BASE}/api/devices`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['devices'] });
 
     const [showForm, setShowForm] = useState(false);
     const [formState, setFormState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
