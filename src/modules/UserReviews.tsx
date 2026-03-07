@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Star } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function ReviewsInner() {
-    const { data, isLoading, error } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/reviews`, apiFetcher);
+    const { data, isPending: isLoading, error } = useQuery({
+        queryKey: ['user-reviews'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/reviews`),
+    });
 
     const reviews = Array.isArray(data) ? data : [];
 
