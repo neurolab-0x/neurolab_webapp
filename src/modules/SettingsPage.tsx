@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { User, Lock, Trash2 } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function SettingsInner() {
-    const { data: user, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, apiFetcher);
+    const { data: user, isPending: isLoading } = useQuery({
+        queryKey: ['user-settings'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`),
+    });
 
     const [fullName, setFullName] = useState(user?.fullName || '');
     const [currentPassword, setCurrentPassword] = useState('');
