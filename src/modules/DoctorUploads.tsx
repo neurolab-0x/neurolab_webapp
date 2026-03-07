@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { UploadCloud, FileType, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Download, AlertCircle, FileText, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,7 +8,12 @@ import { apiFetcher, apiUploadFile } from '../lib/fetcher';
 
 const DoctorUploadsInner = () => {
     // Live Data Fetching
-    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data: serverData, isPending: isLoading } = useQuery({
+        queryKey: ['doctor-uploads'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['doctor-uploads'] });
     const serverFiles = Array.isArray(serverData) ? serverData : (serverData?.uploads || []);
 
     const [file, setFile] = useState<File | null>(null);
