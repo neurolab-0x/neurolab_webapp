@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Calendar, CheckCircle, Clock, XCircle, CalendarDays, Settings, Save, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -189,13 +189,17 @@ const AvailabilityManager = () => {
 
 function AppointmentsInner() {
     const [activeTab, setActiveTab] = useState<'schedule' | 'availability'>('schedule');
+    const queryClient = useQueryClient();
 
-    const { data, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`, apiFetcher);
+    const { data } = useQuery({
+        queryKey: ['doctor-appointments'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/doctor/mock_id`),
+    });
 
     const handleStatusChange = (id: string, status: string) => {
         if (!data) return;
         const updated = data.map((a: any) => a.id === id ? { ...a, status } : a);
-        mutate(updated, false);
+        queryClient.setQueryData(['doctor-appointments'], updated);
     };
 
     const statusIcon = (s: string) => {
