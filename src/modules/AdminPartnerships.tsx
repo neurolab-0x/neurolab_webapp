@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Handshake } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function PartnershipsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/partnerships`, apiFetcher);
+    const { data } = useQuery({
+        queryKey: ['partnerships'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/partnerships`),
+    });
 
     return (
         <div className="mx-auto max-w-5xl">
