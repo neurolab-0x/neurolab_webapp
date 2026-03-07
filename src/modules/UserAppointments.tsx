@@ -1,5 +1,5 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
@@ -8,7 +8,10 @@ import { apiFetcher } from '../lib/fetcher';
 
 function AppointmentsInner() {
     const navigate = useNavigate();
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['user-appointments'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/appointments/`),
+    });
 
     const statusStyle = (status: string) => {
         switch (status) {
