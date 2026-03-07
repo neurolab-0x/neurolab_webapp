@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { apiFetcher } from '../lib/fetcher';
 import { Activity, Cpu, Wifi, CheckCircle2, Loader2, Settings, Zap, Download, Camera } from 'lucide-react';
@@ -17,10 +17,11 @@ const ClinicalDiagnosticsInner = () => {
         paste: 'Ten20 Conductive Paste',
     });
 
-    const { data } = useSWR(
-        connectionState === 'connected' ? `${import.meta.env.VITE_API_BASE_URL}/api/doctors/patients/stream` : null,
-        apiFetcher
-    );
+    const { data } = useQuery({
+        queryKey: ['doctor-stream'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/patients/stream`),
+        enabled: connectionState === 'connected',
+    });
 
     const handleConnect = () => {
         setConnectionState('connecting');
