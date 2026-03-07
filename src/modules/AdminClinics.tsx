@@ -1,12 +1,15 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Building2, Plus, BarChart3 } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
 function ClinicsInner() {
-    const { data, isLoading } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`, apiFetcher);
+    const { data, isPending: isLoading } = useQuery({
+        queryKey: ['admin-clinics'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`),
+    });
 
     return (
         <div className="mx-auto max-w-6xl">
