@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Upload, File, Trash2, Loader2, X, Download, UserCheck, MessageSquare, BrainCircuit, AlertTriangle, CheckCircle2, Activity } from 'lucide-react';
@@ -21,7 +21,12 @@ interface AnalysisResult {
 }
 
 function UploadsInner() {
-    const { data: serverData, isLoading, mutate } = useSWR(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`, apiFetcher);
+    const queryClient = useQueryClient();
+    const { data: serverData, isPending: isLoading } = useQuery({
+        queryKey: ['user-uploads'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/uploads`),
+    });
+    const mutate = () => queryClient.invalidateQueries({ queryKey: ['user-uploads'] });
     const files = Array.isArray(serverData) ? serverData : (serverData?.uploads || []);
     const [isDragging, setIsDragging] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
