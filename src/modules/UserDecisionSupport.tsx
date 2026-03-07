@@ -1,5 +1,5 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { apiFetcher } from '../lib/fetcher';
 import { BrainCircuit, AlertTriangle, CheckCircle2, Info, Activity, Zap, FileText } from 'lucide-react';
@@ -15,10 +15,10 @@ interface DecisionSupportData {
 }
 
 const UserDecisionSupportInner = () => {
-    const { data, isLoading } = useSWR<DecisionSupportData>(
-        `${import.meta.env.VITE_API_BASE_URL}/api/users/decision-support`,
-        apiFetcher
-    );
+    const { data, isPending: isLoading } = useQuery<DecisionSupportData>({
+        queryKey: ['user-decision-support'],
+        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/users/decision-support`),
+    });
 
     const getPriorityIcon = (priority: string) => {
         switch (priority) {
