@@ -108,7 +108,7 @@ const DoctorUploadsInner = () => {
                 formData.append('file', fileToAnalyze);
                 formData.append('sessionId', 'manual-analysis');
 
-                // Send to real NeurAI backend endpoint
+                // Send to real Neurolab backend endpoint
                 const response = await apiUploadFile(`${import.meta.env.VITE_API_BASE_URL}/api/analysis`, formData);
 
                 // Parse AI response into our findings array format
@@ -133,7 +133,7 @@ const DoctorUploadsInner = () => {
             } catch (err: any) {
                 console.error("Backend analysis failed", err);
                 setAiFindings([
-                    "Error: Failed to communicate with the NeurAI Analysis Backend.",
+                    "Error: Failed to communicate with the Neurolab Analysis Backend.",
                     err.message || "Server error"
                 ]);
             }
@@ -230,11 +230,11 @@ const DoctorUploadsInner = () => {
         doc.setTextColor(230, 230, 230);
         doc.setFontSize(60);
         doc.setFont("helvetica", "bold");
-        doc.text("NeurAI", 50, 150, { angle: 45 });
+        doc.text("Neurolab", 50, 150, { angle: 45 });
 
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(22);
-        doc.text("NeurAI Clinical EEG Report", 20, 25);
+        doc.text("Neurolab Clinical EEG Report", 20, 25);
 
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
@@ -261,7 +261,7 @@ const DoctorUploadsInner = () => {
 
         doc.setFontSize(14);
         doc.setTextColor(0, 0, 0);
-        doc.text("NeurAI Automated Findings", 20, 105);
+        doc.text("Neurolab Automated Findings", 20, 105);
 
         doc.setFontSize(11);
         doc.setTextColor(50, 50, 50);
@@ -284,7 +284,7 @@ const DoctorUploadsInner = () => {
         doc.text("This report is generated with the assistance of Artificial Intelligence.", 20, 280);
         doc.text("Final clinical judgment is reserved for the attending physician.", 20, 285);
 
-        doc.save(`NeurAI_Report_${new Date().getTime()}.pdf`);
+        doc.save(`Neurolab_Report_${new Date().getTime()}.pdf`);
     };
 
     // Render loop
@@ -553,7 +553,7 @@ const DoctorUploadsInner = () => {
                                 disabled={isAnalyzing}
                                 className="flex items-center gap-2 rounded-xl bg-foreground text-background px-8 py-3 text-sm font-semibold transition-all hover:bg-foreground/90 disabled:opacity-50 shadow-md hover:shadow-lg"
                             >
-                                {isAnalyzing ? 'Processing via NeurAI...' : 'Analyze via NeurAI Backend'}
+                                {isAnalyzing ? 'Processing via Neurolab...' : 'Analyze via Neurolab Backend'}
                             </button>
                         </div>
                     )}
