@@ -7,7 +7,7 @@
 export const apiFetcher = (url: string) =>
     fetch(url, {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+            'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
             'Content-Type': 'application/json',
         },
     }).then(res => {
@@ -44,7 +44,7 @@ export const apiPost = (url: string, body: object) =>
     fetch(url, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+            'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -60,7 +60,7 @@ export const apiPatch = (url: string, body: object) =>
     fetch(url, {
         method: 'PATCH',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+            'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -76,7 +76,7 @@ export const apiUploadFile = (url: string, formData: FormData) =>
     fetch(url, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+            'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
             // Do NOT set Content-Type; browser sets it with appropriate boundary
         },
         body: formData,
