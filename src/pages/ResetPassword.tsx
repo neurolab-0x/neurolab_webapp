@@ -56,7 +56,7 @@ export default function ResetPassword() {
                 <div className="text-center mb-8 flex flex-col items-center">
                     <div className="mb-6 flex flex-col items-center">
                         <div className="flex items-baseline">
-                            <span className="text-3xl font-bold text-slate-50 tracking-tight">NeurAI</span>
+                            <span className="text-3xl font-bold text-slate-50 tracking-tight">Neurolab</span>
                             <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
                         </div>
                         <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />

@@ -70,12 +70,12 @@ export default function RegisterPage() {
             }
 
             // Store auth tokens
-            localStorage.setItem('neurai_token', data.token || data.accessToken || '');
-            if (data.refreshToken) localStorage.setItem('neurai_refresh', data.refreshToken);
+            localStorage.setItem('neurolab_token', data.token || data.accessToken || '');
+            if (data.refreshToken) localStorage.setItem('neurolab_refresh', data.refreshToken);
 
             // Store user info
             const user = data.user || data;
-            localStorage.setItem('neurai_user', JSON.stringify({
+            localStorage.setItem('neurolab_user', JSON.stringify({
                 id: user._id || user.id,
                 email: user.email,
                 name: user.fullName || user.username || user.email,
@@ -117,7 +117,7 @@ export default function RegisterPage() {
                 className="w-full max-w-[420px] rounded-[24px] bg-[#0C0C14]/80 backdrop-blur-[12px] border-[0.5px] border-[#1E293B] p-8 shadow-2xl relative z-10 hover:border-[#1E293B]/80 transition-colors"
             >
                 <div className="text-center mb-8 flex flex-col items-center">
-                    {/* NeurAI Technical Logo */}
+                    {/* Neurolab Technical Logo */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -125,7 +125,7 @@ export default function RegisterPage() {
                         className="mb-6 flex flex-col items-center"
                     >
                         <div className="flex items-baseline">
-                            <span className="text-3xl font-bold text-slate-50 tracking-tight">NeurAI</span>
+                            <span className="text-3xl font-bold text-slate-50 tracking-tight">Neurolab</span>
                             <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
                         </div>
                         <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
