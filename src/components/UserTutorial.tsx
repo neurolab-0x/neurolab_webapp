@@ -43,7 +43,7 @@ export default function UserTutorial({ user }: { user: any }) {
 
     // Initial load logic
     useEffect(() => {
-        const completed = localStorage.getItem('neurai_user_tutorial_completed');
+        const completed = localStorage.getItem('neurolab_user_tutorial_completed');
         if (!completed && user?.role === 'USER') {
             const timer = setTimeout(() => setIsOpen(true), 1500); // Wait for animations to finish
             return () => clearTimeout(timer);
@@ -79,7 +79,7 @@ export default function UserTutorial({ user }: { user: any }) {
     }, [isOpen, step]);
 
     const handleComplete = () => {
-        localStorage.setItem('neurai_user_tutorial_completed', 'true');
+        localStorage.setItem('neurolab_user_tutorial_completed', 'true');
         setIsOpen(false);
     };
 
