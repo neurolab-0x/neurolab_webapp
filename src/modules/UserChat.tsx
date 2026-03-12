@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 
 function ChatInner() {
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'ai', content: 'Hello! I am NeurAI. Let\'s explore your neural telemetry and cognitive health together.', timestamp: new Date().toLocaleTimeString() },
+        { role: 'ai', content: 'Hello! I am Neurolab. Let\'s explore your neural telemetry and cognitive health together.', timestamp: new Date().toLocaleTimeString() },
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -28,8 +28,9 @@ function ChatInner() {
     const [attachments, setAttachments] = useState<{ type: 'file' | 'voice', name: string }[]>([]);
 
     // Pre-chat context selection
-    const [showContextPrompt, setShowContextPrompt] = useState(true);
-    const [includeHealthData, setIncludeHealthData] = useState(true);
+    const isSandbox = new URLSearchParams(window.location.search).has('sandbox');
+    const [showContextPrompt, setShowContextPrompt] = useState(!isSandbox);
+    const [includeHealthData, setIncludeHealthData] = useState(!isSandbox);
 
     // Suggestion logic
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -37,8 +38,8 @@ function ChatInner() {
 
     // Model Selection UI State
     const MODELS = [
-        { id: 'neurai-pro', name: 'NeurAi Pro', badge: 'Default' },
-        { id: 'neurai-mini', name: 'NeurAi Core', badge: 'Fast' },
+        { id: 'neurolab-pro', name: 'Neurolab Pro', badge: 'Default' },
+        { id: 'neurolab-mini', name: 'Neurolab Core', badge: 'Fast' },
         { id: 'gpt-4o', name: 'GPT-4o', badge: 'Integrated' }
     ];
     const [selectedModel, setSelectedModel] = useState(MODELS[0]);
@@ -50,15 +51,15 @@ function ChatInner() {
     // Load analysis context from Uploads page if shared
     useEffect(() => {
         try {
-            const ctx = sessionStorage.getItem('neurai_analysis_context');
+            const ctx = sessionStorage.getItem('neurolab_analysis_context');
             if (ctx) {
                 const analysis = JSON.parse(ctx);
-                sessionStorage.removeItem('neurai_analysis_context');
+                sessionStorage.removeItem('neurolab_analysis_context');
                 const stateStr = analysis.stateLabel ? `**${analysis.stateLabel.charAt(0).toUpperCase() + analysis.stateLabel.slice(1)}**` : 'Unknown';
                 const confStr = analysis.confidence !== undefined ? `${analysis.confidence.toFixed(1)}%` : 'N/A';
                 const recsStr = analysis.recommendations?.filter((r: string) => r.trim()).map((r: string) => `  • ${r}`).join('\n') || 'No specific recommendations.';
 
-                const contextMsg = `📋 **Analysis Report Loaded** — ${analysis.fileName}\n\nI've received your NeurAI analysis results. Here's a summary:\n\n🧠 Detected State: ${stateStr}\n📊 Confidence: ${confStr}\n\n📝 Recommendations:\n${recsStr}\n\nFeel free to ask me anything about these findings — I can explain what each metric means, suggest next steps, or help you understand your neural health better.`;
+                const contextMsg = `📋 **Analysis Report Loaded** — ${analysis.fileName}\n\nI've received your Neurolab analysis results. Here's a summary:\n\n🧠 Detected State: ${stateStr}\n📊 Confidence: ${confStr}\n\n📝 Recommendations:\n${recsStr}\n\nFeel free to ask me anything about these findings — I can explain what each metric means, suggest next steps, or help you understand your neural health better.`;
 
                 setMessages(prev => [...prev, {
                     role: 'ai',
@@ -175,7 +176,7 @@ function ChatInner() {
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                         <Sparkles size={20} className="text-primary" />
-                        NeurAi Intelligence
+                        Neurolab Intelligence
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">Advanced predictive neural health modeling</p>
                 </div>
@@ -204,7 +205,7 @@ function ChatInner() {
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-semibold text-foreground">Prepare Session Context</h3>
-                                    <p className="text-xs text-muted-foreground mt-0.5">Allow NeurAi to analyze your historical medical records and baselines?</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">Allow Neurolab to analyze your historical medical records and baselines?</p>
                                 </div>
                             </div>
                             <div className="flex shrink-0 gap-2 w-full sm:w-auto mt-2 sm:mt-0">
@@ -368,7 +369,7 @@ function ChatInner() {
                                     }
                                 }
                             }}
-                            placeholder="Message NeurAi... (or ask for analysis)"
+                            placeholder="Message Neurolab... (or ask for analysis)"
                             className={`max-h-[150px] min-h-[44px] w-full resize-none bg-transparent px-3 py-4 text-sm text-foreground outline-none placeholder:text-muted-foreground/60 border-b border-border/10 mb-1 ${(inputRef.current?.scrollHeight || 0) < 150 ? 'scrollbar-hide' : ''}`}
                             rows={1}
                         />
@@ -484,7 +485,7 @@ function ChatInner() {
 
 export default function UserChat() {
     return (
-        <PortalErrorBoundary serviceName="NeurAI Interactive Session">
+        <PortalErrorBoundary serviceName="Neurolab Interactive Session">
             <ChatInner />
         </PortalErrorBoundary>
     );
