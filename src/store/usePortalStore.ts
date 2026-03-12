@@ -40,7 +40,7 @@ export const usePortalStore = create<PortalState>()(
             }),
         }),
         {
-            name: 'neurai-portal-storage', // name of the item in the storage (must be unique)
+            name: 'neurolab-portal-storage', // name of the item in the storage (must be unique)
         }
     )
 );
