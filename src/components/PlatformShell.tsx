@@ -72,12 +72,25 @@ const PlatformShell = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const params = new URLSearchParams(location.search);
+    const sandboxMode = params.get('sandbox');
+
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
 
     useEffect(() => {
-        const sessionBlob = localStorage.getItem('neurai_user');
+        if (sandboxMode === 'doctor') {
+            setCurrentUser({ id: 'sandbox-doctor', role: 'DOCTOR', name: 'Visitor', email: 'visitor@sandbox' });
+            setLoading(false);
+            return;
+        } else if (sandboxMode === 'patient') {
+            setCurrentUser({ id: 'sandbox-patient', role: 'USER', name: 'Visitor', email: 'visitor@sandbox' });
+            setLoading(false);
+            return;
+        }
+
+        const sessionBlob = localStorage.getItem('neurolab_user');
         if (sessionBlob) {
             try {
                 const user = JSON.parse(sessionBlob);
@@ -89,18 +102,18 @@ const PlatformShell = () => {
             navigate('/auth/login');
         }
         setLoading(false);
-    }, [navigate]);
+    }, [navigate, location.search]);
 
     const handleSignOut = async () => {
         try {
             await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}` },
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}` },
             });
         } catch (_) { /* Always clear local state even if logout fails */ }
-        localStorage.removeItem('neurai_token');
-        localStorage.removeItem('neurai_refresh');
-        localStorage.removeItem('neurai_user');
+        localStorage.removeItem('neurolab_token');
+        localStorage.removeItem('neurolab_refresh');
+        localStorage.removeItem('neurolab_user');
         navigate('/auth/login');
     };
 
@@ -116,6 +129,57 @@ const PlatformShell = () => {
 
     const renderNavLinks = () => {
         const NavItem = (props: any) => <SidebarLink {...props} minimized={isSidebarMinimized} />;
+
+        if (sandboxMode) {
+            const handleWaitlistClick = (e: React.MouseEvent) => {
+                e.preventDefault();
+                // Call parent window if we are in an iframe
+                if (window.parent) {
+                    window.parent.location.href = 'http://localhost:8082/contact';
+                }
+            };
+
+            if (sandboxMode === 'doctor') {
+                return (
+                    <>
+                        <NavItem to="/doctor/analysis?sandbox=doctor" icon={<Activity size={18} />} label="Live Analysis" />
+                        <NavItem to="/doctor/uploads?sandbox=doctor" icon={<FileText size={18} />} label="Offline Uploads" />
+                        <NavItem to="/user/chat?sandbox=doctor" icon={<MessageSquare size={18} />} label="Neurolab Chat" />
+                        {!isSidebarMinimized && (
+                            <div className="mt-4 px-3">
+                                <button onClick={handleWaitlistClick} className="w-full relative group overflow-hidden rounded-lg bg-gradient-to-r from-primary to-purple-600 p-[1px] shadow-[0_0_15px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] transition-shadow">
+                                    <div className="absolute inset-0 bg-white/10 group-hover:translate-x-full transition-transform duration-500 ease-out -skew-x-12 -translate-x-full z-10" />
+                                    <div className="h-full w-full bg-background rounded-lg px-3 py-2 flex items-center justify-center gap-2 group-hover:bg-background/80 transition-colors">
+                                        <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 truncate">Join Waitlist</span>
+                                        <Star size={14} className="text-primary shrink-0" />
+                                    </div>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                );
+            } else if (sandboxMode === 'patient') {
+                return (
+                    <>
+                        <NavItem to="/user/session?sandbox=patient" icon={<Activity size={18} />} label="Neural Session" />
+                        <NavItem to="/user/uploads?sandbox=patient" icon={<Upload size={18} />} label="Offline Uploads" />
+                        <NavItem to="/user/insights?sandbox=patient" icon={<BrainCircuit size={18} />} label="Wellness Insights" />
+                        <NavItem to="/user/chat?sandbox=patient" icon={<MessageSquare size={18} />} label="Neurolab Chat" />
+                        {!isSidebarMinimized && (
+                            <div className="mt-4 px-3">
+                                <button onClick={handleWaitlistClick} className="w-full relative group overflow-hidden rounded-lg bg-gradient-to-r from-primary to-emerald-500 p-[1px] shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-shadow">
+                                    <div className="absolute inset-0 bg-white/10 group-hover:translate-x-full transition-transform duration-500 ease-out -skew-x-12 -translate-x-full z-10" />
+                                    <div className="h-full w-full bg-background rounded-lg px-3 py-2 flex items-center justify-center gap-2 group-hover:bg-background/80 transition-colors">
+                                        <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400 truncate">Early Access</span>
+                                        <Calendar size={14} className="text-emerald-500 shrink-0" />
+                                    </div>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                );
+            }
+        }
 
         if (currentUser.role === 'ADMIN') {
             return (
@@ -140,7 +204,7 @@ const PlatformShell = () => {
                     <NavItem to="/user/devices" icon={<Cpu size={18} />} label="My Devices" />
                     <NavItem tourId="tour-booking" to="/user/booking" icon={<Calendar size={18} />} label="Book Session" />
                     <NavItem to="/user/appointments" icon={<Calendar size={18} />} label="Appointments" />
-                    <NavItem to="/user/chat" icon={<MessageSquare size={18} />} label="NeurAI Chat" />
+                    <NavItem to="/user/chat" icon={<MessageSquare size={18} />} label="Neurolab Chat" />
                     <NavItem to="/user/uploads" icon={<Upload size={18} />} label="Uploads" />
                     <NavItem tourId="tour-insights" to="/user/insights" icon={<BrainCircuit size={18} />} label="Wellness Insights" />
                     <NavItem to="/user/reviews" icon={<Star size={18} />} label="Reviews" />
@@ -176,19 +240,23 @@ const PlatformShell = () => {
     return (
         <div className="flex min-h-screen bg-background text-foreground transition-colors duration-300">
             {/* Onboarding Modals */}
-            <DoctorOnboarding user={currentUser} />
-            <UserTutorial user={currentUser} />
+            {!sandboxMode && (
+                <>
+                    <DoctorOnboarding user={currentUser} />
+                    <UserTutorial user={currentUser} />
+                </>
+            )}
 
             <aside className={`fixed inset-y-0 left-0 flex flex-col border-r border-sidebar-border bg-sidebar py-6 transition-all duration-300 z-50 ${isSidebarMinimized ? 'w-[72px] px-2' : 'w-64 px-4'}`}>
                 <div className={`mb-8 flex items-center gap-3 px-2 ${isSidebarMinimized ? 'justify-center flex-col' : 'justify-between'}`}>
                     <div className="flex justify-center items-center gap-3">
                         <div className="relative flex shrink-0 h-8 w-8 items-center justify-center">
-                            <img src={theme === 'dark' ? '/logo1.png' : '/logo.png'} alt="NeurAI OS" className="h-full w-full object-contain" />
+                            <img src={theme === 'dark' ? '/logo1.png' : '/logo.png'} alt="Neurolab OS" className="h-full w-full object-contain" />
                         </div>
                         {!isSidebarMinimized && (
                             <div className="flex flex-col items-center ml-2">
                                 <div className="flex items-baseline">
-                                    <span className="text-xl font-bold tracking-tight text-sidebar-foreground truncate">NeurAI</span>
+                                    <span className="text-xl font-bold tracking-tight text-sidebar-foreground truncate">Neurolab</span>
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
                                 </div>
                                 <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
@@ -218,16 +286,22 @@ const PlatformShell = () => {
                 </nav>
 
                 <div className="mt-auto border-t border-sidebar-border pt-4 space-y-1 bg-sidebar z-10">
-                    <SidebarLink minimized={isSidebarMinimized} to="/calendar-sync" icon={<Calendar size={18} />} label="Calendar Sync" />
-                    <SidebarLink minimized={isSidebarMinimized} to="/settings" icon={<Settings size={18} />} label="Settings" />
+                    {!sandboxMode && (
+                        <>
+                            <SidebarLink minimized={isSidebarMinimized} to="/calendar-sync" icon={<Calendar size={18} />} label="Calendar Sync" />
+                            <SidebarLink minimized={isSidebarMinimized} to="/settings" icon={<Settings size={18} />} label="Settings" />
+                        </>
+                    )}
                     <button onClick={toggleTheme} className={`flex w-full items-center gap-3 rounded-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSidebarMinimized ? 'justify-center px-0' : 'px-3'}`} title={isSidebarMinimized ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}>
                         {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} className="shrink-0" /> : <Moon size={18} strokeWidth={1.5} className="shrink-0" />}
                         {!isSidebarMinimized && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
                     </button>
-                    <button onClick={handleSignOut} className={`flex w-full items-center gap-3 rounded-lg py-2 text-sm font-medium text-destructive/80 transition-colors hover:bg-destructive/10 hover:text-destructive ${isSidebarMinimized ? 'justify-center px-0' : 'px-3'}`} title={isSidebarMinimized ? "Sign out" : undefined}>
-                        <LogOut size={18} strokeWidth={1.5} className="shrink-0" />
-                        {!isSidebarMinimized && <span>Sign out</span>}
-                    </button>
+                    {!sandboxMode && (
+                        <button onClick={handleSignOut} className={`flex w-full items-center gap-3 rounded-lg py-2 text-sm font-medium text-destructive/80 transition-colors hover:bg-destructive/10 hover:text-destructive ${isSidebarMinimized ? 'justify-center px-0' : 'px-3'}`} title={isSidebarMinimized ? "Sign out" : undefined}>
+                            <LogOut size={18} strokeWidth={1.5} className="shrink-0" />
+                            {!isSidebarMinimized && <span>Sign out</span>}
+                        </button>
+                    )}
                 </div>
             </aside>
 
