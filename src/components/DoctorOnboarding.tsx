@@ -7,7 +7,7 @@ export default function DoctorOnboarding({ user }: { user: any }) {
     const [step, setStep] = useState(0);
 
     useEffect(() => {
-        const onboarded = localStorage.getItem('neurai_doctor_onboarded');
+        const onboarded = localStorage.getItem('neurolab_doctor_onboarded');
         if (!onboarded && user?.role === 'DOCTOR') {
             const timer = setTimeout(() => setIsOpen(true), 1000); // Small delay for premium feel
             return () => clearTimeout(timer);
@@ -15,7 +15,7 @@ export default function DoctorOnboarding({ user }: { user: any }) {
     }, [user]);
 
     const handleComplete = () => {
-        localStorage.setItem('neurai_doctor_onboarded', 'true');
+        localStorage.setItem('neurolab_doctor_onboarded', 'true');
         setIsOpen(false);
     };
 
@@ -28,7 +28,7 @@ export default function DoctorOnboarding({ user }: { user: any }) {
             icon: (
                 <div className="mb-6 flex flex-col items-center">
                     <div className="flex items-baseline">
-                        <span className="text-4xl font-bold tracking-tight text-foreground">NeurAI</span>
+                        <span className="text-4xl font-bold tracking-tight text-foreground">Neurolab</span>
                         <span className="w-2 h-2 rounded-full bg-[#2E90FA] ml-1" />
                     </div>
                     <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
