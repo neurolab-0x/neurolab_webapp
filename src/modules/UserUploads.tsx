@@ -64,7 +64,7 @@ function UploadsInner() {
         try {
             await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/uploads/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}` }
             });
             mutate();
         } catch (err) {
@@ -116,7 +116,7 @@ function UploadsInner() {
                 };
                 setAnalysisResult(parsed);
             } else {
-                throw new Error('Empty response from NeurAI backend');
+                throw new Error('Empty response from Neurolab backend');
             }
         } catch (err: any) {
             console.error("Analysis failed", err);
@@ -130,7 +130,7 @@ function UploadsInner() {
 
     const getUserName = () => {
         try {
-            const stored = localStorage.getItem('neurai_user');
+            const stored = localStorage.getItem('neurolab_user');
             if (stored) {
                 const user = JSON.parse(stored);
                 return user.name || user.fullName || user.firstName || 'Patient';
@@ -145,10 +145,10 @@ function UploadsInner() {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
 
-        // --- NeurAI Watermark (diagonal, faint) ---
+        // --- Neurolab Watermark (diagonal, faint) ---
         doc.setTextColor(230, 230, 240);
         doc.setFontSize(60);
-        doc.text('NeurAI', pageWidth / 2 - 40, 160, { angle: 35 });
+        doc.text('Neurolab', pageWidth / 2 - 40, 160, { angle: 35 });
 
         // --- Header Bar ---
         doc.setFillColor(15, 23, 42); // Deep navy
@@ -156,7 +156,7 @@ function UploadsInner() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
-        doc.text('NeurAI', 14, 18);
+        doc.text('Neurolab', 14, 18);
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.text('Neural Analysis Report', 14, 26);
@@ -242,29 +242,29 @@ function UploadsInner() {
             doc.setPage(p);
             doc.setFontSize(7);
             doc.setTextColor(160, 170, 185);
-            doc.text('NeurAI — Confidential Medical Report', 14, 290);
+            doc.text('Neurolab — Confidential Medical Report', 14, 290);
             doc.text(`Page ${p} of ${pageCount}`, pageWidth - 35, 290);
         }
 
-        doc.save(`NeurAI_Report_${analysisResult.fileName.replace(/\.[^/.]+$/, '')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+        doc.save(`Neurolab_Report_${analysisResult.fileName.replace(/\.[^/.]+$/, '')}_${new Date().toISOString().slice(0, 10)}.pdf`);
     };
 
     const handleShareWithDoctor = () => {
         if (!analysisResult) return;
-        const existing = JSON.parse(localStorage.getItem('neurai_shared_reports') || '[]');
+        const existing = JSON.parse(localStorage.getItem('neurolab_shared_reports') || '[]');
         existing.push({
             ...analysisResult,
             sharedAt: new Date().toISOString(),
             patientName: getUserName(),
         });
-        localStorage.setItem('neurai_shared_reports', JSON.stringify(existing));
+        localStorage.setItem('neurolab_shared_reports', JSON.stringify(existing));
         setShareConfirmation('doctor');
         setTimeout(() => setShareConfirmation(null), 3000);
     };
 
     const handleDiscussWithAI = () => {
         if (!analysisResult) return;
-        sessionStorage.setItem('neurai_analysis_context', JSON.stringify({
+        sessionStorage.setItem('neurolab_analysis_context', JSON.stringify({
             fileName: analysisResult.fileName,
             stateLabel: analysisResult.stateLabel,
             confidence: analysisResult.confidence,
@@ -350,7 +350,7 @@ function UploadsInner() {
                                     >
                                         {analyzingId === (file.id || file._id || file.upload_id) ? (
                                             <span className="flex items-center gap-1.5"><Loader2 size={12} className="animate-spin" /> Analyzing...</span>
-                                        ) : 'Analyse via NeurAI'}
+                                        ) : 'Analyse via Neurolab'}
                                     </button>
                                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{file.file_type || file.fileType || file.type || 'Data'}</span>
                                     <button onClick={() => handleDelete(file.id || file._id || file.upload_id)} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={14} /></button>
@@ -399,7 +399,7 @@ function UploadsInner() {
                                     <BrainCircuit size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground">NeurAI Analysis Report</h3>
+                                    <h3 className="text-sm font-bold text-foreground">Neurolab Analysis Report</h3>
                                     <p className="text-xs text-muted-foreground">{analysisResult.fileName} · {analysisResult.timestamp}</p>
                                 </div>
                             </div>
@@ -490,7 +490,7 @@ function UploadsInner() {
                                 className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-xs font-semibold text-primary shadow-sm hover:bg-primary/10 transition-all hover:scale-105 active:scale-95"
                             >
                                 <MessageSquare size={14} />
-                                Discuss with NeurAI
+                                Discuss with Neurolab
                             </button>
                         </div>
                     </motion.div>
