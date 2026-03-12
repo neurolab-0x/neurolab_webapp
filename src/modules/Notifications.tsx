@@ -23,7 +23,7 @@ function NotificationsInner() {
     const handleMarkRead = async (id: string) => {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
         try {
-            const token = localStorage.getItem('neurai_token') || '';
+            const token = localStorage.getItem('neurolab_token') || '';
             await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}/read`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -38,7 +38,7 @@ function NotificationsInner() {
     const handleDelete = async (id: string) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
         try {
-            const token = localStorage.getItem('neurai_token') || '';
+            const token = localStorage.getItem('neurolab_token') || '';
             await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
