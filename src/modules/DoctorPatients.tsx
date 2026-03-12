@@ -47,7 +47,7 @@ function PatientsInner() {
     const allUsersFetcher = async (): Promise<any[]> => {
         const res = await fetch(`${BASE}/api/admin/users`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('neurai_token') || ''}`,
+                'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
                 'Content-Type': 'application/json',
             },
         });
