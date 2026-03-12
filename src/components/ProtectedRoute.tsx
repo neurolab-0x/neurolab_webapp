@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
     children?: ReactNode;
@@ -7,14 +7,25 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-    const sessionBlob = localStorage.getItem('neurai_user');
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const sandboxMode = params.get('sandbox');
+    const searchParams = location.search;
+
     let currentUser = null;
 
-    if (sessionBlob) {
-        try {
-            currentUser = JSON.parse(sessionBlob);
-        } catch (e) {
-            // ignore
+    if (sandboxMode === 'doctor') {
+        currentUser = { role: 'DOCTOR' };
+    } else if (sandboxMode === 'patient') {
+        currentUser = { role: 'USER' };
+    } else {
+        const sessionBlob = localStorage.getItem('neurolab_user');
+        if (sessionBlob) {
+            try {
+                currentUser = JSON.parse(sessionBlob);
+            } catch (e) {
+                // ignore
+            }
         }
     }
 
@@ -27,11 +38,11 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
         // Redirect to their default dashboard based on their actual role
         switch (currentUser.role) {
-            case 'ADMIN': return <Navigate to="/admin/metrics" replace />;
-            case 'DOCTOR': return <Navigate to="/doctor/analysis" replace />;
-            case 'CLINIC': return <Navigate to="/clinic/stats" replace />;
+            case 'ADMIN': return <Navigate to={`/admin/metrics${searchParams}`} replace />;
+            case 'DOCTOR': return <Navigate to={`/doctor/analysis${searchParams}`} replace />;
+            case 'CLINIC': return <Navigate to={`/clinic/stats${searchParams}`} replace />;
             case 'USER':
-            default: return <Navigate to="/user/session" replace />;
+            default: return <Navigate to={`/user/session${searchParams}`} replace />;
         }
     }
 
