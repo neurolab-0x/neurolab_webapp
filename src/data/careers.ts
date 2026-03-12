@@ -63,7 +63,7 @@ export const departments: Department[] = [
                 level: 'Staff',
                 commitment: 'Full-time',
                 about:
-                    'You will architect the real-time signal processing pipeline that transforms raw neural recordings into clinically actionable data. This role bridges hardware output and the NeurAI intelligence layer.',
+                    'You will architect the real-time signal processing pipeline that transforms raw neural recordings into clinically actionable data. This role bridges hardware output and the Neurolab intelligence layer.',
                 responsibilities: [
                     'Design low-latency DSP pipelines for multi-channel neural decoding (<50ms)',
                     'Implement adaptive filtering algorithms for artifact rejection and noise suppression',
