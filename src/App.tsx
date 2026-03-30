@@ -51,6 +51,7 @@ const CalendarIntegration = lazy(() => import('./modules/CalendarIntegration'));
 
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound';
+import CookieConsent from './components/CookieConsent';
 
 const ModuleLoader = () => (
   <div className="flex h-[400px] w-full items-center justify-center">
@@ -137,6 +138,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      <CookieConsent />
     </BrowserRouter>
   );
 }
