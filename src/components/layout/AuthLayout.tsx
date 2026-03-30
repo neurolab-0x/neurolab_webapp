@@ -16,13 +16,13 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     const generateWave = (offset: number, amplitude: number, frequency: number, phase: number) => {
         let points = [];
         for (let x = 0; x <= 1000; x += 5) {
-            // Complex wave combination for realistic EEG look
-            const y1 = Math.sin((x * frequency) + phase) * amplitude;
-            const y2 = Math.sin((x * frequency * 2.3) + phase) * (amplitude * 0.4);
-            const y3 = Math.sin((x * frequency * 0.5) + phase) * (amplitude * 0.6);
+            // Smoother wave combination for a cleaner, premium look
+            const y1 = Math.sin((x * frequency) + phase) * (amplitude * 0.5);
+            const y2 = Math.sin((x * frequency * 2.1) + phase) * (amplitude * 0.2);
+            const y3 = Math.cos((x * frequency * 0.5) + phase) * (amplitude * 0.3);
 
-            // Add some noise
-            const noise = (Math.random() - 0.5) * (amplitude * 0.3);
+            // Very subtle noise instead of jagged spikes
+            const noise = (Math.random() - 0.5) * (amplitude * 0.08);
 
             const finalY = offset + y1 + y2 + y3 + noise;
             points.push(`${x},${finalY}`);
