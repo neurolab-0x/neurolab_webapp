@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import AuthLayout from '../components/layout/AuthLayout';
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -34,26 +35,24 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#05050A] relative overflow-hidden selection:bg-[#2E90FA]/30 selection:text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
-            {/* Surgical Environment Background Overlay */}
-            <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at top right, rgba(46, 144, 250, 0.08), transparent 40%), linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)', backgroundSize: '100% 100%, 20px 20px, 20px 20px' }} />
-
-            <div className="w-full max-w-[420px] rounded-[24px] bg-[#0C0C14]/80 backdrop-blur-[12px] border-[0.5px] border-[#1E293B] p-8 shadow-2xl relative z-10 mx-6 hover:border-[#1E293B]/80 transition-colors">
-                <div className="text-center mb-8 flex flex-col items-center">
-                    <div className="mb-6 flex flex-col items-center">
-                        <div className="flex items-baseline">
-                            <span className="text-3xl font-bold text-slate-50 tracking-tight">Neurolab</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-0.5" />
-                        </div>
-                        <div className="w-[30%] h-[1px] bg-[#2E90FA] mt-1 opacity-80" />
+        <AuthLayout>
+            <div className="flex flex-col">
+                {/* Neurolab Logo Component */}
+                <div className="mb-10">
+                    <div className="flex items-baseline">
+                        <span className="text-2xl font-bold text-slate-50 tracking-tight">Neurolab</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2E90FA] ml-1" />
                     </div>
-                    <h1 className="text-xl font-semibold text-slate-100" style={{ letterSpacing: '-0.02em' }}>Forgot Password</h1>
-                    <p className="mt-2 text-[13px] text-slate-400">Enter your email to receive a reset link</p>
+                </div>
+
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Forgot Password</h1>
+                    <p className="mt-2 text-sm text-slate-400">Enter your email to receive a reset link</p>
                 </div>
 
                 {success ? (
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center text-sm text-emerald-500">
-                        <CheckCircle2 size={32} className="mx-auto mb-4" />
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-sm text-emerald-500">
+                        <CheckCircle2 size={32} className="mb-4" />
                         <p>We've sent a password reset link to <strong className="text-slate-200">{email}</strong>. Please check your inbox.</p>
                         <Link to="/auth/login" className="mt-6 inline-block font-medium hover:text-emerald-400 transition-colors">Return to Login</Link>
                     </div>
@@ -65,15 +64,14 @@ export default function ForgotPassword() {
                             </div>
                         )}
                         <div>
-                            <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.05em] text-slate-400">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full h-[40px] rounded-lg border border-transparent bg-[#05050A] pl-10 pr-4 text-sm text-slate-200 transition-all focus:outline-none focus:border-[#2E90FA] hover:border-[#1E293B] shadow-inner placeholder:text-slate-600 tabular-nums"
-                                    placeholder="doctor@neurolab.cc"
+                                    className="w-full h-[48px] rounded-lg border border-[#1E293B] bg-[#05050A] pl-11 pr-4 text-sm text-slate-200 transition-all focus:outline-none focus:border-[#2E90FA] hover:border-[#2E90FA]/50 placeholder:text-slate-600 tabular-nums"
+                                    placeholder="Email address"
                                     required
                                 />
                             </div>
@@ -81,19 +79,19 @@ export default function ForgotPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="mt-6 w-full h-[44px] relative flex items-center justify-center overflow-hidden rounded-lg bg-[#2E90FA] text-white text-[13px] font-bold transition-all hover:bg-[#54A5FF] disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wide"
+                            className="mt-6 w-full h-[48px] relative flex items-center justify-center rounded-lg bg-white text-[#05050A] text-[14px] font-semibold transition-all hover:bg-slate-200 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Sending link...' : 'Send Reset Link'}
                         </button>
                     </form>
                 )}
 
-                <div className="mt-6 text-center">
-                    <Link to="/auth/login" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 transition-colors">
-                        <ArrowLeft size={14} /> Back to Sign In
+                <div className="mt-8">
+                    <Link to="/auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors">
+                        <ArrowLeft size={16} /> Back to Sign In
                     </Link>
                 </div>
             </div>
-        </div>
+        </AuthLayout>
     );
 };
