@@ -18,8 +18,7 @@ export class PortalErrorBoundary extends Component<Props, State> {
     };
 
     public static getDerivedStateFromError(error: Error): State {
-        // Generate a simulated tabular-nums error code based on the error message length 
-        // to maintain the "Laboratory/Industrial" aesthetic
+        // Generate error code identifier
         const baseCode = `ERR_SYNC_FAIL_${Math.floor(Math.random() * 900) + 100}`;
         return { hasError: true, errorCode: baseCode };
     }
