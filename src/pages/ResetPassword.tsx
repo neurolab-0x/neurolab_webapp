@@ -51,7 +51,7 @@ export default function ResetPassword() {
     return (
         <AuthLayout>
             <div className="flex flex-col">
-                {/* Neurolab Logo Component */}
+                {/* Brand header */}
                 <div className="mb-10">
                     <div className="flex items-baseline">
                         <span className="text-2xl font-bold text-slate-50 tracking-tight">Neurolab</span>
