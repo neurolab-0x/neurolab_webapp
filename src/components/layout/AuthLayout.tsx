@@ -12,16 +12,16 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-    // Generate mock EEG data points
+    // Waveform generator for background visualization
     const generateWave = (offset: number, amplitude: number, frequency: number, phase: number) => {
         let points = [];
         for (let x = 0; x <= 1000; x += 5) {
-            // Smoother wave combination for a cleaner, premium look
+            // Combine fundamental and harmonic frequencies
             const y1 = Math.sin((x * frequency) + phase) * (amplitude * 0.5);
             const y2 = Math.sin((x * frequency * 2.1) + phase) * (amplitude * 0.2);
             const y3 = Math.cos((x * frequency * 0.5) + phase) * (amplitude * 0.3);
 
-            // Very subtle noise instead of jagged spikes
+            // Add low-amplitude noise simulating EEG artifact
             const noise = (Math.random() - 0.5) * (amplitude * 0.08);
 
             const finalY = offset + y1 + y2 + y3 + noise;
@@ -40,18 +40,17 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-[#05050A] selection:bg-[#2E90FA]/30 selection:text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
-            {/* Left Box - Content */}
+            {/* Form container */}
             <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:w-3/7 xl:w-[40%] 2xl:w-[40%] relative z-20 bg-[#05050A]">
                 <div className="mx-auto w-full max-w-[360px] relative z-10">
                     {children}
                 </div>
             </div>
 
-            {/* Right Box - Premium Visual */}
-            {/* Using solid deep purple and stark diagonal stripes per Strettch premium aesthetic */}
+            {/* Dashboard visual container */}
             <div className="relative hidden lg:flex flex-1 p-3">
                 <div className="relative w-full h-full bg-[#0A0F1C] rounded-2xl overflow-hidden shadow-2xl border border-[#1E293B]/60">
-                    {/* Clean, thick diagonal stripes */}
+                    {/* Background pattern layer */}
                     <div
                         className="absolute inset-0 pointer-events-none opacity-[0.2]"
                         style={{
@@ -59,10 +58,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         }}
                     />
 
-                    {/* Subtle outer glow behind the dashboard */}
+                    {/* Ambient glow effect */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[#2E90FA] rounded-full blur-[180px] opacity-15 pointer-events-none" />
 
-                    {/* Inner mockup container - Scaled up and bleeding off-screen per premium design patterns */}
+                    {/* Off-screen clipped dashboard container */}
                     <div className="absolute top-[15%] left-[15%] w-[130%] h-[130%] min-w-[1000px] min-h-[850px] perspective-1000">
                         <motion.div
                             initial={{ opacity: 0, y: 40 }}
@@ -70,7 +69,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                             transition={{ duration: 0.8, ease: "easeOut" }}
                             className="relative w-full h-full"
                         >
-                            {/* Glassmorphic "Bleed" Base (highly visible and premium) */}
+                            {/* Backdrop blur layer */}
                             <div className="absolute -inset-4 bg-white/[0.08] backdrop-blur-3xl rounded-tl-[2rem] border border-white/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] z-0" />
 
                             {/* Inner Mockup Window */}
@@ -171,7 +170,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                                             {/* Chart Area */}
                                             <div className="flex-1 flex p-4 relative">
                                                 {/* Y-Axis Labels */}
-                                                <div className="w-14 shrink-0 flex flex-col justify-between py-2 text-[10px] font-mono text-slate-500 text-right pr-4 border-r border-[#1E293B]/30 z-10">
+                                                <div className="w-14 shrink-0 flex flex-col justify-between py-2 text-[11px] font-mono text-slate-400 text-right pr-4 border-r border-[#1E293B]/30 z-10">
                                                     {CHANNELS.map((ch, i) => <span key={i}>{ch}</span>)}
                                                 </div>
 
