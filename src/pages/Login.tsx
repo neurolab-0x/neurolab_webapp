@@ -78,7 +78,7 @@ export default function LoginPage() {
     return (
         <AuthLayout>
             <div className="flex flex-col">
-                {/* Neurolab Logo Component (Left Aligned) */}
+                {/* Brand header */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -131,21 +131,22 @@ export default function LoginPage() {
                         />
                     </div>
                     <div>
+                        <div className="flex items-center justify-between mb-1.5 px-1">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Password</span>
+                            <Link to="/auth/forgot-password" data-testid="forgot-password-link" className="text-[12px] font-medium text-[#2E90FA] hover:text-[#54A5FF] transition-colors leading-none">Forgot password?</Link>
+                        </div>
                         <div className="relative">
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full h-[48px] rounded-lg border border-[#1E293B] bg-[#05050A] px-4 pr-10 text-sm text-slate-200 transition-all focus:outline-none focus:border-[#2E90FA] hover:border-[#2E90FA]/50 placeholder:text-slate-600 tabular-nums"
-                                placeholder="Password"
+                                placeholder="Enter your password"
                                 required
                             />
                             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
-                        </div>
-                        <div className="mt-2 text-right">
-                            <Link to="/auth/forgot-password" className="text-[13px] font-medium text-slate-400 hover:text-slate-200 transition-colors">Forgot password?</Link>
                         </div>
                     </div>
 
@@ -154,9 +155,33 @@ export default function LoginPage() {
                         whileTap={{ scale: 0.98 }}
                         type="submit"
                         disabled={loading}
-                        className="mt-6 w-full h-[48px] relative flex items-center justify-center rounded-lg bg-white text-[#05050A] text-[14px] font-semibold transition-all hover:bg-slate-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="mt-6 w-full h-[48px] relative flex items-center justify-center rounded-[12px] bg-gradient-to-b from-white to-slate-200 text-[#05050A] text-[14px] font-bold transition-all hover:to-slate-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_4px_12px_rgba(255,255,255,0.1)]"
                     >
                         {loading ? <Loader2 size={18} className="animate-spin" /> : 'Sign In'}
+                    </motion.button>
+
+                    <div className="relative my-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-[#1E293B]"></div>
+                        </div>
+                        <div className="relative flex justify-center text-[11px] uppercase tracking-widest">
+                            <span className="bg-[#05050A] px-4 text-slate-500 font-medium">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <motion.button
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                        className="w-full h-[48px] flex items-center justify-center gap-3 rounded-[12px] border border-[#1E293B] bg-[#0A0A0F] text-slate-200 text-[14px] font-medium transition-all hover:bg-[#111118] hover:border-[#2E90FA]/30"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4" />
+                            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
+                            <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.712s.102-1.173.282-1.712V4.956H.957a9.011 9.011 0 000 8.088l3.007-2.332z" fill="#FBBC05" />
+                            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.582C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.956L3.964 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335" />
+                        </svg>
+                        Google
                     </motion.button>
                 </motion.form>
 
