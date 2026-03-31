@@ -9,7 +9,7 @@ export default function DoctorOnboarding({ user }: { user: any }) {
     useEffect(() => {
         const onboarded = localStorage.getItem('neurolab_doctor_onboarded');
         if (!onboarded && user?.role === 'DOCTOR') {
-            const timer = setTimeout(() => setIsOpen(true), 1000); // Small delay for premium feel
+            const timer = setTimeout(() => setIsOpen(true), 1000); // Initial render delay
             return () => clearTimeout(timer);
         }
     }, [user]);

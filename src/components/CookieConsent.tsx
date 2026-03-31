@@ -39,12 +39,12 @@ const CookieConsent = () => {
                     <div
                         className="relative overflow-hidden rounded-2xl border border-slate-500/20 bg-[#05050A]/90 p-4 shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8"
                     >
-                        {/* Shimmer line like Surgical Loader */}
+                        {/* Animated loading indicator */}
                         <div className="absolute top-0 left-0 h-[1px] w-full overflow-hidden opacity-30">
                             <div className="h-full w-1/3 bg-gradient-to-r from-transparent via-slate-400 to-transparent flex animate-[surgical-shimmer_3s_ease-in-out_infinite]" />
                         </div>
 
-                        {/* Subtle background glow */}
+                        {/* Ambient glow effect */}
                         <div className="absolute -left-12 -top-12 h-32 w-32 rounded-full bg-blue-500/10 blur-3xl opacity-50 pointer-events-none" />
 
                         <div className="relative z-10 flex-1 flex flex-col pl-2 py-1">
