@@ -32,7 +32,7 @@ const UserSessionInner = () => {
 
     return (
         <div className="mx-auto max-w-5xl">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-6 md:mb-8 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="text-2xl font-bold tracking-display text-foreground">Neural Session Dashboard</h2>
                     <p className="mt-1 text-sm text-muted-foreground">High-density personal telemetry</p>
@@ -85,40 +85,42 @@ const UserSessionInner = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="overflow-hidden rounded-2xl bg-surface shadow-sm border border-surface-border"
                     >
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-surface-border bg-sidebar/50">
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Channel</th>
-                                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Freq (Hz)</th>
-                                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Amp (µV)</th>
-                                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">SNR (dB)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {isLoading ? (
-                                    <tr>
-                                        <td colSpan={4} className="p-8 text-center text-sm text-muted-foreground">
-                                            Synchronizing session...
-                                        </td>
+                        <div className="table-scroll-mobile">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-surface-border bg-sidebar/50">
+                                        <th className="px-4 md:px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Channel</th>
+                                        <th className="px-4 md:px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Freq (Hz)</th>
+                                        <th className="px-4 md:px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Amp (µV)</th>
+                                        <th className="px-4 md:px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">SNR (dB)</th>
                                     </tr>
-                                ) : (
-                                    eegData?.map((row, i) => (
-                                        <tr
-                                            key={row.channel_id}
-                                            className="transition-colors duration-300 hover:bg-secondary"
-                                            style={{
-                                                borderBottom: i < eegData.length - 1 ? '0.5px solid hsl(var(--surface-border))' : 'none',
-                                            }}
-                                        >
-                                            <td className="px-6 py-4 text-sm font-medium text-foreground">{row.channel_id}</td>
-                                            <td className="px-6 py-4 text-right text-sm tabular-nums text-muted-foreground">{row.frequency_hz.toFixed(2)}</td>
-                                            <td className="px-6 py-4 text-right text-sm tabular-nums text-muted-foreground">{row.amplitude_uv.toFixed(1)}</td>
-                                            <td className="px-6 py-4 text-right text-sm tabular-nums text-muted-foreground">{row.snr_db.toFixed(1)}</td>
+                                </thead>
+                                <tbody>
+                                    {isLoading ? (
+                                        <tr>
+                                            <td colSpan={4} className="p-8 text-center text-sm text-muted-foreground">
+                                                Synchronizing session...
+                                            </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : (
+                                        eegData?.map((row, i) => (
+                                            <tr
+                                                key={row.channel_id}
+                                                className="transition-colors duration-300 hover:bg-secondary"
+                                                style={{
+                                                    borderBottom: i < eegData.length - 1 ? '0.5px solid hsl(var(--surface-border))' : 'none',
+                                                }}
+                                            >
+                                                <td className="px-4 md:px-6 py-4 text-sm font-medium text-foreground whitespace-nowrap">{row.channel_id}</td>
+                                                <td className="px-4 md:px-6 py-4 text-right text-sm tabular-nums text-muted-foreground whitespace-nowrap">{row.frequency_hz.toFixed(2)}</td>
+                                                <td className="px-4 md:px-6 py-4 text-right text-sm tabular-nums text-muted-foreground whitespace-nowrap">{row.amplitude_uv.toFixed(1)}</td>
+                                                <td className="px-4 md:px-6 py-4 text-right text-sm tabular-nums text-muted-foreground whitespace-nowrap">{row.snr_db.toFixed(1)}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

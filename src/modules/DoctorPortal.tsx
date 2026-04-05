@@ -258,7 +258,7 @@ const ClinicalDiagnosticsInner = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6 mb-8 relative">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8 relative">
                         {connectionState === 'connecting' && (
                             <div className="absolute inset-0 z-10 bg-surface/50 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
                                 <div className="bg-background border border-surface-border rounded-lg p-4 flex items-center gap-3 shadow-xl">
@@ -339,12 +339,12 @@ const ClinicalDiagnosticsInner = () => {
 
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
-            <div className="mb-6 flex items-baseline justify-between">
+            <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
                 <div>
                     <h1 className="text-3xl font-bold tracking-display text-foreground">Clinical Diagnostics</h1>
                     <p className="text-muted-foreground mt-2">Real-time signal analysis and patient telemetry.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4">
                     <div className="flex items-center gap-2 rounded-lg border border-surface-border bg-surface px-3 py-1.5 text-xs text-muted-foreground font-medium">
                         <Wifi size={14} className="text-emerald-500" />
                         {config.deviceType} ({config.channels} Ch)
@@ -392,7 +392,7 @@ const ClinicalDiagnosticsInner = () => {
                 <div className="relative">
                     <canvas
                         ref={canvasRef}
-                        className="h-[600px] w-full bg-background"
+                        className="h-[350px] md:h-[450px] lg:h-[600px] w-full bg-background"
                         style={{ display: 'block' }}
                     />
 

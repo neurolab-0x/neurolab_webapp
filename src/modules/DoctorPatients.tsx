@@ -124,7 +124,7 @@ function PatientsInner() {
 
     return (
         <div className="mx-auto max-w-5xl">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-6 md:mb-8 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">My Patients</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Patient roster and monitoring</p>
@@ -265,30 +265,32 @@ function PatientsInner() {
 
             {/* Patient Table */}
             <div className="overflow-hidden rounded-2xl border bg-card">
-                <table className="w-full">
-                    <thead><tr className="border-b bg-secondary/30">
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Patient</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Condition</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">SNR Avg</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Last Session</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
-                    </tr></thead>
-                    <tbody>
-                        {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No patients assigned yet.</td></tr> : data.map((p: any) => (
-                            <tr key={p.id || p._id} className="border-b border-border/50 hover:bg-secondary/20">
-                                <td className="px-6 py-4"><p className="text-sm font-medium text-foreground">{p.fullName || p.name}</p><p className="text-xs text-muted-foreground">Age {p.age || '—'}</p></td>
-                                <td className="px-6 py-4 text-sm text-muted-foreground">{p.condition || '—'}</td>
-                                <td className="px-6 py-4 text-right text-sm font-semibold tabular-nums text-foreground">{p.snr_avg ? `${p.snr_avg} dB` : '—'}</td>
-                                <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{p.lastSession || '—'}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`flex items-center gap-1 text-xs font-medium ${p.status === 'ACTIVE' ? 'text-emerald-500' : 'text-muted-foreground'}`}>
-                                        {p.status === 'ACTIVE' ? <UserCheck size={12} /> : <UserX size={12} />} {p.status}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="table-scroll-mobile">
+                    <table className="w-full">
+                        <thead><tr className="border-b bg-secondary/30">
+                            <th className="px-4 md:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Patient</th>
+                            <th className="px-4 md:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Condition</th>
+                            <th className="px-4 md:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">SNR Avg</th>
+                            <th className="px-4 md:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Last Session</th>
+                            <th className="px-4 md:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Status</th>
+                        </tr></thead>
+                        <tbody>
+                            {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No patients assigned yet.</td></tr> : data.map((p: any) => (
+                                <tr key={p.id || p._id} className="border-b border-border/50 hover:bg-secondary/20">
+                                    <td className="px-4 md:px-6 py-4 whitespace-nowrap"><p className="text-sm font-medium text-foreground">{p.fullName || p.name}</p><p className="text-xs text-muted-foreground">Age {p.age || '—'}</p></td>
+                                    <td className="px-4 md:px-6 py-4 text-sm text-muted-foreground whitespace-nowrap">{p.condition || '—'}</td>
+                                    <td className="px-4 md:px-6 py-4 text-right text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">{p.snr_avg ? `${p.snr_avg} dB` : '—'}</td>
+                                    <td className="px-4 md:px-6 py-4 text-sm tabular-nums text-muted-foreground whitespace-nowrap">{p.lastSession || '—'}</td>
+                                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                                        <span className={`flex items-center gap-1 text-xs font-medium ${p.status === 'ACTIVE' ? 'text-emerald-500' : 'text-muted-foreground'}`}>
+                                            {p.status === 'ACTIVE' ? <UserCheck size={12} /> : <UserX size={12} />} {p.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

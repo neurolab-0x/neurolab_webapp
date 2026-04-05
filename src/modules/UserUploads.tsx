@@ -279,7 +279,7 @@ function UploadsInner() {
 
     return (
         <div className="mx-auto max-w-5xl">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-6 md:mb-8 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">File Uploads</h1>
                     <p className="mt-1 text-sm text-muted-foreground">EEG recordings and voice samples</p>
@@ -333,7 +333,7 @@ function UploadsInner() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 key={file.id || file._id || file.upload_id}
-                                className="flex items-center justify-between rounded-xl border bg-card px-5 py-3 transition-colors hover:bg-secondary/30"
+                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border bg-card px-4 md:px-5 py-3 transition-colors hover:bg-secondary/30"
                             >
                                 <div className="flex items-center gap-3">
                                     <File size={18} className="text-muted-foreground" />
@@ -342,7 +342,7 @@ function UploadsInner() {
                                         <p className="text-xs text-muted-foreground">{file.size || file.metadata?.fileSize || 0} bytes · {new Date(file.created_at || file.uploadedAt || file.createdAt || Date.now()).toLocaleDateString()}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                     <button
                                         onClick={() => handleAnalyze(file)}
                                         disabled={!!analyzingId}
@@ -353,7 +353,7 @@ function UploadsInner() {
                                         ) : 'Analyse via Neurolab'}
                                     </button>
                                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{file.file_type || file.fileType || file.type || 'Data'}</span>
-                                    <button onClick={() => handleDelete(file.id || file._id || file.upload_id)} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={14} /></button>
+                                    <button onClick={() => handleDelete(file.id || file._id || file.upload_id)} className="text-muted-foreground hover:text-destructive transition-colors p-2 touch-target flex items-center justify-center"><Trash2 size={14} /></button>
                                 </div>
                             </motion.div>
                         ))

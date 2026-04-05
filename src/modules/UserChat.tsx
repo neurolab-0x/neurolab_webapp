@@ -197,23 +197,23 @@ function ChatInner() {
         <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-6xl gap-6 bg-background">
             <div className="flex flex-1 flex-col min-w-0">
                 {/* Header */}
-                <div className="mb-6 flex items-center justify-between border-b border-border/50 pb-4 px-2">
+                <div className="mb-2 sm:mb-6 flex items-center justify-between border-b border-border/50 pb-2 sm:pb-4 px-2">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Sparkles size={20} className="text-primary" />
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                            <Sparkles size={18} className="text-primary sm:w-5 sm:h-5" />
                             Neurolab Intelligence
                         </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">Advanced predictive neural health modeling</p>
+                        <p className="hidden sm:block mt-1 text-sm text-muted-foreground">Advanced predictive neural health modeling</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border border-border/50 ${isHistoryOpen ? 'bg-primary/10 text-primary border-primary/20' : 'bg-surface text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                            className={`flex items-center gap-2 rounded-lg px-2 sm:px-3 py-1.5 text-xs font-medium transition-colors border border-border/50 ${isHistoryOpen ? 'bg-primary/10 text-primary border-primary/20' : 'bg-surface text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
                         >
                             {isHistoryOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
-                            History
+                            <span className="hidden sm:inline">History</span>
                         </button>
-                        <div className="flex items-center gap-2 rounded-full border border-border/50 bg-surface px-3 py-1 shadow-sm">
+                        <div className="hidden sm:flex items-center gap-2 rounded-full border border-border/50 bg-surface px-3 py-1 shadow-sm">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -230,7 +230,7 @@ function ChatInner() {
                             initial={{ opacity: 0, y: -10, height: 0 }}
                             animate={{ opacity: 1, y: 0, height: 'auto' }}
                             exit={{ opacity: 0, y: -10, height: 0 }}
-                            className="mb-4 overflow-hidden"
+                            className="hidden sm:block mb-4 overflow-hidden"
                         >
                             <div className="mx-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 shadow-sm backdrop-blur-md">
                                 <div className="flex items-start gap-3">

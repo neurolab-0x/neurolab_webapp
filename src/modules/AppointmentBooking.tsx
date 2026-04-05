@@ -195,14 +195,14 @@ const AppointmentBookingInner = () => {
             </div>
 
             {/* Step indicators */}
-            <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="flex items-center gap-2 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap pb-1">
                 {(['search', 'schedule', 'payment', 'confirmed'] as const).map((step, i) => {
                     const labels = ['1. Select Specialist', '2. Date & Time', '3. Confirm Request', '✓ Done'];
                     const active = bookingStep === step;
                     return (
                         <React.Fragment key={step}>
-                            {i > 0 && <ChevronRight size={16} className="text-muted-foreground" />}
-                            <span className={active ? 'text-foreground' : 'text-muted-foreground'}>{labels[i]}</span>
+                            {i > 0 && <ChevronRight size={16} className="text-muted-foreground shrink-0" />}
+                            <span className={`shrink-0 ${active ? 'text-foreground' : 'text-muted-foreground'}`}>{labels[i]}</span>
                         </React.Fragment>
                     );
                 })}
@@ -298,7 +298,7 @@ const AppointmentBookingInner = () => {
 
             {/* ── Step 2: Schedule ── */}
             {bookingStep === 'schedule' && selectedDoctor && (
-                <div className="max-w-2xl rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
+                <div className="max-w-2xl rounded-2xl border border-surface-border bg-surface p-4 sm:p-8 shadow-sm">
                     <div className="mb-8 border-b border-surface-border pb-6">
                         <h3 className="text-xl font-bold text-foreground">Schedule with {getDoctorName(selectedDoctor)}</h3>
                         <p className="text-sm text-muted-foreground">
@@ -307,7 +307,7 @@ const AppointmentBookingInner = () => {
                         </p>
                     </div>
 
-                    <div className="mb-8 p-6 rounded-2xl border border-surface-border bg-background shadow-sm">
+                    <div className="mb-8 p-4 sm:p-6 rounded-2xl border border-surface-border bg-background shadow-sm">
                         <div className="mb-6 flex items-center justify-between">
                             <div>
                                 <h4 className="font-semibold text-foreground">Select Date</h4>
@@ -315,7 +315,7 @@ const AppointmentBookingInner = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <button onClick={handlePrevMonth} className="p-1.5 rounded-lg bg-surface hover:bg-surface-border text-foreground text-xs font-medium border border-surface-border transition-colors"><ChevronLeft size={16} /></button>
-                                <span className="text-sm font-semibold text-foreground w-32 text-center">{format(currentMonth, 'MMMM yyyy')}</span>
+                                <span className="text-sm font-semibold text-foreground w-24 sm:w-32 text-center">{format(currentMonth, 'MMMM yyyy')}</span>
                                 <button onClick={handleNextMonth} className="p-1.5 rounded-lg bg-surface hover:bg-surface-border text-foreground text-xs font-medium border border-surface-border transition-colors"><ChevronRight size={16} /></button>
                             </div>
                         </div>
@@ -410,7 +410,7 @@ const AppointmentBookingInner = () => {
 
             {/* ── Step 3: Confirm / Payment ── */}
             {bookingStep === 'payment' && selectedDoctor && (
-                <div className="max-w-md rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
+                <div className="max-w-md rounded-2xl border border-surface-border bg-surface p-4 sm:p-8 shadow-sm">
                     <div className="mb-6 flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
                             <CreditCard size={24} />

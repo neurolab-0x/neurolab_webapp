@@ -41,7 +41,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     return (
         <div className="flex min-h-screen bg-[#05050A] selection:bg-[#2E90FA]/30 selection:text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
             {/* Form container */}
-            <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:w-3/7 xl:w-[40%] 2xl:w-[40%] relative z-20 bg-[#05050A]">
+            <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 py-safe sm:py-safe-12 lg:flex-none lg:w-[43%] xl:w-[40%] 2xl:w-[40%] relative z-20 bg-[#05050A] safe-area-top safe-area-bottom">
                 <div className="mx-auto w-full max-w-[360px] relative z-10">
                     {children}
                 </div>

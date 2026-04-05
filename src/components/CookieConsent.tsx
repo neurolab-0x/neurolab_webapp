@@ -7,8 +7,11 @@ const CookieConsent = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const isSandbox = params.has('sandbox');
         const consent = localStorage.getItem('neurolab_cookie_consent');
-        if (!consent) {
+
+        if (!consent && !isSandbox) {
             const timer = setTimeout(() => setIsVisible(true), 1500);
             return () => clearTimeout(timer);
         }
@@ -37,7 +40,7 @@ const CookieConsent = () => {
                     className="fixed bottom-6 left-1/2 z-[100] w-[calc(100%-48px)] max-w-3xl -translate-x-1/2"
                 >
                     <div
-                        className="relative overflow-hidden rounded-2xl border border-slate-500/20 bg-[#05050A]/90 p-4 shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8"
+                        className="relative overflow-hidden rounded-2xl border border-slate-500/20 bg-[#05050A]/90 p-4 sm:p-5 shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6"
                     >
                         {/* Animated loading indicator */}
                         <div className="absolute top-0 left-0 h-[1px] w-full overflow-hidden opacity-30">
@@ -50,13 +53,13 @@ const CookieConsent = () => {
                         <div className="relative z-10 flex-1 flex flex-col pl-2 py-1">
                             <p
                                 style={{ fontFamily: sfPro, letterSpacing: '-0.01em' }}
-                                className="text-sm text-slate-300 leading-relaxed md:pr-4"
+                                className="text-[13px] text-slate-300 leading-relaxed text-center md:text-left md:pr-4"
                             >
                                 We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.
                             </p>
                         </div>
 
-                        <div className="relative z-10 flex w-full md:w-auto items-center justify-end gap-3 shrink-0">
+                        <div className="relative z-10 flex w-full md:w-auto flex-col sm:flex-row items-center justify-center md:justify-end gap-3 md:gap-4 shrink-0">
                             <button
                                 onClick={handleAcceptNecessary}
                                 className="h-10 px-4 text-[12px] font-medium text-slate-400 transition-all hover:text-white"
@@ -66,7 +69,7 @@ const CookieConsent = () => {
                             </button>
                             <button
                                 onClick={handleAcceptAll}
-                                className="h-10 rounded-full px-6 text-[12px] font-semibold text-[#05050A] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]"
+                                className="h-10 w-full sm:w-auto rounded-full px-6 text-[13px] font-semibold text-[#05050A] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]"
                                 style={{ background: '#F8FAFC', fontFamily: sfPro }}
                             >
                                 Accept All

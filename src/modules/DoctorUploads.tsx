@@ -561,8 +561,8 @@ const DoctorUploadsInner = () => {
             ) : (
                 <div className="space-y-6">
                     {/* Visualizer Controls */}
-                    <div className="flex items-center justify-between rounded-xl border border-surface-border bg-surface p-4 shadow-sm">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface p-3 md:p-4 shadow-sm">
+                        <div className="flex flex-wrap items-center gap-3 md:gap-4">
                             <button onClick={() => setPlaybackState(p => p === 'paused' ? 'playing' : 'paused')} className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2E90FA] text-white hover:bg-[#54A5FF] transition-colors">
                                 {playbackState === 'playing' ? <Pause size={18} /> : <Play size={18} className="ml-1" />}
                             </button>
@@ -602,12 +602,12 @@ const DoctorUploadsInner = () => {
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Playback: {file?.name || selectedServerFile?.filename || selectedServerFile?.fileName || 'Unknown File'} {parsedData && `(${parsedData.labels.length} Extracted Channels)`}</span>
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Zoom: {zoom.toFixed(1)}x</span>
                         </div>
-                        <canvas ref={canvasRef} className="w-full h-[500px] bg-background block" />
+                        <canvas ref={canvasRef} className="w-full h-[300px] md:h-[400px] lg:h-[500px] bg-background block" />
                     </div>
 
                     {/* Mock Analysis Results */}
-                    <div className="grid grid-cols-3 gap-6">
-                        <div className="col-span-2 rounded-2xl border border-surface-border bg-surface p-6 shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                        <div className="md:col-span-2 rounded-2xl border border-surface-border bg-surface p-6 shadow-sm">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">AI Findings</h3>
                             <div className="space-y-4">
                                 {aiFindings.map((finding, idx) => {
