@@ -5,6 +5,15 @@ import { Activity, Radio } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Session {
+    id: string;
+    _id?: string;
+    user: string;
+    device: string;
+    duration: string;
+    status: string;
+}
+
 function SessionsInner() {
     const { data, isPending: isLoading } = useQuery({
         queryKey: ['admin-sessions'],
@@ -27,7 +36,7 @@ function SessionsInner() {
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                     </tr></thead>
                     <tbody>
-                        {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data?.map((s: any) => (
+                        {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data?.map((s: Session) => (
                             <tr key={s._id || s.id} className="border-b border-border/50 hover:bg-secondary/20">
                                 <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s._id || s.id}</td>
                                 <td className="px-6 py-4 text-sm font-medium text-foreground">{s.user}</td>

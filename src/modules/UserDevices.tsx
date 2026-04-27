@@ -6,6 +6,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Device {
+    id?: string;
+    _id?: string;
+    name: string;
+    type: string;
+    serialNumber: string;
+    status: string;
+    lastSync: string;
+}
+
 function DevicesInner() {
     const queryClient = useQueryClient();
     const { data: serverData, isPending: isLoading } = useQuery({
@@ -18,7 +28,7 @@ function DevicesInner() {
     const [isRegistering, setIsRegistering] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [serial, setSerial] = useState('');
-    const [localDevices, setLocalDevices] = useState<any[]>([]);
+    const [localDevices, setLocalDevices] = useState<Device[]>([]);
 
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
@@ -129,7 +139,7 @@ function DevicesInner() {
                         <p className="mt-1 text-xs text-muted-foreground/60">Click "Register Device" to pair your Neurolab hardware</p>
                     </div>
                 ) : (
-                    [...localDevices, ...devices].map((device: any) => (
+                    [...localDevices, ...devices].map((device: Device) => (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}

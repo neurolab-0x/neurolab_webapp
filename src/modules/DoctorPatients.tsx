@@ -8,6 +8,30 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
+interface Patient {
+    id: string;
+    _id?: string;
+    fullName?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    age?: string | number;
+    condition?: string;
+    snr_avg?: string | number;
+    lastSession?: string;
+    status?: string;
+}
+
+interface User {
+    id: string;
+    _id?: string;
+    fullName?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+}
+
+
 function PatientsInner() {
     const queryClient = useQueryClient();
     const { data: rawData, isPending: isLoading } = useQuery({
@@ -18,13 +42,12 @@ function PatientsInner() {
 
     // Normalise to array regardless of whether the API returns a bare array
     // or a wrapped object like { patients: [...] } / { data: [...] }
-    const data: any[] = Array.isArray(rawData)
-        ? rawData
-        : Array.isArray(rawData?.patients)
-            ? rawData.patients
-            : Array.isArray(rawData?.data)
-                ? rawData.data
-                : [];
+    const data = useMemo<Patient[]>(() => {
+        if (Array.isArray(rawData)) return rawData;
+        if (Array.isArray(rawData?.patients)) return rawData.patients;
+        if (Array.isArray(rawData?.data)) return rawData.data;
+        return [];
+    }, [rawData]);
 
     // Assign Patient panel state
     const [showAssign, setShowAssign] = useState(false);
@@ -44,7 +67,7 @@ function PatientsInner() {
         setInviteState('idle');
     };
 
-    const allUsersFetcher = async (): Promise<any[]> => {
+    const allUsersFetcher = async (): Promise<User[]> => {
         const res = await fetch(`${BASE}/api/admin/users`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('neurolab_token') || ''}`,
@@ -69,14 +92,14 @@ function PatientsInner() {
         if (!searchQuery.trim() || searchQuery.trim().length < 2) return [];
 
         const q = searchQuery.toLowerCase();
-        const assignedIds = new Set((data || []).map((p: any) => p.id || p._id));
+        const assignedIds = new Set((data || []).map((p: Patient) => p.id || p._id));
 
         // If we got users from the admin endpoint, search across all of them
         const userPool = Array.isArray(allUsers) && allUsers.length > 0
             ? allUsers
             : (data || []); // fall back to assigned patients
 
-        return userPool.filter((u: any) => {
+        return userPool.filter((u: User) => {
             const id = u.id || u._id;
             if (assignedIds.has(id)) return false; // skip already assigned
             const name = (u.fullName || u.name || '').toLowerCase();
@@ -99,9 +122,10 @@ function PatientsInner() {
                 setShowAssign(false);
                 resetAssign();
             }, 1200);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             setAssignState('error');
-            setAssignError(err.message === '409' ? 'Patient is already assigned to you.' : 'Failed to assign patient. Please try again.');
+            setAssignError(error.message === '409' ? 'Patient is already assigned to you.' : 'Failed to assign patient. Please try again.');
         }
     };
 
@@ -116,9 +140,10 @@ function PatientsInner() {
                 setShowAssign(false);
                 resetAssign();
             }, 1500);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             setInviteState('idle');
-            setAssignError(err.message || 'Failed to send invitation. Please try again.');
+            setAssignError(error.message || 'Failed to send invitation. Please try again.');
         }
     };
 
@@ -186,7 +211,7 @@ function PatientsInner() {
                                         exit={{ opacity: 0, y: -4 }}
                                         className="mt-3 space-y-1 max-h-48 overflow-y-auto rounded-lg border border-surface-border bg-background"
                                     >
-                                        {searchResults.map((p: any) => (
+                                        {searchResults.map((p: User) => (
                                             <button
                                                 key={p.id || p._id}
                                                 onClick={() => handleAssign(p.id || p._id)}
@@ -275,7 +300,7 @@ function PatientsInner() {
                             <th className="px-4 md:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground whitespace-nowrap">Status</th>
                         </tr></thead>
                         <tbody>
-                            {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No patients assigned yet.</td></tr> : data.map((p: any) => (
+                            {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading...</td></tr> : data.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No patients assigned yet.</td></tr> : data.map((p: Patient) => (
                                 <tr key={p.id || p._id} className="border-b border-border/50 hover:bg-secondary/20">
                                     <td className="px-4 md:px-6 py-4 whitespace-nowrap"><p className="text-sm font-medium text-foreground">{p.fullName || p.name}</p><p className="text-xs text-muted-foreground">Age {p.age || '—'}</p></td>
                                     <td className="px-4 md:px-6 py-4 text-sm text-muted-foreground whitespace-nowrap">{p.condition || '—'}</td>

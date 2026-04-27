@@ -5,6 +5,16 @@ import { Users, Shield, Trash2, MoreHorizontal } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface User {
+    id: string;
+    _id?: string;
+    fullName: string;
+    email: string;
+    role: string;
+    status: string;
+    createdAt: string;
+}
+
 function UsersInner() {
     const { data: rawData, isPending: isLoading } = useQuery({
         queryKey: ['admin-users'],
@@ -48,7 +58,7 @@ function UsersInner() {
                         {isLoading ? (
                             <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">Loading users...</td></tr>
                         ) : (
-                            data?.map((user: any) => (
+                            data?.map((user: User) => (
                                 <tr key={user._id || user.id} className="border-b border-border/50 transition-colors hover:bg-secondary/20">
                                     <td className="px-6 py-4">
                                         <div>

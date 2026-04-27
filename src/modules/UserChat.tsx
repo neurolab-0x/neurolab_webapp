@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary';
 import { Send, BrainCircuit, Volume2, Square, Mic, Paperclip, Video, Play, Pause, Loader2, Sparkles, X, ChevronDown, Check, History, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,12 +20,18 @@ const SUGGESTIONS = [
     "Summarize my neural health trends"
 ];
 
+interface HistoryItem {
+    id: string;
+    createdAt?: string;
+    lastMessage?: string;
+}
+
 function ChatInner() {
     const [messages, setMessages] = useState<Message[]>([
         { role: 'ai', content: 'Hello! I am Neurolab. Let\'s explore your neural telemetry and cognitive health together.', timestamp: new Date().toLocaleTimeString() },
     ]);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-    const [history, setHistory] = useState<any[]>([]);
+    const [history, setHistory] = useState<HistoryItem[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -78,7 +84,7 @@ function ChatInner() {
         }
     }, []);
 
-    const fetchHistory = async () => {
+    const fetchHistory = useCallback(async () => {
         if (history.length > 0 && !isHistoryOpen) return; // Basic cache
         setHistoryLoading(true);
         try {
@@ -89,13 +95,13 @@ function ChatInner() {
         } finally {
             setHistoryLoading(false);
         }
-    };
+    }, [history.length, isHistoryOpen]);
 
     useEffect(() => {
         if (isHistoryOpen) {
             fetchHistory();
         }
-    }, [isHistoryOpen]);
+    }, [isHistoryOpen, fetchHistory]);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -181,9 +187,10 @@ function ChatInner() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.csv,.edf,.pdf';
-        input.onchange = (e: any) => {
-            if (e.target.files && e.target.files.length > 0) {
-                setAttachments(prev => [...prev, { type: 'file', name: e.target.files[0].name }]);
+        input.onchange = (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            if (target.files && target.files.length > 0) {
+                setAttachments(prev => [...prev, { type: 'file', name: target.files![0].name }]);
             }
         };
         input.click();

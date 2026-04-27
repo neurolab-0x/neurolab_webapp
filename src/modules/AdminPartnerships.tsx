@@ -5,6 +5,15 @@ import { Handshake } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Partnership {
+    id: string;
+    _id?: string;
+    name: string;
+    contact: string;
+    since: string;
+    status: string;
+}
+
 function PartnershipsInner() {
     const { data } = useQuery({
         queryKey: ['partnerships'],
@@ -18,7 +27,7 @@ function PartnershipsInner() {
                 <button className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Create Partnership</button>
             </div>
             <div className="space-y-3">
-                {data?.map((p: any) => (
+                {data?.map((p: Partnership) => (
                     <div key={p._id || p.id} className="flex items-center justify-between rounded-xl border bg-card px-6 py-5 hover:bg-secondary/30">
                         <div className="flex items-center gap-4">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary"><Handshake size={18} className="text-primary" /></div>

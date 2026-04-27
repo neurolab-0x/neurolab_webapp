@@ -108,7 +108,7 @@ const PlatformShell = () => {
             navigate('/auth/login');
         }
         setLoading(false);
-    }, [navigate, location.search]);
+    }, [navigate, location.search, sandboxMode]);
 
     const handleSignOut = async () => {
         try {
@@ -134,7 +134,7 @@ const PlatformShell = () => {
     if (!currentUser) return null;
 
     const renderNavLinks = () => {
-        const NavItem = (props: any) => <SidebarLink {...props} minimized={isSidebarMinimized} />;
+        const NavItem = (props: { to: string; icon: React.ReactNode; label: string; tourId?: string }) => <SidebarLink {...props} minimized={isSidebarMinimized} />;
 
         if (sandboxMode) {
             const handleWaitlistClick = (e: React.MouseEvent) => {

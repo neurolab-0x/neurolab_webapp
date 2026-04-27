@@ -187,6 +187,16 @@ const AvailabilityManager = () => {
     );
 };
 
+interface Appointment {
+    id: string;
+    patientName: string;
+    type: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    status: 'CONFIRMED' | 'PENDING' | 'COMPLETED' | 'CANCELLED';
+}
+
 function AppointmentsInner() {
     const [activeTab, setActiveTab] = useState<'schedule' | 'availability'>('schedule');
     const queryClient = useQueryClient();
@@ -198,7 +208,7 @@ function AppointmentsInner() {
 
     const handleStatusChange = (id: string, status: string) => {
         if (!data) return;
-        const updated = data.map((a: any) => a.id === id ? { ...a, status } : a);
+        const updated = (data as Appointment[]).map((a: Appointment) => a.id === id ? { ...a, status } : a);
         queryClient.setQueryData(['doctor-appointments'], updated);
     };
 
@@ -251,7 +261,7 @@ function AppointmentsInner() {
                         transition={{ duration: 0.2 }}
                         className="space-y-3"
                     >
-                        {data?.map((apt: any) => (
+                        {data?.map((apt: Appointment) => (
                             <div key={apt.id} className="flex items-center justify-between rounded-xl border border-surface-border bg-surface px-6 py-4 shadow-sm hover:border-[#2E90FA]/30 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-background border border-surface-border text-center">

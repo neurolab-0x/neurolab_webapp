@@ -5,6 +5,16 @@ import { Clock, FileText } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Session {
+    id?: string;
+    _id?: string;
+    type: string;
+    date: string;
+    duration: string;
+    snr_avg: string | number;
+    status: string;
+}
+
 function HistoryInner() {
     const { data, isPending: isLoading } = useQuery({
         queryKey: ['user-history'],
@@ -35,7 +45,7 @@ function HistoryInner() {
                         <p className="mt-1 text-sm text-muted-foreground">Complete a neural analysis session to see your history here.</p>
                     </div>
                 ) : (
-                    (Array.isArray(data) ? data : []).map((session: any) => (
+                    (Array.isArray(data) ? data : []).map((session: Session) => (
                         <div key={session.id || session._id} className="flex items-center justify-between rounded-xl border bg-card px-6 py-4 transition-colors hover:bg-secondary/50">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">

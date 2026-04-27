@@ -6,6 +6,16 @@ import { Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Appointment {
+    id: string;
+    date: string;
+    type: string;
+    doctorName: string;
+    startTime: string;
+    endTime: string;
+    status: 'CONFIRMED' | 'PENDING' | 'COMPLETED' | 'CANCELLED';
+}
+
 function AppointmentsInner() {
     const navigate = useNavigate();
     const { data, isPending: isLoading } = useQuery({
@@ -44,7 +54,7 @@ function AppointmentsInner() {
                         <div key={i} className="h-20 animate-pulse rounded-xl bg-card" />
                     ))
                 ) : (
-                    data?.map((apt: any) => (
+                    data?.map((apt: Appointment) => (
                         <div key={apt.id} className="flex items-center justify-between rounded-xl border bg-card px-6 py-4 transition-colors hover:bg-secondary/30">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-secondary text-center">

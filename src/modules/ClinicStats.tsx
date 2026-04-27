@@ -5,6 +5,14 @@ import { BarChart3, Users, Cpu, Activity } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Session {
+    id: string;
+    patient: string;
+    device: string;
+    duration: string;
+    status: string;
+}
+
 function StatsInner() {
     const { data, isPending: isLoading } = useQuery({
         queryKey: ['clinic-stats'],
@@ -33,7 +41,7 @@ function StatsInner() {
                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                         </tr></thead>
                         <tbody>
-                            {data?.recentSessions?.map((s: any) => (
+                            {data?.recentSessions?.map((s: Session) => (
                                 <tr key={s.id} className="border-b border-border/50 hover:bg-secondary/20">
                                     <td className="px-6 py-4 text-sm font-medium text-foreground">{s.patient}</td>
                                     <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{s.device}</td>

@@ -6,6 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Notification {
+    id: string;
+    title: string;
+    message: string;
+    read: boolean;
+    createdAt: string;
+}
+
 function NotificationsInner() {
     const queryClient = useQueryClient();
     const { data: serverData } = useQuery({
@@ -14,7 +22,7 @@ function NotificationsInner() {
     });
     const mutate = () => queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
 
     useEffect(() => {
         if (serverData) setNotifications(serverData);
@@ -67,7 +75,7 @@ function NotificationsInner() {
                             No new notifications
                         </motion.div>
                     ) : (
-                        notifications.map((n: any) => (
+                        notifications.map((n: Notification) => (
                             <motion.div
                                 layout
                                 initial={{ opacity: 0, scale: 0.95 }}

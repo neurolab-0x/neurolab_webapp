@@ -17,7 +17,7 @@ const DoctorUploadsInner = () => {
     const serverFiles = Array.isArray(serverData) ? serverData : (serverData?.uploads || []);
 
     const [file, setFile] = useState<File | null>(null);
-    const [selectedServerFile, setSelectedServerFile] = useState<any | null>(null);
+    const [selectedServerFile, setSelectedServerFile] = useState<{ id?: string; upload_id?: string; filename?: string; fileName?: string; url?: string; filepath?: string; fileUrl?: string; filePath?: string; size?: number; created_at?: string } | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -63,7 +63,7 @@ const DoctorUploadsInner = () => {
         }
     };
 
-    const handleSelectServerFile = (sFile: any) => {
+    const handleSelectServerFile = (sFile: { id?: string; upload_id?: string; filename?: string; fileName?: string; url?: string; filepath?: string; fileUrl?: string; filePath?: string; size?: number; created_at?: string }) => {
         setSelectedServerFile(sFile);
         setFile(null);
         setAnalysisComplete(false);
@@ -91,11 +91,12 @@ const DoctorUploadsInner = () => {
                         throw new Error(`Cloudinary returned ${res.status}`);
                     }
                 }
-            } catch (err: any) {
-                console.warn("Could not fetch server file prior to analysis:", err);
+            } catch (err: unknown) {
+                const error = err as Error;
+                console.warn("Could not fetch server file prior to analysis:", error);
                 setAiFindings([
                     "Error: Failed to fetch file from cloud storage.",
-                    err.message || "Network error"
+                    error.message || "Network error"
                 ]);
                 setIsAnalyzing(false);
                 return;
@@ -130,11 +131,12 @@ const DoctorUploadsInner = () => {
                         typeof response === 'object' ? JSON.stringify(response, null, 2) : String(response)
                     ]);
                 }
-            } catch (err: any) {
-                console.error("Backend analysis failed", err);
+            } catch (err: unknown) {
+                const error = err as Error;
+                console.error("Backend analysis failed", error);
                 setAiFindings([
                     "Error: Failed to communicate with the Neurolab Analysis Backend.",
-                    err.message || "Server error"
+                    error.message || "Server error"
                 ]);
             }
         } else {
@@ -496,7 +498,7 @@ const DoctorUploadsInner = () => {
                                 </label>
 
                                 {file && (
-                                    <div className="flex items-center gap-3 bg-card border border-primary/20 bg-primary/5 px-4 py-2 rounded-lg w-full">
+                                    <div className="flex items-center gap-3 bg-card border border-primary/20 px-4 py-2 rounded-lg w-full">
                                         <FileType size={16} className="text-[#2E90FA]" />
                                         <span className="text-sm font-medium text-[#2E90FA] truncate max-w-[200px]">{file.name}</span>
                                         <span className="text-xs text-[#2E90FA]/80">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
@@ -524,7 +526,7 @@ const DoctorUploadsInner = () => {
                                     <p className="text-sm text-muted-foreground">No patient uploads available on the server.</p>
                                 </div>
                             ) : (
-                                serverFiles.map((sFile: any) => (
+                                sFiles.map((sFile: { id?: string; upload_id?: string; filename?: string; fileName?: string; size?: number; created_at?: string }) => (
                                     <button
                                         key={sFile.id || sFile.upload_id}
                                         onClick={() => handleSelectServerFile(sFile)}

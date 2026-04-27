@@ -11,13 +11,13 @@ import { apiFetcher, apiUploadFile } from '../lib/fetcher';
 interface AnalysisResult {
     fileName: string;
     timestamp: string;
-    raw: any;
+    raw: unknown;
     stateLabel?: string;
     confidence?: number;
     recommendations?: string[];
     dominantState?: number;
     statePercentages?: Record<string, number>;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 function UploadsInner() {
@@ -72,7 +72,7 @@ function UploadsInner() {
         }
     };
 
-    const handleAnalyze = async (fileRec: any) => {
+    const handleAnalyze = async (fileRec: { id?: string; _id?: string; upload_id?: string; url?: string; filepath?: string; fileUrl?: string; filePath?: string; filename?: string; fileName?: string }) => {
         const id = fileRec.id || fileRec.upload_id || fileRec._id;
         setAnalyzingId(id);
         setAnalysisResult(null);
@@ -118,9 +118,10 @@ function UploadsInner() {
             } else {
                 throw new Error('Empty response from Neurolab backend');
             }
-        } catch (err: any) {
-            console.error("Analysis failed", err);
-            setAnalysisError(err.message || 'Server error');
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Analysis failed", error);
+            setAnalysisError(error.message || 'Server error');
         } finally {
             setAnalyzingId(null);
         }
@@ -327,7 +328,7 @@ function UploadsInner() {
                             <div key={i} className="h-14 animate-pulse rounded-lg bg-card" />
                         ))
                     ) : (
-                        files.map((file: any) => (
+                        files.map((file: { id?: string; _id?: string; upload_id?: string; filename?: string; fileName?: string; size?: number; metadata?: { fileSize?: number }; created_at?: string; uploadedAt?: string; createdAt?: string; file_type?: string; fileType?: string; type?: string }) => (
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -451,7 +452,7 @@ function UploadsInner() {
                                                 className="flex items-start gap-2.5 rounded-lg border border-border/30 bg-secondary/20 px-4 py-2.5 text-sm text-foreground/90"
                                             >
                                                 <span className="mt-0.5 shrink-0 text-primary">{rec.startsWith('⚠️') ? '⚠️' : rec.startsWith('🎯') ? '🎯' : rec.startsWith('🌿') ? '🌿' : rec.startsWith('💚') ? '💚' : '•'}</span>
-                                                <span>{rec.replace(/^[⚠️🎯🌿💚]\s*/, '')}</span>
+                                                <span>{rec.replace(/^(⚠️|🎯|🌿|💚)\s*/u, '')}</span>
                                             </div>
                                         ))}
                                     </div>

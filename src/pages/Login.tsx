@@ -55,8 +55,10 @@ export default function LoginPage() {
             }));
 
             window.location.href = '/';
-        } catch (err: any) {
-            setError('Network error. Please check your connection and try again.');
+        } catch (err: unknown) {
+            const error = err as Error;
+            setError(error.message === '401' ? 'Invalid email or password' : 'Login failed. Please check your connection.');
+        } finally {
             setLoading(false);
         }
     };

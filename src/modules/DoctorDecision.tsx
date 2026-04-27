@@ -5,6 +5,12 @@ import { BrainCircuit, AlertTriangle, CheckCircle } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Recommendation {
+    id: string;
+    priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    text: string;
+}
+
 function DecisionInner() {
     const { data } = useQuery({
         queryKey: ['doctor-decision-support'],
@@ -41,7 +47,7 @@ function DecisionInner() {
                     </div>
                 </div>
                 <div className="space-y-3">
-                    {data?.recommendations?.map((r: any) => (
+                    {data?.recommendations?.map((r: Recommendation) => (
                         <div key={r.id} className={`rounded-xl border-l-2 p-4 ${priorityStyle(r.priority)}`}>
                             <div className="mb-1 flex items-center gap-2">
                                 {r.priority === 'HIGH' ? <AlertTriangle size={14} className="text-destructive" /> : <CheckCircle size={14} className="text-emerald-500" />}

@@ -84,8 +84,10 @@ export default function RegisterPage() {
             }));
 
             window.location.href = '/';
-        } catch (err: any) {
-            setError('Network error. Please check your connection and try again.');
+        } catch (err: unknown) {
+            const error = err as Error;
+            setError(error.message === '409' ? 'Email already in use' : 'Registration failed. Please try again.');
+        } finally {
             setLoading(false);
         }
     };

@@ -5,6 +5,15 @@ import { Star } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Review {
+    id?: string;
+    _id?: string;
+    analysisType: string;
+    rating: number;
+    comment: string;
+    date: string;
+}
+
 function ReviewsInner() {
     const { data, isPending: isLoading, error } = useQuery({
         queryKey: ['user-reviews'],
@@ -34,7 +43,7 @@ function ReviewsInner() {
                         </p>
                     </div>
                 ) : (
-                    reviews.map((review: any) => (
+                    reviews.map((review: Review) => (
                         <div key={review.id || review._id} className="rounded-xl border bg-card p-5 transition-colors hover:bg-secondary/30">
                             <div className="mb-2 flex items-center justify-between">
                                 <span className="text-sm font-semibold text-foreground">{review.analysisType}</span>
