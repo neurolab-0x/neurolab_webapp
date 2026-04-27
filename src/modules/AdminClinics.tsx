@@ -5,10 +5,21 @@ import { Building2, Plus, BarChart3 } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface Clinic {
+    _id?: string;
+    id?: string;
+    status: string;
+    name: string;
+    type: string;
+    doctors: number;
+    patients: number;
+    devices: number;
+}
+
 function ClinicsInner() {
-    const { data, isPending: isLoading } = useQuery({
+    const { data, isPending: isLoading } = useQuery<Clinic[]>({
         queryKey: ['admin-clinics'],
-        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`),
+        queryFn: async () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/clinics`) as Promise<Clinic[]>,
     });
 
     return (
@@ -21,7 +32,7 @@ function ClinicsInner() {
                 <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"><Plus size={14} /> Create Clinic</button>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                {isLoading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-44 animate-pulse rounded-2xl bg-card" />) : data?.map((c: any) => (
+                {isLoading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-44 animate-pulse rounded-2xl bg-card" />) : data?.map((c) => (
                     <div key={c._id || c.id} className="rounded-2xl border bg-card p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <Building2 size={20} className="text-primary" />

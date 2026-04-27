@@ -5,15 +5,32 @@ import { CreditCard, Receipt, TrendingUp } from 'lucide-react';
 
 import { apiFetcher } from '../lib/fetcher';
 
+interface BillingTariff {
+    _id?: string;
+    id?: string;
+    serviceName: string;
+    code: string;
+    basePrice?: number;
+}
+
+interface BillingAnalytics {
+    totalRevenue?: number;
+    projectedAnnual?: number;
+    totalInvoices?: number;
+    historical?: unknown[];
+    avgAmount?: number;
+    target?: number;
+}
+
 function BillingInner() {
-    const { data: tariffs, isPending: loadingTariffs } = useQuery({
+    const { data: tariffs } = useQuery<BillingTariff[]>({
         queryKey: ['billing-tariffs'],
-        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`),
+        queryFn: async () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/tariffs`) as Promise<BillingTariff[]>,
     });
 
-    const { data: analytics, isPending: loadingAnalytics } = useQuery({
+    const { data: analytics } = useQuery<BillingAnalytics>({
         queryKey: ['billing-analytics'],
-        queryFn: () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`),
+        queryFn: async () => apiFetcher(`${import.meta.env.VITE_API_BASE_URL}/api/billing/analytics`) as Promise<BillingAnalytics>,
     });
 
     return (
@@ -48,7 +65,7 @@ function BillingInner() {
                             <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Base Price</th>
                         </tr></thead>
                         <tbody>
-                            {tariffs?.map((t: any) => (
+                            {tariffs?.map((t) => (
                                 <tr key={t._id || t.id} className="border-b border-border/50 hover:bg-secondary/20">
                                     <td className="px-6 py-4 text-sm font-medium text-foreground">{t.serviceName}</td>
                                     <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{t.code}</td>

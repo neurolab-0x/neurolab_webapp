@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Microscope, CheckCircle2, ChevronRight, X } from 'lucide-react';
 
-export default function DoctorOnboarding({ user }: { user: any }) {
+interface DoctorOnboardingUser {
+    role?: string;
+    name?: string;
+}
+
+export default function DoctorOnboarding({ user }: { user: DoctorOnboardingUser | null | undefined }) {
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(0);
 

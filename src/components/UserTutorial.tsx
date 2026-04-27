@@ -9,6 +9,10 @@ interface TourStep {
     placement: 'top' | 'bottom' | 'left' | 'right';
 }
 
+interface TutorialUser {
+    role?: string;
+}
+
 const TOUR_STEPS: TourStep[] = [
     {
         id: 'tour-session',
@@ -36,7 +40,7 @@ const TOUR_STEPS: TourStep[] = [
     }
 ];
 
-export default function UserTutorial({ user }: { user: any }) {
+export default function UserTutorial({ user }: { user: TutorialUser | null | undefined }) {
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(0);
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);

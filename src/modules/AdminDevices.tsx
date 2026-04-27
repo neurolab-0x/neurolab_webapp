@@ -8,11 +8,25 @@ import { apiFetcher, apiPost } from '../lib/fetcher';
 
 const BASE = import.meta.env.VITE_API_BASE_URL;
 
+type DeviceStatus = 'ACTIVE' | 'MAINTENANCE' | 'OFFLINE' | string;
+
+interface Device {
+    id?: string;
+    _id?: string;
+    name: string;
+    status: DeviceStatus;
+    serialNumber: string;
+    assignedTo?: string;
+    clinic?: string;
+}
+
+const isApiError = (error: unknown): error is Error => error instanceof Error;
+
 function AdminDevicesInner() {
     const queryClient = useQueryClient();
-    const { data, isPending: isLoading } = useQuery({
+    const { data, isPending: isLoading } = useQuery<Device[]>({
         queryKey: ['devices'],
-        queryFn: () => apiFetcher(`${BASE}/api/devices`),
+        queryFn: async () => apiFetcher(`${BASE}/api/devices`) as Promise<Device[]>,
     });
     const mutate = () => queryClient.invalidateQueries({ queryKey: ['devices'] });
 
@@ -49,9 +63,10 @@ function AdminDevicesInner() {
                 setShowForm(false);
                 resetForm();
             }, 1200);
-        } catch (err: any) {
+        } catch (err: unknown) {
             setFormState('error');
-            setFormError(err.message === '409' ? 'A device with this serial number already exists.' : 'Failed to register device. Please try again.');
+            const errorMessage = isApiError(err) ? err.message : '';
+            setFormError(errorMessage === '409' ? 'A device with this serial number already exists.' : 'Failed to register device. Please try again.');
         }
     };
 
@@ -154,7 +169,7 @@ function AdminDevicesInner() {
 
             {/* Device Grid */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {isLoading ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-card" />) : data?.map((d: any) => (
+                {isLoading ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-card" />) : data?.map((d) => (
                     <div key={d.id || d._id} className="rounded-2xl border bg-card p-5 transition-colors hover:border-primary/30">
                         <div className="mb-3 flex items-center justify-between">
                             <Cpu size={18} className="text-muted-foreground" />

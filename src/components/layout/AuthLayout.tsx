@@ -14,7 +14,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
     // Waveform generator for background visualization
     const generateWave = (offset: number, amplitude: number, frequency: number, phase: number) => {
-        let points = [];
+        const points: string[] = [];
         for (let x = 0; x <= 1000; x += 5) {
             // Combine fundamental and harmonic frequencies
             const y1 = Math.sin((x * frequency) + phase) * (amplitude * 0.5);
