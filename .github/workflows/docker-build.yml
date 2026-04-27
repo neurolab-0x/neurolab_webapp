@@ -1,0 +1,54 @@
+name: Docker Build Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Dockerfile
+        id: detect
+        shell: bash
+        run: |
+          file="$(find . -maxdepth 3 -type f \( -name 'Dockerfile' -o -name 'Dockerfile.*' \) | head -n1)"
+          if [ -z "$file" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No Dockerfile found. Skipping build check."
+            exit 0
+          fi
+
+          clean_file="${file#./}"
+          context_dir="$(dirname "$clean_file")"
+          if [ "$context_dir" = "." ]; then
+            context_dir="."
+          fi
+
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "dockerfile=$clean_file" >> "$GITHUB_OUTPUT"
+          echo "context=$context_dir" >> "$GITHUB_OUTPUT"
+          echo "Using Dockerfile: $clean_file"
+          echo "Build context: $context_dir"
+
+      - name: Setup Docker Buildx
+        if: steps.detect.outputs.found == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container image
+        if: steps.detect.outputs.found == 'true'
+        shell: bash
+        run: |
+          docker build \
+            --file "${{ steps.detect.outputs.dockerfile }}" \
+            --tag "ci-build:${{ github.sha }}" \
+            "${{ steps.detect.outputs.context }}"
