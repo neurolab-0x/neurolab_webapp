@@ -23,7 +23,7 @@ export const apiFetcher = (url: string) =>
             const dataKeys = ['data', 'history', 'user', 'users', 'devices', 'sessions',
                 'appointments', 'results', 'items', 'records', 'notifications',
                 'partnerships', 'clinics', 'reviews', 'tariffs', 'analytics',
-                'uploads', 'patients', 'certifications', 'metrics'];
+                'uploads', 'patients', 'certifications', 'metrics', 'conversations', 'messages', 'conversation'];
             for (const key of dataKeys) {
                 if (key in json) return json[key];
             }
