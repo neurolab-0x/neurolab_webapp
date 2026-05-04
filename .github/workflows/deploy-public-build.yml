@@ -1,0 +1,89 @@
+name: Deploy Build to Public Repo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-public-build
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Read build metadata
+        id: metadata
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          source_sha="$(git rev-parse --short HEAD)"
+
+          echo "package_version=$package_version" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Publish dist to public repository
+        env:
+          PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          PUBLIC_REPO_OWNER: neurolab-0x
+          PUBLIC_REPO_NAME: neurolab-webapp-prod
+          PUBLIC_REPO_BRANCH: main
+          PACKAGE_VERSION: ${{ steps.metadata.outputs.package_version }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.source_sha }}
+          DEPLOY_USER_NAME: github-actions[bot]
+          DEPLOY_USER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          if [ -z "$PUBLIC_REPO_TOKEN" ]; then
+            echo "PUBLIC_REPO_TOKEN is not configured." >&2
+            exit 1
+          fi
+
+          deploy_tag="v${PACKAGE_VERSION}-${SOURCE_SHA}"
+          version_tag="v${PACKAGE_VERSION}"
+          deploy_message="chore: deploy v${PACKAGE_VERSION} (src: ${SOURCE_SHA})"
+
+          git config --global user.name "$DEPLOY_USER_NAME"
+          git config --global user.email "$DEPLOY_USER_EMAIL"
+
+          git clone "https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/${PUBLIC_REPO_OWNER}/${PUBLIC_REPO_NAME}.git" public-repo
+          cd public-repo
+          git checkout "$PUBLIC_REPO_BRANCH" 2>/dev/null || git checkout --orphan "$PUBLIC_REPO_BRANCH"
+
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -R ../dist/. .
+
+          git add --all
+
+          if git diff --cached --quiet; then
+            echo "No production build changes to publish."
+            exit 0
+          fi
+
+          git commit -m "$deploy_message"
+          git tag "$deploy_tag"
+          git tag -f "$version_tag"
+
+          git push origin "$PUBLIC_REPO_BRANCH"
+          git push origin "$deploy_tag"
+          git push --force origin "$version_tag"
