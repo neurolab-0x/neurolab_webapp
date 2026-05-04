@@ -42,7 +42,14 @@ export default function RegisterPage() {
 
         try {
             const email = form.email.toLowerCase().trim();
-            const randomSuffix = window.crypto.getRandomValues(new Uint32Array(1))[0] % 1000;
+            // Bias-free random number generation for the 0-999 range
+            let randomValue;
+            const range = 1000;
+            const maxSafe = Math.floor(0xFFFFFFFF / range) * range;
+            do {
+                randomValue = window.crypto.getRandomValues(new Uint32Array(1))[0];
+            } while (randomValue >= maxSafe);
+            const randomSuffix = randomValue % range;
             const generatedUsername = form.username || `${email.split('@')[0]}${randomSuffix}`;
 
             const res = await fetch(`${BASE}/api/auth/register`, {
