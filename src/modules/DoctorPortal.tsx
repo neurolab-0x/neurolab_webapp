@@ -5,6 +5,7 @@ import { apiFetcher } from '../lib/fetcher';
 import { Activity, Cpu, Wifi, CheckCircle2, Loader2, Settings, Zap, Download, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortalStore } from '../store/usePortalStore';
+import { getSecureRandomFloat } from '../lib/crypto';
 
 const ClinicalDiagnosticsInner = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,7 +50,7 @@ const ClinicalDiagnosticsInner = () => {
         for (let t = 0; t < 100; t++) {
             csvContent += `${new Date().getTime() - (100 - t) * 10},`;
             for (let i = 1; i <= numChannels; i++) {
-                csvContent += `${(Math.random() * 50 - 25).toFixed(2)},`;
+                csvContent += `${(getSecureRandomFloat() * 50 - 25).toFixed(2)},`;
             }
             csvContent += "\n";
         }
@@ -116,10 +117,10 @@ const ClinicalDiagnosticsInner = () => {
 
         // Pre-generate unique noise parameters for each channel
         const channelParams = channels.map(() => ({
-            alphaBase: Math.random() * 2 + 8, // 8-10Hz alpha dominance
-            betaBase: Math.random() * 5 + 15, // 15-20Hz beta
-            thetaBase: Math.random() * 3 + 4, // 4-7Hz
-            ampMultiplier: Math.random() * 0.4 + 0.8 // 0.8x to 1.2x amplitude var
+            alphaBase: getSecureRandomFloat() * 2 + 8, // 8-10Hz alpha dominance
+            betaBase: getSecureRandomFloat() * 5 + 15, // 15-20Hz beta
+            thetaBase: getSecureRandomFloat() * 3 + 4, // 4-7Hz
+            ampMultiplier: getSecureRandomFloat() * 0.4 + 0.8 // 0.8x to 1.2x amplitude var
         }));
 
         // Impedance/Conductivity mapping based on setup
@@ -213,7 +214,7 @@ const ClinicalDiagnosticsInner = () => {
                     const alpha = Math.sin(t * params.alphaBase * Math.PI) * 12;
                     const beta = Math.sin(t * params.betaBase * Math.PI) * 4;
                     const theta = Math.sin(t * params.thetaBase * Math.PI) * 18;
-                    const noise = (Math.random() - 0.5) * noiseFloor; // Noise scales with electrode paste type
+                    const noise = (getSecureRandomFloat() - 0.5) * noiseFloor; // Noise scales with electrode paste type
 
                     // Add occasional artificial "blink" artifact to Fp1/Fp2 channels
                     let artifact = 0;

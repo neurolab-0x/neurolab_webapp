@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, ChevronDown, User, Stethoscope, Building2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortalStore } from '../store/usePortalStore';
+import { getSecureRandomInt } from '../lib/crypto';
 import AuthLayout from '../components/layout/AuthLayout';
 
 const BASE = import.meta.env.VITE_API_BASE_URL;
@@ -42,14 +43,7 @@ export default function RegisterPage() {
 
         try {
             const email = form.email.toLowerCase().trim();
-            // Bias-free random number generation for the 0-999 range
-            let randomValue;
-            const range = 1000;
-            const maxSafe = Math.floor(0xFFFFFFFF / range) * range;
-            do {
-                randomValue = window.crypto.getRandomValues(new Uint32Array(1))[0];
-            } while (randomValue >= maxSafe);
-            const randomSuffix = randomValue % range;
+            const randomSuffix = getSecureRandomInt(0, 999);
             const generatedUsername = form.username || `${email.split('@')[0]}${randomSuffix}`;
 
             const res = await fetch(`${BASE}/api/auth/register`, {

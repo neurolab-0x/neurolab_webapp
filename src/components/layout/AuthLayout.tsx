@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { getSecureRandomFloat } from '../../lib/crypto';
 import {
     Users, Activity, UploadCloud, Calendar, Lightbulb,
     Award, Bell, RefreshCw, Settings, Sun, Play,
@@ -22,7 +23,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             const y3 = Math.cos((x * frequency * 0.5) + phase) * (amplitude * 0.3);
 
             // Add low-amplitude noise simulating EEG artifact
-            const noise = (Math.random() - 0.5) * (amplitude * 0.08);
+            const noise = (getSecureRandomFloat() - 0.5) * (amplitude * 0.08);
 
             const finalY = offset + y1 + y2 + y3 + noise;
             points.push(`${x},${finalY}`);

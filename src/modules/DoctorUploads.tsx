@@ -5,6 +5,7 @@ import { UploadCloud, FileType, Play, Pause, SkipBack, SkipForward, ZoomIn, Zoom
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import { apiFetcher, apiUploadFile } from '../lib/fetcher';
+import { getSecureRandomFloat } from '../lib/crypto';
 
 const DoctorUploadsInner = () => {
     // Live Data Fetching
@@ -405,7 +406,7 @@ const DoctorUploadsInner = () => {
                         const originalIndex = focusChannel ? parseInt(label.charCodeAt(0).toString()) % 16 : c;
                         const freq1 = 0.05 + (originalIndex * 0.005);
                         const freq2 = 0.02 + (originalIndex * 0.01);
-                        y += Math.sin(dataIndex * freq1) * (channelHeight * 0.3) + Math.cos(dataIndex * freq2) * (channelHeight * 0.15) + (Math.random() - 0.5) * 5;
+                        y += Math.sin(dataIndex * freq1) * (channelHeight * 0.3) + Math.cos(dataIndex * freq2) * (channelHeight * 0.15) + (getSecureRandomFloat() - 0.5) * 5;
                     }
 
                     if (x === SIDEBAR_WIDTH) ctx.moveTo(x, y);

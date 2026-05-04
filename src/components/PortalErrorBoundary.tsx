@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
+import { getSecureRandomInt } from '../lib/crypto';
 
 interface Props {
     children?: ReactNode;
@@ -19,7 +20,7 @@ export class PortalErrorBoundary extends Component<Props, State> {
 
     public static getDerivedStateFromError(error: Error): State {
         // Generate error code identifier
-        const baseCode = `ERR_SYNC_FAIL_${Math.floor(Math.random() * 900) + 100}`;
+        const baseCode = `ERR_SYNC_FAIL_${getSecureRandomInt(100, 999)}`;
         return { hasError: true, errorCode: baseCode };
     }
 
