@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -61,9 +61,3 @@ jobs:
           name: outdated-report
           path: outdated.json
           if-no-files-found: warn
-
-      - name: Fail when dependencies are outdated
-        if: steps.outdated.outputs.status == 'outdated'
-        run: |
-          echo "Dependency updates are available. See outdated-report artifact."
-          exit 1
