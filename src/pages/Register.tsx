@@ -42,7 +42,8 @@ export default function RegisterPage() {
 
         try {
             const email = form.email.toLowerCase().trim();
-            const generatedUsername = form.username || email.split('@')[0] + Math.floor(Math.random() * 1000);
+            const randomSuffix = window.crypto.getRandomValues(new Uint32Array(1))[0] % 1000;
+            const generatedUsername = form.username || `${email.split('@')[0]}${randomSuffix}`;
 
             const res = await fetch(`${BASE}/api/auth/register`, {
                 method: 'POST',
