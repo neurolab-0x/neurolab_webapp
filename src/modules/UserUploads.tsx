@@ -108,7 +108,7 @@ function UploadsInner() {
                     timestamp: new Date().toLocaleString(),
                     raw: data,
                     stateLabel: data.state_label || undefined,
-                    confidence: data.confidence !== undefined ? data.confidence * 100 : undefined,
+                    confidence: data.confidence !== undefined ? data.confidence : undefined,
                     recommendations: data.recommendations || data.clinical_recommendations || undefined,
                     dominantState: data.dominant_state,
                     statePercentages: data.state_percentages,
