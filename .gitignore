@@ -21,10 +21,12 @@ Thumbs.db
 
 # Logs
 *.log
+check.md
 npm-debug.log*
 
 # Cache
 .eslintcache
 *.tsbuildinfo
 .vercel
+.codex
 .env*.local
